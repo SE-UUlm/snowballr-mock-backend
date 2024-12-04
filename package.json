@@ -1,0 +1,46 @@
+{
+    "name": "snowballr-mock-backend",
+    "version": "1.0.0",
+    "description": "A Mock Backend for the SnowballR Frontend Development",
+    "main": "dist/main.js",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node dist/main.js",
+        "watch": "nodemon src/main.ts",
+        "format": "prettier --write .",
+        "lint": "prettier --check . && eslint ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/SE-UUlm/snowballr-mock-backend.git"
+    },
+    "author": "",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/SE-UUlm/snowballr-mock-backend/issues"
+    },
+    "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
+    "devDependencies": {
+        "@eslint/js": "^9.16.0",
+        "@types/body-parser": "^1.19.5",
+        "@types/express": "^4.17.21",
+        "@types/multer": "^1.4.12",
+        "concurrently": "^9.1.0",
+        "eslint": "^9.16.0",
+        "globals": "^15.13.0",
+        "nodemon": "^3.1.7",
+        "prettier": "^3.4.2",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.7.2",
+        "typescript-eslint": "^8.17.0"
+    },
+    "dependencies": {
+        "body-parser": "^1.20.3",
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.1",
+        "express": "^4.21.1",
+        "multer": "^1.4.5-lts.1",
+        "reflect-metadata": "^0.2.2",
+        "routing-controllers": "^0.10.4"
+    }
+}
