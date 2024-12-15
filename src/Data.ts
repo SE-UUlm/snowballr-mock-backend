@@ -1,4 +1,4 @@
-import { Author, Criterion, Paper, Project, Review, User } from "./Models";
+import { Author, Criterion, Paper, PaperDecision, Project, Review, StageEntry, User } from "./Models";
 
 export interface PaperWrapper {
   stage: number,
@@ -11,7 +11,7 @@ export interface ProjectWrapper {
   project: Project,
   archived: boolean,
   members: number[],
-  papers: PaperWrapper[],
+  papers: StageEntry[],
 }
 
 export let authors: Author[] = [{
@@ -56,9 +56,10 @@ export let projects: ProjectWrapper[] = [{
     archived: false,
     members: [0],
     papers: [{
-        stage: 0,
-        reviews: [],
         paper: papers[0],
+        stage: 0,
+        status:"",
+        decision: PaperDecision.Excluded,
     }]
 }];
 
