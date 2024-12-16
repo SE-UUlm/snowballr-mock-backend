@@ -77,6 +77,7 @@ export interface Paper {
     authors: Author[];
     backwardReferencedPaperIds: number[];
     forwardReferencedPaperIds: number[];
+    reviewData?: { finalDecision: ReviewDecision; reviews: Review[] };
 }
 
 export type PaperSpec = Omit<Paper, "id">;
