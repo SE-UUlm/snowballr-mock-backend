@@ -9,7 +9,6 @@ export interface PaperWrapper {
 export interface ProjectWrapper {
   stage: number,
   project: Project,
-  archived: boolean,
   members: number[],
   papers: StageEntry[],
 }
@@ -69,8 +68,8 @@ function createProject(id: number): ProjectWrapper {
       name: "Demo project " + id,
       similarityThreshold: 0.8,
       paperFetchApis: ["foobar"],
+      archived: Math.random() < 0.4 ? true : false,
     },
-    archived: false,
     members: Math.random() < 0.5 ? [0] : [0,1],
     papers: Array.from({length: (Math.random() * 10) + 2}, (_, i) => {
         let paper = {

@@ -7,13 +7,15 @@ export class GlobalProjectController {
   @Get("/")
   getAll() {
     return projects
-      .filter(x => !x.archived)
-      .map(x => x.project);
+      .map(x => x.project)
+      .filter(x => !x.archived);
   }
   
   @Get("/archived")
   getArchived() {
-    return projects.filter(x => x.archived);
+    return projects
+    .map(x => x.project)
+    .filter(x => x.archived);
   }
 
   @Post("/")
@@ -21,7 +23,6 @@ export class GlobalProjectController {
     projects.push({
         stage: 0,
         members: [],
-        archived: false,
         project: {
             id: projects.length,
             ...spec,
@@ -61,7 +62,7 @@ export class ProjectController {
     if (projects.length <= id)
       return
       
-    projects[id].archived = true
+    projects[id].project.archived = true
   }
 
   @Get("/stages")

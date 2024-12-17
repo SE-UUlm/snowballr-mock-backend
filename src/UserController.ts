@@ -7,6 +7,15 @@ export class UserController {
   getUserProjects(@Param("id") id: number) {
     return projects
       .filter(x => x.members.includes(id))
-      .map(x => x.project);
+      .map(x => x.project)
+      .filter(x => !x.archived);
+  }
+
+  @Get("/archivedProjects")
+  getUserArchivedProjects(@Param("id") id: number) {
+    return projects
+      .filter(x => x.members.includes(id))
+      .map(x => x.project)
+      .filter(x => x.archived);
   }
 }
