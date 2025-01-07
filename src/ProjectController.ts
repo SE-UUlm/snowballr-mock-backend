@@ -70,6 +70,11 @@ export class ProjectController {
     return projects.at(id)?.stage; 
   }
 
+  @Get("/currentStage")
+  getCurrentStage(@Param("id") id: number) {
+    return projects.at(id)?.stage; 
+  }
+
   @Get("/members")
   getMembers(@Param("id") id: number) {
     return projects

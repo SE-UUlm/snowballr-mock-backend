@@ -31,7 +31,7 @@ function createPaper(id: number): Paper {
     authors: [authors[0]],
     backwardReferencedPaperIds: [0],
     forwardReferencedPaperIds: [0],
-    reviewData: {
+    reviewData: Math.random() < 0.2 ? undefined : {
       finalDecision: Math.random() < 0.3 ? ReviewDecision.Maybe : (Math.random() < 0.5 ? ReviewDecision.No : ReviewDecision.Yes),
       reviews: [],
     }
@@ -65,13 +65,13 @@ function createProject(id: number): ProjectWrapper {
         numberOfReviewers: 2,
         patterns: new Map(),
       },
-      name: "Demo project " + id,
+      name: Math.random() < 0.5 ? "Demo project [Use case] View project list #6	https://github.com/SE-UUlm/snowballr-frontend/issues/6 " + id : "Demo " + id,
       similarityThreshold: 0.8,
       paperFetchApis: ["foobar"],
       archived: Math.random() < 0.4 ? true : false,
     },
-    members: Math.random() < 0.5 ? [0] : [0,1],
-    papers: Array.from({length: (Math.random() * 10) + 2}, (_, i) => {
+    members: Math.random() < 0.5 ? [0,1,0,1,0] : [0,1,0,1,0,1,0,1,0,1],
+    papers: Array.from({length: (Math.random() * 10) + 15}, (_, i) => {
         let paper = {
           paper: papers[i],
           stage: 0,
