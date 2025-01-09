@@ -1,19 +1,20 @@
-import "reflect-metadata";
-import { Controller, createExpressServer, Get } from "routing-controllers";
+import * as grpc from "@grpc/grpc-js"
+import { snowballRService } from "./service"
+import { snowballRDefinition } from "./grpc-gen/main.grpc-server"
+import { authInterceptor } from "./auth-interceptor"
 
-@Controller()
-export class MainController {
-    @Get("/")
-    get() {
-        return "Hello World from Controllers!";
+const server = new grpc.Server({
+    interceptors: [ authInterceptor ],
+})
+server.addService(snowballRDefinition, snowballRService)
+server.bindAsync(
+    '0.0.0.0:8081',
+    grpc.ServerCredentials.createInsecure(),
+    (err: Error | null, port: number) => {
+        if (err) {
+            console.error(`Server error: ${err.message}`)
+        } else {
+            console.log(`Server bound on port: ${port}`)
+        }
     }
-}
-
-const port = 3000;
-const app = createExpressServer({
-    controllers: [MainController],
-});
-
-app.listen(port, () => {
-    return console.log(`Express is listening at http://localhost:${port}`);
-});
+)
