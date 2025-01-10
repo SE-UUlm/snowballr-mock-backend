@@ -74,7 +74,9 @@ export interface Paper {
     title: string;
     abstrakt: string;
     year: number;
-    type: string;
+    publisherName: string;
+    publicationType: string;
+    publicationName: string;
     authors: Author[];
     backwardReferencedPaperIds: number[];
     forwardReferencedPaperIds: number[];

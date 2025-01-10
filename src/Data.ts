@@ -1,4 +1,4 @@
-import { Author, Criterion, Paper, PaperDecision, Project, Review, ReviewDecision, StageEntry, User } from "./Models";
+import { Author, Criterion, CriterionCategory, Paper, PaperDecision, Project, Review, ReviewDecision, StageEntry, User } from "./Models";
 
 export interface PaperWrapper {
   stage: number,
@@ -20,6 +20,49 @@ export let authors: Author[] = [{
     orcid: "johndoe"
 }]
 
+export let publisherNames: string[] = [
+  "Springer",
+  "IEEE",
+  "ACM",
+  "Elsevier",
+  "Wiley",
+  "Taylor & Francis",
+  "SAGE",
+  "Oxford University Press",
+  "Cambridge University Press",
+  "Routledge",
+  "Palgrave Macmillan",
+  "Emerald",
+  "De Gruyter",
+  "Brill",
+  "SAGE",
+]
+
+export let publicationTypes: string[] = [
+  "journal",
+  "conference",
+  "workshop",
+  "book",
+  "book chapter",
+  "report",
+  "thesis",
+  "patent",
+  "preprint",
+  "other",
+]
+
+export let publicationNames: string[] = [
+  "Journal of Software Engineering",
+  "IEEE Transactions on Software Engineering",
+  "ACM Transactions on Software Engineering and Methodology",
+  "Journal of Systems and Software",
+  "Journal of Software: Evolution and Process",
+  "Journal of Software Maintenance and Evolution: Research and Practice",
+  "Journal of Software: Practice and Experience",
+  "Journal of Software: Testing, Verification and Reliability",
+  "Journal of Software: Evolution and Process",
+];
+
 function createPaper(id: number): Paper {
   return {
     id: id,
@@ -27,7 +70,9 @@ function createPaper(id: number): Paper {
     title: "Example Paper" + id,
     abstrakt: "Example Paper Abstract " + id,
     year: Math.round(1980 + Math.random() * 40),
-    type: "paper",
+    publisherName: publisherNames[Math.floor(Math.random() * publisherNames.length)],
+    publicationType: publicationTypes[Math.floor(Math.random() * publicationTypes.length)],
+    publicationName: publicationNames[Math.floor(Math.random() * publicationNames.length)],
     authors: [authors[0]],
     backwardReferencedPaperIds: [0],
     forwardReferencedPaperIds: [0],
@@ -65,7 +110,7 @@ function createProject(id: number): ProjectWrapper {
         numberOfReviewers: 2,
         patterns: new Map(),
       },
-      name: Math.random() < 0.5 ? "Demo project [Use case] View project list #6	https://github.com/SE-UUlm/snowballr-frontend/issues/6 " + id : "Demo " + id,
+      name: Math.random() < 0.5 ? "Demo project [Use case] View project list " + id : "Demo " + id,
       similarityThreshold: 0.8,
       paperFetchApis: ["foobar"],
       archived: Math.random() < 0.4 ? true : false,
@@ -86,5 +131,24 @@ function createProject(id: number): ProjectWrapper {
 
 export let projects: ProjectWrapper[] = Array.from({length: 7}, (_, i) => createProject(i));
 
-export let criteria: Map<number, Criterion[]> = new Map();
-
+export let criteria: Map<number, Criterion[]> = new Map([
+  [
+    0,
+    [
+      {
+        id: 0,
+        tag: "E5",
+        name: "Not in English",
+        description: "The paper is not in English",
+        category: CriterionCategory.HardExclusion,
+      },
+      {
+        id: 1,
+        tag: "SE3",
+        name: "Author's last name starts with 'D'",
+        description: "This is a very funny exclusion criterion",
+        category: CriterionCategory.Exclusion,
+      },
+    ],
+  ],
+]);

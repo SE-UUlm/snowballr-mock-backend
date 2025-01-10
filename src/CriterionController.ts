@@ -6,7 +6,7 @@ import { Criterion, CriterionSpec } from "./Models";
 export class CriterionController {
   @Get("/")
   getAll(@Param("projectId") projectId: number) {
-    criteria.get(projectId)
+    return criteria.get(projectId) ?? [];
   }
 
   @Post("/")

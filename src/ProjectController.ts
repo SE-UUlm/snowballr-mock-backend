@@ -106,5 +106,11 @@ export class ProjectController {
     projects[id].members = projects[id].members
       .filter(x => x != userId);
   }
-}
 
+  @Get("/papers")
+  getPapers(@Param("id") id: number) {
+    return projects
+      .at(id)
+      ?.papers;
+  }
+}
