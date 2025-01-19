@@ -1,6 +1,6 @@
 import { Delete, Get, JsonController, Param } from "routing-controllers";
 import { projects } from "./Data";
-import { PaperDecision, StageEntry } from "./Models";
+import { StageEntry } from "./Models";
 
 @JsonController("/projects/:projectId/stages/:stageId/papers/:paperId")
 export class StageEntryController {
@@ -10,7 +10,7 @@ export class StageEntryController {
         @Param("stageId") stageId: number,
         @Param("paperId") paperId: number,
     ): StageEntry | undefined {
-        let paper = projects
+        const paper = projects
             .at(projectId)
             ?.papers?.find((x) => x.stage == stageId && x.paper.id == paperId);
 

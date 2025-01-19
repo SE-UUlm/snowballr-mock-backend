@@ -24,7 +24,7 @@ export interface ProjectWrapper {
     papers: StageEntry[];
 }
 
-export let authors: Author[] = [
+export const authors: Author[] = [
     {
         id: 0,
         firstName: "John",
@@ -33,7 +33,7 @@ export let authors: Author[] = [
     },
 ];
 
-export let publisherNames: string[] = [
+export const publisherNames: string[] = [
     "Springer",
     "IEEE",
     "ACM",
@@ -51,7 +51,7 @@ export let publisherNames: string[] = [
     "SAGE",
 ];
 
-export let publicationTypes: string[] = [
+export const publicationTypes: string[] = [
     "journal",
     "conference",
     "workshop",
@@ -64,7 +64,7 @@ export let publicationTypes: string[] = [
     "other",
 ];
 
-export let publicationNames: string[] = [
+export const publicationNames: string[] = [
     "Journal of Software Engineering",
     "IEEE Transactions on Software Engineering",
     "ACM Transactions on Software Engineering and Methodology",
@@ -104,9 +104,9 @@ function createPaper(id: number): Paper {
     };
 }
 
-export let papers: Paper[] = Array.from({ length: 30 }, (_, i) => createPaper(i));
+export const papers: Paper[] = Array.from({ length: 30 }, (_, i) => createPaper(i));
 
-export let users: User[] = [
+export const users: User[] = [
     {
         id: 0,
         status: "active",
@@ -144,7 +144,7 @@ function createProject(id: number): ProjectWrapper {
         },
         members: Math.random() < 0.5 ? [0, 1, 0, 1, 0] : [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
         papers: Array.from({ length: Math.random() * 10 + 15 }, (_, i) => {
-            let paper = {
+            const paper = {
                 paper: papers[i],
                 stage: 0,
                 status: "",
@@ -155,9 +155,9 @@ function createProject(id: number): ProjectWrapper {
     };
 }
 
-export let projects: ProjectWrapper[] = Array.from({ length: 7 }, (_, i) => createProject(i));
+export const projects: ProjectWrapper[] = Array.from({ length: 7 }, (_, i) => createProject(i));
 
-export let criteria: Map<number, Criterion[]> = new Map([
+export const criteria: Map<number, Criterion[]> = new Map([
     [
         0,
         [

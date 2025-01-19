@@ -1,6 +1,6 @@
 import { Body, Delete, Get, JsonController, Param, Post, Put } from "routing-controllers";
 import { criteria } from "./Data";
-import { Criterion, CriterionSpec } from "./Models";
+import { CriterionSpec } from "./Models";
 
 @JsonController("/projects/:projectId/criteria")
 export class CriterionController {
@@ -12,7 +12,7 @@ export class CriterionController {
     @Post("/")
     create(@Param("projectId") projectId: number, spec: CriterionSpec) {
         if (criteria.has(projectId)) {
-            let existing = criteria.get(projectId)!;
+            const existing = criteria.get(projectId)!;
             criteria.set(
                 projectId,
                 existing.concat({

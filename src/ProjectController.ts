@@ -1,5 +1,5 @@
 import { Body, Delete, Get, JsonController, Param, Post, Put } from "routing-controllers";
-import { Paper, Project, ProjectSpec, User } from "./Models";
+import { ProjectSpec } from "./Models";
 import { projects, users } from "./Data";
 
 @JsonController("/projects")

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Controller, createExpressServer, Get, Param } from "routing-controllers";
+import { createExpressServer } from "routing-controllers";
 import { GlobalProjectController, ProjectController } from "./ProjectController";
 import { AuthorController } from "./AuthorController";
 import { CriterionController } from "./CriterionController";
