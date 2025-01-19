@@ -1,3 +1,4 @@
+import { LoremIpsum } from "lorem-ipsum";
 import {
     Author,
     Criterion,
@@ -10,6 +11,17 @@ import {
     StageEntry,
     User,
 } from "./Models";
+
+const lorem = new LoremIpsum({
+    sentencesPerParagraph: {
+        max: 8,
+        min: 4,
+    },
+    wordsPerSentence: {
+        max: 16,
+        min: 4,
+    },
+});
 
 export interface PaperWrapper {
     stage: number;
@@ -81,7 +93,7 @@ function createPaper(id: number): Paper {
         id: id,
         doi: "test-doi/" + id,
         title: "Example Paper" + id,
-        abstrakt: "Example Paper Abstract " + id,
+        abstrakt: lorem.generateWords(250),
         year: Math.round(1980 + Math.random() * 40),
         publisherName: publisherNames[Math.floor(Math.random() * publisherNames.length)],
         publicationType: publicationTypes[Math.floor(Math.random() * publicationTypes.length)],
