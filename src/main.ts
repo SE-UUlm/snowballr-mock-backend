@@ -10,7 +10,7 @@ import { UserController } from "./UserController";
 import { CorsMiddleware } from "./Middleware";
 
 const port = 3000;
-const app = createExpressServer({    
+const app = createExpressServer({
     controllers: [
         GlobalProjectController,
         ProjectController,
@@ -22,7 +22,7 @@ const app = createExpressServer({
         PaperController,
         UserController,
     ],
-    middlewares: [CorsMiddleware]
+    middlewares: [CorsMiddleware],
 });
 
 app.listen(port, () => {
