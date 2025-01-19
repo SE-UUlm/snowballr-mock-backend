@@ -6,7 +6,7 @@ import { CriterionController } from "./CriterionController";
 import { StageController } from "./StageController";
 import { StageEntryController } from "./StageEntryController";
 import { PaperController } from "./PaperController";
-import { UserController } from "./UserController";
+import { GlobalUserController, UserController } from "./UserController";
 import { CorsMiddleware } from "./Middleware";
 
 const port = 3000;
@@ -20,6 +20,7 @@ const app = createExpressServer({
         StageController,
         StageEntryController,
         PaperController,
+        GlobalUserController,
         UserController,
     ],
     middlewares: [CorsMiddleware],

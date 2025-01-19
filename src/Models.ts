@@ -40,7 +40,9 @@ export interface Project {
     archived: boolean;
 }
 
-export type ProjectSpec = Omit<Project, "id">;
+export interface ProjectSpec {
+    name: string,
+};
 
 export interface Criterion {
     id: number;
