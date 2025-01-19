@@ -88,16 +88,24 @@ export const publicationNames: string[] = [
     "Journal of Software: Evolution and Process",
 ];
 
+function randomNumBetween(start: number, end: number) {
+    return Math.floor(Math.random() * (end - start + 1) + start);
+}
+
+function randomValueOf<T>(list: T[]): T {
+    return list[Math.floor(Math.random() * list.length)];
+}
+
 function createPaper(id: number): Paper {
     return {
         id: id,
         doi: "test-doi/" + id,
         title: "Example Paper" + id,
-        abstrakt: lorem.generateWords(250),
-        year: Math.round(1980 + Math.random() * 40),
-        publisherName: publisherNames[Math.floor(Math.random() * publisherNames.length)],
-        publicationType: publicationTypes[Math.floor(Math.random() * publicationTypes.length)],
-        publicationName: publicationNames[Math.floor(Math.random() * publicationNames.length)],
+        abstrakt: lorem.generateWords(randomNumBetween(150, 250)),
+        year: Math.round(randomNumBetween(1980, 2024)),
+        publisherName: randomValueOf(publisherNames),
+        publicationType: randomValueOf(publicationTypes),
+        publicationName: randomValueOf(publicationNames),
         authors: [authors[0]],
         backwardReferencedPaperIds: [0],
         forwardReferencedPaperIds: [0],
@@ -137,6 +145,15 @@ export const users: User[] = [
     },
 ];
 
+function createProjectPaper(i: number): StageEntry {
+    return {
+        paper: papers[i],
+        stage: 0,
+        status: "",
+        decision: PaperDecision.Excluded,
+    };
+}
+
 function createProject(id: number): ProjectWrapper {
     return {
         stage: 0,
@@ -155,19 +172,13 @@ function createProject(id: number): ProjectWrapper {
             archived: Math.random() < 0.4 ? true : false,
         },
         members: Math.random() < 0.5 ? [0, 1, 0, 1, 0] : [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-        papers: Array.from({ length: Math.random() * 10 + 15 }, (_, i) => {
-            const paper = {
-                paper: papers[i],
-                stage: 0,
-                status: "",
-                decision: PaperDecision.Excluded,
-            };
-            return paper;
-        }),
+        papers: Array.from({ length: randomNumBetween(15, 25) }, (_, i) => createProjectPaper(i)),
     };
 }
 
-export const projects: ProjectWrapper[] = Array.from({ length: 7 }, (_, i) => createProject(i));
+export const projects: ProjectWrapper[] = Array.from({ length: randomNumBetween(7, 15) }, (_, i) =>
+    createProject(i),
+);
 
 export const criteria: Map<number, Criterion[]> = new Map([
     [
