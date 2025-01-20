@@ -1,11 +1,11 @@
 services:
-  snowballr-mock-backend:
-    build: .
-    ports:
-      - "8081:8081"
-  envoy-proxy:
-    image: envoyproxy/envoy:v1.33.0
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    snowballr-mock-backend:
+        build: .
+        ports:
+            - "8081:8081"
+    envoy-proxy:
+        image: envoyproxy/envoy:v1.33.0
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./envoy.yaml:/etc/envoy/envoy.yaml
