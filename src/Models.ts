@@ -41,8 +41,8 @@ export interface Project {
 }
 
 export interface ProjectSpec {
-    name: string,
-};
+    name: string;
+}
 
 export interface Criterion {
     id: number;

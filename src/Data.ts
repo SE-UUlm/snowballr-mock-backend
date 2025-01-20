@@ -143,6 +143,70 @@ export const users: User[] = [
         lastName: "Doe",
         email: "jane.doe@example.com",
     },
+    {
+        id: 3,
+        status: "active",
+        isAdmin: false,
+        firstName: "Alice",
+        lastName: "Johnson",
+        email: "alice.johnson@example.com",
+    },
+    {
+        id: 4,
+        status: "active",
+        isAdmin: true,
+        firstName: "Bob",
+        lastName: "Brown",
+        email: "bob.brown@example.com",
+    },
+    {
+        id: 5,
+        status: "suspended",
+        isAdmin: false,
+        firstName: "Charlie",
+        lastName: "Davis",
+        email: "charlie.davis@example.com",
+    },
+    {
+        id: 6,
+        status: "active",
+        isAdmin: true,
+        firstName: "David",
+        lastName: "Miller",
+        email: "david.miller@example.com",
+    },
+    {
+        id: 7,
+        status: "inactive",
+        isAdmin: false,
+        firstName: "Eve",
+        lastName: "Wilson",
+        email: "eve.wilson@example.com",
+    },
+    {
+        id: 8,
+        status: "active",
+        isAdmin: false,
+        firstName: "Frank",
+        lastName: "Taylor",
+        email: "frank.taylor@example.com",
+    },
+    {
+        id: 9,
+        status: "suspended",
+        isAdmin: true,
+        firstName: "Grace",
+        lastName: "Anderson",
+        email: "grace.anderson@example.com",
+    },
+    {
+        id: 10,
+        status: "active",
+        isAdmin: false,
+        firstName: "Henry",
+        lastName: "Thomas",
+        email: "henry.thomas@example.com",
+    },
 ];
 
 function createProjectPaper(i: number): StageEntry {
@@ -171,9 +235,18 @@ function createProject(id: number): ProjectWrapper {
             paperFetchApis: ["foobar"],
             archived: Math.random() < 0.4 ? true : false,
         },
-        members: Math.random() < 0.5 ? [0, 1, 0, 1, 0] : [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        members: getRandomMembers(),
         papers: Array.from({ length: randomNumBetween(15, 25) }, (_, i) => createProjectPaper(i)),
     };
+}
+
+function getRandomMembers() {
+    const memberCount = randomNumBetween(2, users.length - 1);
+    const members = new Set<number>();
+    while (members.size < memberCount) {
+        members.add(randomNumBetween(0, users.length - 1));
+    }
+    return Array.from(members);
 }
 
 export const projects: ProjectWrapper[] = Array.from({ length: randomNumBetween(7, 15) }, (_, i) =>

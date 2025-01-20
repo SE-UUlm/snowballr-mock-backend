@@ -14,24 +14,25 @@ export class GlobalProjectController {
         return projects.map((x) => x.project).filter((x) => x.archived);
     }
 
-  @Post("/")
-  create(@Body() spec: ProjectSpec) {
-    projects.push({
-        stage: 0,
-        members: [],
-        project: {
-            id: projects.length,
-            name: spec.name,
-            reviewDecisionMatrix: {numberOfReviewers: 2, patterns: new Map()},
-            similarityThreshold: 0,
-            paperFetchApis: [],
-            archived: false
-        },
-        papers: []
-    });
+    @Post("/")
+    create(@Body() spec: ProjectSpec) {
+        const newProject = {
+            stage: 0,
+            members: [],
+            project: {
+                id: projects.length,
+                name: spec.name,
+                reviewDecisionMatrix: { numberOfReviewers: 2, patterns: new Map() },
+                similarityThreshold: 0,
+                paperFetchApis: [],
+                archived: false,
+            },
+            papers: [],
+        };
 
-    return projects.at(-1)!.project;
-  }
+        projects.push(newProject);
+        return newProject;
+    }
 }
 
 @JsonController("/projects/:id")
