@@ -2,9 +2,13 @@ import * as grpc from "@grpc/grpc-js"
 import { snowballRService } from "./service"
 import { snowballRDefinition } from "./grpc-gen/main.grpc-server"
 import { authInterceptor } from "./auth-interceptor"
+import { loggingInterceptor } from "./logging-interceptor"
 
 const server = new grpc.Server({
-    interceptors: [ authInterceptor ],
+    interceptors: [
+        authInterceptor,
+        loggingInterceptor,
+    ],
 })
 server.addService(snowballRDefinition, snowballRService)
 server.bindAsync(
