@@ -80,7 +80,9 @@ export class ProjectController {
 
     @Get("/members")
     getMembers(@Param("id") id: number) {
-        return projects.at(id)?.members.map((x) => users[x]);
+        const memberIds = projects.at(id)?.members ?? [];
+        const members = memberIds.map((id) => users.find((user) => user.id === id)).filter((x) => x !== undefined);
+        return members;
     }
 
     @Post("/invite")
@@ -100,9 +102,18 @@ export class ProjectController {
 
     @Delete("/members/:userId")
     removeMember(@Param("id") id: number, @Param("userId") userId: number) {
-        if (projects.length <= id) return;
+        console.log("Removing member", userId);
+        if (projects.length <= id) {
+            return { status: 400, message: "Project not found" };
+        }
 
-        projects[id].members = projects[id].members.filter((x) => x != userId);
+        if (projects[id].members.includes(userId)) {
+            projects[id].members = projects[id].members.filter((x) => x !== userId);
+        } else {
+            return { status: 400, message: "Member not found" };
+        }
+
+        return { status: 200, message: `Removed member with id ${userId}` };
     }
 
     @Get("/papers")
