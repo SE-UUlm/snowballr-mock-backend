@@ -15,7 +15,7 @@ export class GlobalProjectController {
     }
 
     @Post("/")
-    create(@Body() spec: ProjectSpec) {
+    async create(@Body() spec: ProjectSpec) {
         const newProject = {
             stage: 0,
             members: [],
@@ -31,7 +31,11 @@ export class GlobalProjectController {
         };
 
         projects.push(newProject);
-        return newProject;
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(newProject.project);
+            }, 1000);
+        });
     }
 }
 
@@ -80,7 +84,7 @@ export class ProjectController {
     }
 
     @Post("/invite")
-    inviteUser(@Param("id") id: number, email: string) {
+    inviteUser(@Param("id") id: number, @Body() email: string) {
         if (projects.length <= id) return;
 
         users.push({
