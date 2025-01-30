@@ -207,6 +207,14 @@ export const users: User[] = [
         lastName: "Thomas",
         email: "henry.thomas@example.com",
     },
+    {
+        id: 10,
+        status: "active",
+        isAdmin: false,
+        firstName: "Henry",
+        lastName: "Thomas",
+        email: "henry.thomas@example.de",
+    },
 ];
 
 function createProjectPaper(i: number): StageEntry {
