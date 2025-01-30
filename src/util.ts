@@ -1,5 +1,6 @@
 import { Metadata } from "@grpc/grpc-js";
 import { ServerUser, users } from "./model";
+import { User } from "./grpc-gen/user";
 
 export function isEmpty(string: string | null): boolean {
     if (string == null) return true;
@@ -20,11 +21,37 @@ export function randomToken(): string {
 
 export function getAuthenticated(metadata: Metadata): ServerUser | null {
     const authorization = metadata.get("Authorization").join("");
-    for (const [_, user] of users) {
-        if (user.accessToken == authorization && user.accessToken != "") {
-            return user;
+    if (authorization.trim() == "") return null;
+    return findFirst(users.values(), "accessToken", authorization);
+}
+
+export function toUser(serverUser: ServerUser): User {
+    return {
+        id: serverUser.id,
+        email: serverUser.email,
+        firstName: serverUser.firstName,
+        lastName: serverUser.lastName,
+        role: serverUser.role,
+        status: serverUser.status,
+    };
+}
+
+export function findFirst<T, K extends keyof T, V extends T[K]>(
+    objects: Iterable<T>,
+    key: K,
+    value: V,
+) {
+    for (const object of objects) {
+        if (object[key] == value) {
+            return object;
         }
     }
 
     return null;
+}
+
+export function anythingUndefined<T extends object>(obj: T): boolean {
+    return Object.values(obj).some((v) => {
+        return v == undefined || (typeof v === "object" && anythingUndefined(v));
+    });
 }
