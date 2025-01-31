@@ -10,8 +10,9 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 
 function log(tag: string, message: any) {
     const timestamp = new Date().toISOString();
-    message = JSON.parse(JSON.stringify(message));
-    console.log(`[${timestamp}] ${tag}:`, message);
+    console.log(`[${timestamp}] ${tag}:`, {
+        ...message,
+    });
 }
 
 export const loggingInterceptor: ServerInterceptor = function (
