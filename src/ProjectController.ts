@@ -157,6 +157,25 @@ export class ProjectController {
         return { status: 200, message: `Invited member with id ${userId}` };
     }
 
+    @Post("/members/:userId/promote")
+    promoteUser(@Param("id") id: number, @Param("userId") userId: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        const isInProject = projectWrapper.members.includes(userId);
+        const user = users.find((user) => user.id === userId);
+        if (isInProject && user) {
+            user.isAdmin = true;
+        } else {
+            return { status: 404, message: "Member not found" };
+        }
+
+        return { status: 200, message: `Promoted member with id ${userId}` };
+    }
+
     @Delete("/members/:userId")
     removeMember(@Param("id") id: number, @Param("userId") userId: number) {
         const projectWrapper = this.getProjectWrapper(id);
