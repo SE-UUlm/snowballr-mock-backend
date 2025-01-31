@@ -7,6 +7,7 @@ import {
 } from "@grpc/grpc-js";
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
+import { isSnowballRService } from "./util";
 
 function log(tag: string, message: any) {
     const timestamp = new Date().toISOString();
@@ -16,23 +17,24 @@ function log(tag: string, message: any) {
 }
 
 export const loggingInterceptor: ServerInterceptor = function (
-    _: ServerMethodDefinition<any, any>,
+    methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
+    const shouldLog = isSnowballRService(methodDescriptor);
     const listener = new ServerListenerBuilder()
         .withOnReceiveMessage((message, next) => {
-            log("Received", message);
+            if (shouldLog) log("Received", message);
             next(message);
         })
         .build();
     const responder = new ResponderBuilder()
         .withStart((next) => next(listener))
         .withSendMessage((message, next) => {
-            log("Sent", message);
+            if (shouldLog) log("Sent", message);
             next(message);
         })
         .withSendStatus((status, next) => {
-            if (status.code != Status.OK) {
+            if (shouldLog && status.code != Status.OK) {
                 log("Sent Error", {
                     ...status,
                     code: `${Status[status.code]} (${status.code})`,

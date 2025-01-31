@@ -7,7 +7,7 @@ import {
 } from "@grpc/grpc-js";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
-import { getAuthenticated } from "./util";
+import { getAuthenticated, isSnowballRService } from "./util";
 
 export const authInterceptor: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
@@ -20,9 +20,14 @@ export const authInterceptor: ServerInterceptor = function (
         "RenewSession",
         "RequestPasswordReset",
     ];
+
+    const shouldIgnore =
+        !isSnowballRService(methodDescriptor) ||
+        uncheckedCalls.some((c) => methodDescriptor.path.endsWith(c));
+
     const listener = new ServerListenerBuilder()
         .withOnReceiveMetadata((metadata, next) => {
-            if (uncheckedCalls.some((n) => methodDescriptor.path.endsWith(n))) {
+            if (shouldIgnore) {
                 next(metadata);
             } else if (getAuthenticated(metadata) != null) {
                 next(metadata);

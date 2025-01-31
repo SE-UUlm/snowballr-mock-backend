@@ -1,6 +1,7 @@
 import { Metadata } from "@grpc/grpc-js";
 import { ServerUser, users } from "./model";
 import { User } from "./grpc-gen/user";
+import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 
 export function isEmpty(string: string | null): boolean {
     if (string == null) return true;
@@ -54,4 +55,8 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     return Object.values(obj).some((v) => {
         return v == undefined || (typeof v === "object" && anythingUndefined(v));
     });
+}
+
+export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
+    return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
