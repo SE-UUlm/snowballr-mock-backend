@@ -37,9 +37,12 @@ export interface Project {
     reviewDecisionMatrix: ReviewDecisionMatrix;
     similarityThreshold: number;
     paperFetchApis: string[];
+    archived: boolean;
 }
 
-export type ProjectSpec = Omit<Project, "id">;
+export interface ProjectSpec {
+    name: string;
+}
 
 export interface Criterion {
     id: number;
@@ -73,10 +76,13 @@ export interface Paper {
     title: string;
     abstrakt: string;
     year: number;
-    type: string;
+    publisherName: string;
+    publicationType: string;
+    publicationName: string;
     authors: Author[];
     backwardReferencedPaperIds: number[];
     forwardReferencedPaperIds: number[];
+    reviewData?: { finalDecision: ReviewDecision; reviews: Review[] };
 }
 
 export type PaperSpec = Omit<Paper, "id">;

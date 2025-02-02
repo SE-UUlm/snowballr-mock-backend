@@ -1,104 +1,209 @@
 import { Body, Delete, Get, JsonController, Param, Post, Put } from "routing-controllers";
-import { Paper, Project, ProjectSpec, User } from "./Models";
+import { ProjectSpec } from "./Models";
 import { projects, users } from "./Data";
 
 @JsonController("/projects")
 export class GlobalProjectController {
-  @Get("/")
-  getAll() {
-    return projects
-      .filter(x => !x.archived)
-      .map(x => x.project);
-  }
-  
-  @Get("/archived")
-  getArchived() {
-    return projects.filter(x => x.archived);
-  }
+    @Get("/")
+    getAll() {
+        return projects.map((x) => x.project).filter((x) => !x.archived);
+    }
 
-  @Post("/")
-  create(@Body() spec: ProjectSpec) {
-    projects.push({
-        stage: 0,
-        members: [],
-        archived: false,
-        project: {
-            id: projects.length,
-            ...spec,
-        },
-        papers: []
-    });
-    
-    return projects.at(-1)!.project;
-  }
+    @Get("/archived")
+    getArchived() {
+        return projects.map((x) => x.project).filter((x) => x.archived);
+    }
+
+    @Post("/")
+    async create(@Body() spec: ProjectSpec) {
+        const newProject = {
+            stage: 0,
+            members: [0],
+            project: {
+                id: projects.length,
+                name: spec.name,
+                reviewDecisionMatrix: { numberOfReviewers: 2, patterns: new Map() },
+                similarityThreshold: 0,
+                paperFetchApis: [],
+                archived: false,
+            },
+            papers: [],
+        };
+
+        projects.push(newProject);
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(newProject.project);
+            }, 1000);
+        });
+    }
 }
 
 @JsonController("/projects/:id")
 export class ProjectController {
-  @Get("/")
-  getOne(@Param("id") id: number) {
-    return projects.at(id)?.project;
-  }
+    private getProjectWrapper(id: number) {
+        return projects.at(id);
+    }
 
-  @Put("/")
-  update(@Param("id") id: number, @Body() newSpec: ProjectSpec) {
-    if (projects.length <= id)
-      return
-      
-    projects[id] = {
-      ...projects[id],
-      project: {
-        ...projects[id].project,
-        ...newSpec,
-      }
-    };
+    private getProject(id: number) {
+        return this.getProjectWrapper(id)?.project;
+    }
 
-    return projects[id];
-  }
+    @Get("/")
+    getOne(@Param("id") id: number) {
+        const project = this.getProject(id);
 
-  @Post("/archive")
-  archive(@Param("id") id: number) {
-    if (projects.length <= id)
-      return
-      
-    projects[id].archived = true
-  }
+        if (project) {
+            return project;
+        } else {
+            return { status: 404, message: "Project not found" };
+        }
+    }
 
-  @Get("/stages")
-  getStage(@Param("id") id: number) {
-    return projects.at(id)?.stage; 
-  }
+    @Put("/")
+    update(@Param("id") id: number, @Body() newSpec: ProjectSpec) {
+        const projectWrapper = this.getProjectWrapper(id);
 
-  @Get("/members")
-  getMembers(@Param("id") id: number) {
-    return projects
-      .at(id)
-      ?.members.map(x => users[x]);
-  }
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
 
-  @Post("/invite")
-  inviteUser(@Param("id") id: number, email: string) {
-    if (projects.length <= id)
-      return;
+        projectWrapper.project = {
+            ...projectWrapper.project,
+            ...newSpec,
+        };
 
-    users.push({
-        id: users.length,
-        status: "active",
-        isAdmin: false,
-        firstName: "John",
-        lastName: `The ${users.length}`,
-        email: email
-    });
-    projects[id].members.push(users.length - 1);
-  }
+        return projectWrapper.project;
+    }
 
-  @Delete("/members/:userId")
-  removeMember(@Param("id") id: number, @Param("userId") userId: number) {
-    if (projects.length <= id)
-      return;
+    @Post("/archive")
+    archive(@Param("id") id: number) {
+        const project = this.getProject(id);
 
-    projects[id].members = projects[id].members
-      .filter(x => x != userId);
-  }
+        if (!project) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        project.archived = true;
+    }
+
+    @Get("/stages")
+    getStage(@Param("id") id: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        return projectWrapper.stage;
+    }
+
+    @Get("/currentStage")
+    getCurrentStage(@Param("id") id: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        return projectWrapper.stage;
+    }
+
+    @Get("/members")
+    getMembers(@Param("id") id: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        const memberIds = projectWrapper.members ?? [];
+        const members = memberIds
+            .map((id) => users.find((user) => user.id === id))
+            .filter((x) => x !== undefined);
+        return members;
+    }
+
+    @Post("/invite")
+    inviteUser(@Param("id") id: number, @Body() payload: { email: string }) {
+        const { email } = payload;
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        let userId: number;
+        const userWithEmail = users.find((x) => x.email === email);
+        if (userWithEmail === undefined) {
+            userId = users.length;
+            const names = email.split("@")[0].split(".");
+            const newUser = {
+                id: userId,
+                status: "active",
+                isAdmin: false,
+                firstName: names[0],
+                lastName: names.slice(1).join(" "),
+                email: email,
+            };
+            users.push(newUser);
+            console.log(
+                `Created new user ${newUser.firstName} ${newUser.lastName} with id ${userId}`,
+            );
+        } else {
+            console.log(`Found user with email ${email}`);
+            userId = userWithEmail.id;
+        }
+
+        projectWrapper.members.push(userId);
+
+        return { status: 200, message: `Invited member with id ${userId}` };
+    }
+
+    @Post("/members/:userId/promote")
+    promoteUser(@Param("id") id: number, @Param("userId") userId: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        const isInProject = projectWrapper.members.includes(userId);
+        const user = users.find((user) => user.id === userId);
+        if (isInProject && user) {
+            user.isAdmin = true;
+        } else {
+            return { status: 404, message: "Member not found" };
+        }
+
+        return { status: 200, message: `Promoted member with id ${userId}` };
+    }
+
+    @Delete("/members/:userId")
+    removeMember(@Param("id") id: number, @Param("userId") userId: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        if (projectWrapper.members.includes(userId)) {
+            projectWrapper.members = projectWrapper.members.filter((x) => x !== userId);
+        } else {
+            return { status: 404, message: "Member not found" };
+        }
+
+        return { status: 200, message: `Removed member with id ${userId}` };
+    }
+
+    @Get("/papers")
+    getPapers(@Param("id") id: number) {
+        const projectWrapper = this.getProjectWrapper(id);
+
+        if (!projectWrapper) {
+            return { status: 404, message: "Project not found" };
+        }
+
+        return projectWrapper.papers;
+    }
 }
-

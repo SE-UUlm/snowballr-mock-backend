@@ -1,66 +1,307 @@
-import { Author, Criterion, Paper, Project, Review, User } from "./Models";
+import { LoremIpsum } from "lorem-ipsum";
+import {
+    Author,
+    Criterion,
+    CriterionCategory,
+    Paper,
+    PaperDecision,
+    Project,
+    Review,
+    ReviewDecision,
+    StageEntry,
+    User,
+} from "./Models";
+
+const lorem = new LoremIpsum({
+    sentencesPerParagraph: {
+        max: 8,
+        min: 4,
+    },
+    wordsPerSentence: {
+        max: 16,
+        min: 4,
+    },
+});
 
 export interface PaperWrapper {
-  stage: number,
-  reviews: Review[],
-  paper: Paper,
+    stage: number;
+    reviews: Review[];
+    paper: Paper;
 }
 
 export interface ProjectWrapper {
-  stage: number,
-  project: Project,
-  archived: boolean,
-  members: number[],
-  papers: PaperWrapper[],
+    stage: number;
+    project: Project;
+    members: number[];
+    papers: StageEntry[];
 }
 
-export let authors: Author[] = [{
-    id: 0,
-    firstName: "John",
-    lastName: "Doe",
-    orcid: "johndoe"
-}]
-
-export let papers: Paper[] = [{
-  id: 0,
-  doi: "test-doi",
-  title: "Example Paper",
-  abstrakt: "Example Paper Abstract",
-  year: 1912,
-  type: "paper",
-  authors: [authors[0]],
-  backwardReferencedPaperIds: [0],
-  forwardReferencedPaperIds: [0]
-}];
-
-export let users: User[] = [{
-    id: 0,
-    status: "active",
-    isAdmin: true,
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com"
-}];
-export let projects: ProjectWrapper[] = [{
-    stage: 0,
-    project: {
-      id: 0,
-      reviewDecisionMatrix: {
-        numberOfReviewers: 2,
-        patterns: new Map(),
-      },
-      name: "Test Project",
-      similarityThreshold: 0.8,
-      paperFetchApis: ["foobar"],
+export const authors: Author[] = [
+    {
+        id: 0,
+        firstName: "John",
+        lastName: "Doe",
+        orcid: "johndoe",
     },
-    archived: false,
-    members: [0],
-    papers: [{
+];
+
+export const publisherNames: string[] = [
+    "Springer",
+    "IEEE",
+    "ACM",
+    "Elsevier",
+    "Wiley",
+    "Taylor & Francis",
+    "SAGE",
+    "Oxford University Press",
+    "Cambridge University Press",
+    "Routledge",
+    "Palgrave Macmillan",
+    "Emerald",
+    "De Gruyter",
+    "Brill",
+    "SAGE",
+];
+
+export const publicationTypes: string[] = [
+    "journal",
+    "conference",
+    "workshop",
+    "book",
+    "book chapter",
+    "report",
+    "thesis",
+    "patent",
+    "preprint",
+    "other",
+];
+
+export const publicationNames: string[] = [
+    "Journal of Software Engineering",
+    "IEEE Transactions on Software Engineering",
+    "ACM Transactions on Software Engineering and Methodology",
+    "Journal of Systems and Software",
+    "Journal of Software: Evolution and Process",
+    "Journal of Software Maintenance and Evolution: Research and Practice",
+    "Journal of Software: Practice and Experience",
+    "Journal of Software: Testing, Verification and Reliability",
+    "Journal of Software: Evolution and Process",
+];
+
+function randomNumBetween(start: number, end: number) {
+    return Math.floor(Math.random() * (end - start + 1) + start);
+}
+
+function randomValueOf<T>(list: T[]): T {
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+function createPaper(id: number): Paper {
+    return {
+        id: id,
+        doi: "test-doi/" + id,
+        title: "Example Paper" + id,
+        abstrakt: lorem.generateWords(randomNumBetween(150, 250)),
+        year: Math.round(randomNumBetween(1980, 2024)),
+        publisherName: randomValueOf(publisherNames),
+        publicationType: randomValueOf(publicationTypes),
+        publicationName: randomValueOf(publicationNames),
+        authors: [authors[0]],
+        backwardReferencedPaperIds: [],
+        forwardReferencedPaperIds: [],
+        reviewData:
+            Math.random() < 0.2
+                ? undefined
+                : {
+                      finalDecision:
+                          Math.random() < 0.3
+                              ? ReviewDecision.Maybe
+                              : Math.random() < 0.5
+                                ? ReviewDecision.No
+                                : ReviewDecision.Yes,
+                      reviews: [],
+                  },
+    };
+}
+
+export const papers: Paper[] = Array.from({ length: 30 }, (_, i) => createPaper(i));
+
+const minRefCount = 8;
+const maxRefCount = Math.min(10, papers.length - 1); // 10 or length of papers - the paper itself
+for (const paper of papers) {
+    const backwardReferences = randomNumBetween(minRefCount, maxRefCount);
+    for (let i = 0; i < backwardReferences; i++) {
+        const refPaperId = randomNumBetween(0, papers.length - 1);
+        if (refPaperId == paper.id || paper.backwardReferencedPaperIds.includes(refPaperId)) {
+            i--;
+            continue;
+        }
+        paper.backwardReferencedPaperIds.push(refPaperId);
+    }
+    const forwardReferences = randomNumBetween(minRefCount, maxRefCount);
+    for (let i = 0; i < forwardReferences; i++) {
+        const refPaperId = randomNumBetween(0, papers.length - 1);
+        if (refPaperId == paper.id || paper.forwardReferencedPaperIds.includes(refPaperId)) {
+            i--;
+            continue;
+        }
+        paper.forwardReferencedPaperIds.push(refPaperId);
+    }
+}
+
+export const users: User[] = [
+    {
+        id: 0,
+        status: "active",
+        isAdmin: true,
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+    },
+    {
+        id: 1,
+        status: "active",
+        isAdmin: false,
+        firstName: "Jane",
+        lastName: "Doe",
+        email: "jane.doe@example.com",
+    },
+    {
+        id: 2,
+        status: "active",
+        isAdmin: false,
+        firstName: "Alice",
+        lastName: "Johnson",
+        email: "alice.johnson@example.com",
+    },
+    {
+        id: 3,
+        status: "active",
+        isAdmin: true,
+        firstName: "Bob",
+        lastName: "Brown",
+        email: "bob.brown@example.com",
+    },
+    {
+        id: 4,
+        status: "suspended",
+        isAdmin: false,
+        firstName: "Charlie",
+        lastName: "Davis",
+        email: "charlie.davis@example.com",
+    },
+    {
+        id: 5,
+        status: "active",
+        isAdmin: true,
+        firstName: "David",
+        lastName: "Miller",
+        email: "david.miller@example.com",
+    },
+    {
+        id: 6,
+        status: "inactive",
+        isAdmin: false,
+        firstName: "Eve",
+        lastName: "Wilson",
+        email: "eve.wilson@example.com",
+    },
+    {
+        id: 7,
+        status: "active",
+        isAdmin: false,
+        firstName: "Frank",
+        lastName: "Taylor",
+        email: "frank.taylor@example.com",
+    },
+    {
+        id: 8,
+        status: "suspended",
+        isAdmin: true,
+        firstName: "Grace",
+        lastName: "Anderson",
+        email: "grace.anderson@example.com",
+    },
+    {
+        id: 9,
+        status: "active",
+        isAdmin: false,
+        firstName: "Henry",
+        lastName: "Thomas",
+        email: "henry.thomas@example.com",
+    },
+    {
+        id: 10,
+        status: "active",
+        isAdmin: false,
+        firstName: "Henry",
+        lastName: "Thomas",
+        email: "henry.thomas@example.de",
+    },
+];
+
+function createProjectPaper(i: number): StageEntry {
+    return {
+        paper: papers[i],
         stage: 0,
-        reviews: [],
-        paper: papers[0],
-    }]
-}];
+        status: "",
+        decision: PaperDecision.Excluded,
+    };
+}
 
-export let criteria: Map<number, Criterion[]> = new Map();
+function createProject(id: number): ProjectWrapper {
+    return {
+        stage: 0,
+        project: {
+            id: id,
+            reviewDecisionMatrix: {
+                numberOfReviewers: 2,
+                patterns: new Map(),
+            },
+            name:
+                Math.random() < 0.5
+                    ? "Demo project [Use case] View project list " + id
+                    : "Demo " + id,
+            similarityThreshold: 0.8,
+            paperFetchApis: ["foobar"],
+            archived: Math.random() < 0.4 ? true : false,
+        },
+        members: getRandomMembers(),
+        papers: Array.from({ length: randomNumBetween(15, 25) }, (_, i) => createProjectPaper(i)),
+    };
+}
 
+function getRandomMembers() {
+    const memberCount = randomNumBetween(2, users.length - 1);
+    const members = new Set<number>();
+    while (members.size < memberCount) {
+        members.add(randomNumBetween(0, users.length - 1));
+    }
+    return Array.from(members);
+}
+
+export const projects: ProjectWrapper[] = Array.from({ length: randomNumBetween(7, 15) }, (_, i) =>
+    createProject(i),
+);
+
+export const criteria: Map<number, Criterion[]> = new Map([
+    [
+        0,
+        [
+            {
+                id: 0,
+                tag: "E5",
+                name: "Not in English",
+                description: "The paper is not in English",
+                category: CriterionCategory.HardExclusion,
+            },
+            {
+                id: 1,
+                tag: "SE3",
+                name: "Author's last name starts with 'D'",
+                description: "This is a very funny exclusion criterion",
+                category: CriterionCategory.Exclusion,
+            },
+        ],
+    ],
+]);
