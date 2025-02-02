@@ -137,15 +137,21 @@ export class ProjectController {
         const userWithEmail = users.find((x) => x.email === email);
         if (userWithEmail === undefined) {
             userId = users.length;
-            users.push({
-                id: id,
+            const names = email.split("@")[0].split(".");
+            const newUser = {
+                id: userId,
                 status: "active",
                 isAdmin: false,
-                firstName: "John",
-                lastName: `Doe the ${id}`,
+                firstName: names[0],
+                lastName: names.slice(1).join(" "),
                 email: email,
-            });
+            };
+            users.push(newUser);
+            console.log(
+                `Created new user ${newUser.firstName} ${newUser.lastName} with id ${userId}`,
+            );
         } else {
+            console.log(`Found user with email ${email}`);
             userId = userWithEmail.id;
         }
 
