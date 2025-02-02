@@ -18,7 +18,7 @@ export class GlobalProjectController {
     async create(@Body() spec: ProjectSpec) {
         const newProject = {
             stage: 0,
-            members: [],
+            members: [0],
             project: {
                 id: projects.length,
                 name: spec.name,
@@ -132,9 +132,6 @@ export class ProjectController {
         if (!projectWrapper) {
             return { status: 404, message: "Project not found" };
         }
-
-        // Add current user to project
-        projectWrapper.members.push(0);
 
         let userId: number;
         const userWithEmail = users.find((x) => x.email === email);

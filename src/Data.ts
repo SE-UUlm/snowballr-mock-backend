@@ -107,8 +107,8 @@ function createPaper(id: number): Paper {
         publicationType: randomValueOf(publicationTypes),
         publicationName: randomValueOf(publicationNames),
         authors: [authors[0]],
-        backwardReferencedPaperIds: [0],
-        forwardReferencedPaperIds: [0],
+        backwardReferencedPaperIds: [],
+        forwardReferencedPaperIds: [],
         reviewData:
             Math.random() < 0.2
                 ? undefined
@@ -125,6 +125,29 @@ function createPaper(id: number): Paper {
 }
 
 export const papers: Paper[] = Array.from({ length: 30 }, (_, i) => createPaper(i));
+
+const minRefCount = 8;
+const maxRefCount = Math.min(10, papers.length - 1); // 10 or length of papers - the paper itself
+for (const paper of papers) {
+    const backwardReferences = randomNumBetween(minRefCount, maxRefCount);
+    for (let i = 0; i < backwardReferences; i++) {
+        const refPaperId = randomNumBetween(0, papers.length - 1);
+        if (refPaperId == paper.id || paper.backwardReferencedPaperIds.includes(refPaperId)) {
+            i--;
+            continue;
+        }
+        paper.backwardReferencedPaperIds.push(refPaperId);
+    }
+    const forwardReferences = randomNumBetween(minRefCount, maxRefCount);
+    for (let i = 0; i < forwardReferences; i++) {
+        const refPaperId = randomNumBetween(0, papers.length - 1);
+        if (refPaperId == paper.id || paper.forwardReferencedPaperIds.includes(refPaperId)) {
+            i--;
+            continue;
+        }
+        paper.forwardReferencedPaperIds.push(refPaperId);
+    }
+}
 
 export const users: User[] = [
     {
