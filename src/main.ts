@@ -1,8 +1,8 @@
 import * as grpc from "@grpc/grpc-js";
 import { snowballRService } from "./service";
 import { snowballRDefinition } from "./grpc-gen/main.grpc-server";
-import { authInterceptor } from "./auth-interceptor";
-import { loggingInterceptor } from "./logging-interceptor";
+import { AUTH_INTERCEPTOR } from "./auth-interceptor";
+import { LOGGING_INTERCEPTOR } from "./logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
 import proxy from "@grpc-web/proxy";
@@ -18,7 +18,7 @@ proxy({
 } as any).listen(webPort);
 
 const server = new grpc.Server({
-    interceptors: [authInterceptor, loggingInterceptor],
+    interceptors: [AUTH_INTERCEPTOR, LOGGING_INTERCEPTOR],
 });
 server.addService(snowballRDefinition, snowballRService);
 addReflection(server, path.join(__dirname, "schema.ds"));

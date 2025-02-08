@@ -16,7 +16,7 @@ function log(tag: string, message: any) {
     });
 }
 
-export const loggingInterceptor: ServerInterceptor = function (
+export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {

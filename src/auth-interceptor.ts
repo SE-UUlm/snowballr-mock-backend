@@ -9,7 +9,7 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
 import { getAuthenticated, isSnowballRService } from "./util";
 
-export const authInterceptor: ServerInterceptor = function (
+export const AUTH_INTERCEPTOR: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
