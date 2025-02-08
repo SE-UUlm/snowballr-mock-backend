@@ -85,8 +85,13 @@ export const snowballRService: ISnowballR = {
             callback({ code: status.ALREADY_EXISTS });
             return;
         }
-        if ([lastName, firstName, password, email].some(isEmpty)) {
-            callback({ code: status.INVALID_ARGUMENT });
+
+        const emptyParams = Object.entries(call.request).filter(p => isEmpty(p[1]));
+        if (emptyParams.length != 0) {
+            callback({
+                code: status.INVALID_ARGUMENT,
+                details: `${emptyParams.map(p => p[1]).join(", ")} are empty`
+            });
             return;
         }
 
