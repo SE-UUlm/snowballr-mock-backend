@@ -154,8 +154,8 @@ export const snowballRService: ISnowballR = {
         const user = getAuthenticated(call.metadata)!;
         USERS.set(user.email, {
             ...user,
-            accessToken: "",
-            refreshToken: "",
+            accessToken: randomToken(),
+            refreshToken: randomToken(),
         });
         callback(null);
     },
