@@ -603,14 +603,15 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project>,
     ): void {
         const { id } = call.request;
-        if (PROJECTS.has(id)) {
-            callback(null, PROJECTS.get(id)!);
-        } else {
+        if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
                 details: "Project was not found",
             });
+            return;
         }
+
+        callback(null, PROJECTS.get(id)!);
     },
     updateProject: function (
         call: ServerUnaryCall<Project_Update, Project>,
