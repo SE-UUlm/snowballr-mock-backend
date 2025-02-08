@@ -649,8 +649,9 @@ export const snowballRService: ISnowballR = {
         _: ServerUnaryCall<ExportRequest, Blob>,
         callback: sendUnaryData<Blob>,
     ): void {
-        callback(null, {
-            data: new Uint8Array(),
+        // TODO
+        callback({
+            code: status.UNIMPLEMENTED,
         });
     },
     softDeleteProject: function (
