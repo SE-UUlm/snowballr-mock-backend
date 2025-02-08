@@ -1,5 +1,5 @@
 import { Metadata } from "@grpc/grpc-js";
-import { ServerUser, users } from "./model";
+import { ServerUser, USERS } from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 
@@ -23,7 +23,7 @@ export function randomToken(): string {
 export function getAuthenticated(metadata: Metadata): ServerUser | null {
     const authorization = metadata.get("Authorization").join("");
     if (authorization.trim() == "") return null;
-    return findFirst(users.values(), "accessToken", authorization);
+    return findFirst(USERS.values(), "accessToken", authorization);
 }
 
 export function toUser(serverUser: ServerUser): User {
