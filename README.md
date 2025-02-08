@@ -1,5 +1,14 @@
 # SnowballR Mock Backend
 
+The mock backend is a small self-contained implementation of the gRPC api
+contract used for testing the frontend without having to spin up a full backend
+including databases. This application neither implements real api queries for
+scanning papers, nor does it persist any data.
+
+> [!CAUTION]
+> Security is an afterthough and this server should **never** be used in
+> production. Passwords are stored in plaintext and nothing is encrypted.
+
 ## Building
 
 ```sh
