@@ -472,34 +472,38 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Member_List>,
     ): void {
         const { id } = call.request;
-        if (PROJECTS.has(id)) {
-            callback(null, {
-                members: MEMBERS.get(id)!,
-            });
-        } else {
+
+        if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
                 details: "Project does not exist",
             });
+            return;
         }
+        
+        callback(null, {
+            members: MEMBERS.get(id)!,
+        });
     },
     removeProjectMember: function (
         call: ServerUnaryCall<Project_Member_Remove, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
         const { projectId, userId } = call.request;
-        if (MEMBERS.has(projectId)) {
-            MEMBERS.set(
-                projectId,
-                MEMBERS.get(projectId)!.filter((p) => p.user?.id != userId),
-            );
-            callback(null, {});
-        } else {
+
+        if (!MEMBERS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
                 details: "Project not found",
             });
+            return;
         }
+
+        MEMBERS.set(
+            projectId,
+            MEMBERS.get(projectId)!.filter((p) => p.user?.id != userId),
+        );
+        callback(null, {});
     },
     getAllProjects: function (
         _: ServerUnaryCall<Nothing, Project_List>,
