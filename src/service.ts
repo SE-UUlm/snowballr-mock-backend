@@ -385,7 +385,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -634,7 +634,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -780,7 +780,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -890,7 +890,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -998,7 +998,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -1078,7 +1078,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Members must not be undefined",
+                details: "A provided field specified by the field mask was undefined",
             });
             return;
         }
