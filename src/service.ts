@@ -63,6 +63,7 @@ import {
     anythingUndefined,
     findFirst,
     getAuthenticated,
+    getNextId,
     isEmpty,
     randomToken,
     toUser,
@@ -852,7 +853,7 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId, paperId, stage } = call.request;
         if (PROJECT_PAPERS.has(projectId)) {
-            const id = PROJECT_PAPERS.size.toString();
+            const id = getNextId(PROJECT_PAPERS);
             const project_paper: Project_Paper = {
                 id: id,
                 stage: stage,

@@ -66,3 +66,11 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
 export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
     return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
+
+export function getNextId<T extends Map<string, V>, V>(objs: T): string {
+    let i = objs.size;
+    while (objs.has(i.toString())) {
+        i++;
+    }
+    return i.toString();
+}
