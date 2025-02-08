@@ -3,7 +3,7 @@ import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
 import { Project, Project_Member, Project_Paper } from "./grpc-gen/project";
 import { Review } from "./grpc-gen/review";
-import { User } from "./grpc-gen/user";
+import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 
 export type ServerUser = User & { password: string } & LoginSecret;
@@ -23,3 +23,23 @@ export const CRITERIA: Map<string, Criterion> = new Map();
 export const REVIEWS: Map<string, Review> = new Map();
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
+
+
+function isEnabled(option: string | undefined): boolean {
+    option = option?.toLowerCase() ?? "";
+    return option == "1" || option == "yes" || option == "true";
+}
+
+if (isEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
+    USERS.set("admin@admin", {
+        id: "admin@admin",
+        email: "admin@admin",
+        firstName: "admin",
+        lastName: "admin",
+        role: UserRole.ADMIN,
+        status: UserStatus.ACTIVE,
+        password: "admin",
+        accessToken: "admin",
+        refreshToken: "admin",
+    });
+}
