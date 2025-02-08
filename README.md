@@ -19,28 +19,20 @@ npm run build
 
 ## Usage
 
-### For gRPC Web (Frontend)
-
-To be accessible from gRPC Web clients a proxy is needed in front of the native
-backend. The provided docker compose file provides a basic setup allowing
-access on port `8080`:
-
-```sh
-docker compose up
-```
-
-### Native Server
-
 ```sh
 npm run start
 ```
 
+If connecting from a gRPC Web client, the `GRPC_WEB_PORT` endpoint must be
+targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
+`GRPC_PORT` is required.
+
 ### Configuration
 
-| Environment Variable | Description                             |
-| -------------------- | --------------------------------------- |
-| `GRPC_PORT`          | The port the server should listen on    |
-| `GRPC_ADDRESS`       | The address the server should listen on |
+| Environment Variable | Default | Description                                  |
+| -------------------- | ------- | -------------------------------------------- |
+| `GRPC_PORT`          | 3000    | The port the native server should listen on  |
+| `GRPC_WEB_PORT`      | 3001    | The port the gRPC Web proxy should listen on |
 
 ## Tooling
 
@@ -50,7 +42,6 @@ getting to know the api or debugging. Install the ones you like and use them
 like this (replacing the address if needed):
 
 ```sh
-grpcui -plaintext 127.0.0.1:8080
-grpcurl -plaintext 127.0.0.1:8080 snowballr.SnowballR.IsAuthenticated
+grpcui -plaintext 127.0.0.1:3000
+grpcurl -plaintext 127.0.0.1:3000 snowballr.SnowballR.IsAuthenticated
 ```
-

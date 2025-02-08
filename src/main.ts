@@ -5,10 +5,17 @@ import { authInterceptor } from "./auth-interceptor";
 import { loggingInterceptor } from "./logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
+import proxy from "@grpc-web/proxy";
 
-const port = process.env.GRPC_PORT ?? "8080";
-const address = process.env.GRPC_ADDRESS ?? "0.0.0.0";
+const port = process.env.GRPC_PORT ?? "3000";
+const webPort = process.env.GRPC_WEB_PORT ?? "3001";
+
+const address = "0.0.0.0";
 const endpoint = `${address}:${port}`;
+
+proxy({
+    target: `http://127.0.0.1:${port}`,
+} as any).listen(webPort);
 
 const server = new grpc.Server({
     interceptors: [authInterceptor, loggingInterceptor],
@@ -22,7 +29,8 @@ server.bindAsync(
         if (err) {
             console.error(`Server error: ${err.message}`);
         } else {
-            console.log(`Server bound on: ${address}:${port}`);
+            console.log(`Native server bound on: ${address}:${port}`);
+            console.log(`gRPC Web proxy bound on: ${address}:${webPort}`);
         }
     },
 );

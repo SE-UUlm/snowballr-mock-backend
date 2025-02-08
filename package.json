@@ -34,6 +34,7 @@
         "typescript-eslint": "^8.21.0"
     },
     "dependencies": {
+        "@grpc-web/proxy": "^0.1.0",
         "@grpc/grpc-js": "^1.12.5",
         "grpc-server-reflection": "^0.1.5",
         "protobuf-fieldmask": "^2.0.0"
