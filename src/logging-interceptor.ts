@@ -14,6 +14,7 @@ function stripPrefix(value: string, prefix: string) {
     return value.startsWith(prefix) ? value.substring(prefix.length) : value;
 }
 
+// Logs every gRPC call and its contents to the console with debug level.
 export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,

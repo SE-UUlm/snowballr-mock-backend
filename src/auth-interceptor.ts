@@ -9,6 +9,12 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
 import { getAuthenticated, isSnowballRService } from "./util";
 
+// Checks every call to the SnowballR api requiring the user to be authenticated
+// against the currently authenticated users. If not authenticated, the call is
+// intercepted and replied with an 'UNAUTHENTICATED' error. If correct
+// credentials have been provided, the call is propagated to the original
+// handler. The 'Authorization' header of the call is checked for an access
+// token.
 export const AUTH_INTERCEPTOR: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,
