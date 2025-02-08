@@ -693,6 +693,15 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Statistics>,
     ): void {
         const { projectId } = call.request;
+
+        if (!PROGRESS.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Project not found",
+            });
+            return;
+        }
+        
         callback(null, {
             projectProgress: PROGRESS.get(projectId)!,
         });
