@@ -353,6 +353,8 @@ export const snowballRService: ISnowballR = {
         callback(null, {
             projectPapers: (PROJECT_PROJECT_PAPERS.get(id) ?? []).map(
                 (ppp) => PROJECT_PAPERS.get(ppp)!,
+            ).filter(
+                (pp) => pp.decision == PaperDecision.UNDECIDED,
             ),
         });
     },
