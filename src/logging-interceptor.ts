@@ -8,37 +8,37 @@ import {
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { isSnowballRService } from "./util";
+import { LOG } from "./log";
 
-function log(tag: string, message: any) {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ${tag}:`, {
-        ...message,
-    });
+function stripPrefix(value: string, prefix: string) {
+    return value.startsWith(prefix) ? value.substring(prefix.length) : value;
 }
 
 export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
     methodDescriptor: ServerMethodDefinition<any, any>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
+    const methodName = stripPrefix(methodDescriptor.path, "/snowballr.SnowballR/");
+
     const shouldLog = isSnowballRService(methodDescriptor);
     const listener = new ServerListenerBuilder()
         .withOnReceiveMessage((message, next) => {
-            if (shouldLog) log("Received", message);
+            if (shouldLog) LOG.debug(message, `Received "${methodName}" call`);
             next(message);
         })
         .build();
     const responder = new ResponderBuilder()
         .withStart((next) => next(listener))
         .withSendMessage((message, next) => {
-            if (shouldLog) log("Sent", message);
+            if (shouldLog) LOG.debug(message, `Replied to "${methodName}"`);
             next(message);
         })
         .withSendStatus((status, next) => {
             if (shouldLog && status.code != Status.OK) {
-                log("Sent Error", {
+                LOG.error({
                     ...status,
                     code: `${Status[status.code]} (${status.code})`,
-                });
+                },`Replied to "${methodName}" with error`);
             }
             next(status);
         })

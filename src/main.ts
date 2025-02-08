@@ -6,6 +6,7 @@ import { LOGGING_INTERCEPTOR } from "./logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
 import proxy from "@grpc-web/proxy";
+import { LOG } from "./log";
 
 const port = process.env.GRPC_PORT ?? "3000";
 const webPort = process.env.GRPC_WEB_PORT ?? "3001";
@@ -27,10 +28,10 @@ server.bindAsync(
     grpc.ServerCredentials.createInsecure(),
     (err: Error | null, port: number) => {
         if (err) {
-            console.error(`Server error: ${err.message}`);
+            LOG.fatal(`Server error: ${err.message}`)
         } else {
-            console.log(`Native server bound on: ${address}:${port}`);
-            console.log(`gRPC Web proxy bound on: ${address}:${webPort}`);
+            LOG.info(`Native server listening on: ${address}:${port}`);
+            LOG.info(`gRPC Web proxy listening on: ${address}:${webPort}`);
         }
     },
 );
