@@ -448,9 +448,10 @@ export const snowballRService: ISnowballR = {
         _: ServerUnaryCall<Id, Project_List>,
         callback: sendUnaryData<Project_List>,
     ): void {
-        callback(null, {
-            projects: [],
-        });
+        // TODO
+        callback({
+            code: status.UNIMPLEMENTED
+        })
     },
     inviteUserToProject: function (
         _: ServerUnaryCall<Project_Member_Invite, Nothing>,
