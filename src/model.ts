@@ -5,6 +5,7 @@ import { Project, Project_Member, Project_Paper } from "./grpc-gen/project";
 import { Review } from "./grpc-gen/review";
 import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
+import { LOG } from "./log";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 
@@ -31,6 +32,7 @@ function isEnabled(option: string | undefined): boolean {
 }
 
 if (isEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
+    LOG.warn("Security Risk: Dummy Admin User Enabled!");
     USERS.set("admin@admin", {
         id: "admin@admin",
         email: "admin@admin",
