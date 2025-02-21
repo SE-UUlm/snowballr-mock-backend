@@ -11,6 +11,9 @@ scanning papers, nor does it persist any data.
 
 ## Building
 
+Make sure you've cloned the repository with the `--recursive` flag or executed
+`git submodule update --init` afterwards.
+
 ```sh
 npm i
 npm run compile:proto
