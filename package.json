@@ -1,7 +1,7 @@
 {
     "name": "snowballr-mock-backend",
-    "version": "1.0.0",
-    "description": "A Mock Backend for the SnowballR Frontend Development",
+    "version": "0.1.0",
+    "description": "A mock backend for the SnowballR project",
     "main": "dist/main.js",
     "scripts": {
         "build": "npx tsc",
@@ -30,6 +30,7 @@
         "globals": "^15.14.0",
         "nodemon": "^3.1.7",
         "prettier": "^3.4.2",
+        "eslint-config-prettier": "^10.0.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
         "typescript-eslint": "^8.21.0"
