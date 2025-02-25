@@ -1,17 +1,18 @@
-name: Build
+name: Code Quality Checks
 
 on:
   push:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 env:
   node_version: ${{ vars.NODE_VERSION }}
 
 jobs:
-  build:
-    name: Build
+  linting:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,9 +21,9 @@ jobs:
           submodules: "recursive"
 
       - name: Setup
-        uses: ./.github/workflows/setup
+        uses: ./.github/workflows/setup/
         with:
           node_version: ${{ env.node_version }}
 
-      - name: Build application
-        run: npm run build
+      - name: Run Prettier & ESLint
+        run: npm run lint
