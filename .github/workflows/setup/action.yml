@@ -1,0 +1,21 @@
+name: Setup
+description: Setup mock backend CI/CD pipeline
+inputs:
+  node_version:
+    description: "Node.js version"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Generate gRPC web server code
+      shell: bash
+      run: npm run compile:proto
