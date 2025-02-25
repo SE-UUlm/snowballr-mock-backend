@@ -1,29 +1,29 @@
 name: Code Quality Checks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+    push:
+        branches:
+            - main
+    pull_request:
+    workflow_dispatch:
 
 env:
-  node_version: ${{ vars.NODE_VERSION }}
+    node_version: ${{ vars.NODE_VERSION }}
 
 jobs:
-  linting:
-    name: Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
+    linting:
+        name: Linting
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
 
-      - name: Setup
-        uses: ./.github/workflows/setup/
-        with:
-          node_version: ${{ env.node_version }}
+            - name: Setup
+              uses: ./.github/workflows/setup/
+              with:
+                  node_version: ${{ env.node_version }}
 
-      - name: Run Prettier & ESLint
-        run: npm run lint
+            - name: Run Prettier & ESLint
+              run: npm run lint
