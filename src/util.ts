@@ -16,10 +16,10 @@ export function randomString(length: number): string {
         .join("");
 }
 
-let tokens: string[] = [];
+const tokens: string[] = [];
 export function randomToken(): string {
     let token = randomString(40);
-    while (tokens.some(t => t == token)) {
+    while (tokens.some((t) => t == token)) {
         token = randomString(40);
     }
     tokens.push(token);
@@ -63,7 +63,9 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     });
 }
 
-export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
+export function isSnowballRService<RequestT, ResponseT>(
+    methodDescriptor: ServerMethodDefinition<RequestT, ResponseT>,
+): boolean {
     return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
 

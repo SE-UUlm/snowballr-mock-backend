@@ -25,7 +25,6 @@ export const REVIEWS: Map<string, Review> = new Map();
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
 
-
 function isEnabled(option: string | undefined): boolean {
     option = option?.toLowerCase() ?? "";
     return option == "1" || option == "yes" || option == "true";

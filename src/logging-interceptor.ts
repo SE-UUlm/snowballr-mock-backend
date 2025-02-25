@@ -15,8 +15,8 @@ function stripPrefix(value: string, prefix: string) {
 }
 
 // Logs every gRPC call and its contents to the console with debug level.
-export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
-    methodDescriptor: ServerMethodDefinition<any, any>,
+export const LOGGING_INTERCEPTOR: ServerInterceptor = function <RequestT, ResponseT>(
+    methodDescriptor: ServerMethodDefinition<RequestT, ResponseT>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
     const methodName = stripPrefix(methodDescriptor.path, "/snowballr.SnowballR/");
@@ -36,10 +36,13 @@ export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
         })
         .withSendStatus((status, next) => {
             if (shouldLog && status.code != Status.OK) {
-                LOG.error({
-                    ...status,
-                    code: `${Status[status.code]} (${status.code})`,
-                },`Replied to "${methodName}" with error`);
+                LOG.error(
+                    {
+                        ...status,
+                        code: `${Status[status.code]} (${status.code})`,
+                    },
+                    `Replied to "${methodName}" with error`,
+                );
             }
             next(status);
         })

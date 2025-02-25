@@ -15,8 +15,8 @@ import { getAuthenticated, isSnowballRService } from "./util";
 // credentials have been provided, the call is propagated to the original
 // handler. The 'Authorization' header of the call is checked for an access
 // token.
-export const AUTH_INTERCEPTOR: ServerInterceptor = function (
-    methodDescriptor: ServerMethodDefinition<any, any>,
+export const AUTH_INTERCEPTOR: ServerInterceptor = function <RequestT, ResponseT>(
+    methodDescriptor: ServerMethodDefinition<RequestT, ResponseT>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
     const uncheckedCalls = [
