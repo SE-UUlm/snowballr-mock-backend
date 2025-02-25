@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  node_version: ${{ vars.NODE_VERSION }}
+  PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Setup
+        uses: ./.github/workflows/setup
+        with:
+          node_version: ${{ env.node_version }}
+
+      - name: Build application
+        run: npm run build
