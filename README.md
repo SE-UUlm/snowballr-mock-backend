@@ -32,11 +32,11 @@ targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
 
 ### Configuration
 
-| Environment Variable | Default | Description                                  |
-| -------------------- | ------- | -------------------------------------------- |
-| `GRPC_PORT`          | 3000    | The port the native server should listen on  |
-| `GRPC_WEB_PORT`      | 3001    | The port the gRPC Web proxy should listen on |
-| `ENABLE_DUMMY_ADMIN` | false   | Wether or not to enable a dummy admin user   |
+| Environment Variable     | Default | Description                                                                          |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
+| `GRPC_PORT`              | 3000    | The port the native server should listen on                                          |
+| `GRPC_WEB_PORT`          | 3001    | The port the gRPC Web proxy should listen on                                         |
+| `ENABLE_DUMMY_ADMIN`     | false   | Wether or not to enable a dummy admin user                                           |
 
 ## Tooling
 

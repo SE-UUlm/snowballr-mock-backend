@@ -19,7 +19,7 @@ export function randomString(length: number): string {
 let tokens: string[] = [];
 export function randomToken(): string {
     let token = randomString(40);
-    while (tokens.some(t => t == token)) {
+    while (tokens.some((t) => t == token)) {
         token = randomString(40);
     }
     tokens.push(token);

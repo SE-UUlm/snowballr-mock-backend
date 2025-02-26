@@ -87,11 +87,11 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const emptyParams = Object.entries(call.request).filter(p => isEmpty(p[1]));
+        const emptyParams = Object.entries(call.request).filter((p) => isEmpty(p[1]));
         if (emptyParams.length != 0) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: `${emptyParams.map(p => p[1]).join(", ")} are empty`
+                details: `${emptyParams.map((p) => p[1]).join(", ")} are empty`,
             });
             return;
         }
@@ -352,11 +352,9 @@ export const snowballRService: ISnowballR = {
         }
 
         callback(null, {
-            projectPapers: (PROJECT_PROJECT_PAPERS.get(id) ?? []).map(
-                (ppp) => PROJECT_PAPERS.get(ppp)!,
-            ).filter(
-                (pp) => pp.decision == PaperDecision.UNDECIDED,
-            ),
+            projectPapers: (PROJECT_PROJECT_PAPERS.get(id) ?? [])
+                .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+                .filter((pp) => pp.decision == PaperDecision.UNDECIDED),
         });
     },
     getUserSettings: function (
@@ -451,8 +449,8 @@ export const snowballRService: ISnowballR = {
     ): void {
         // TODO
         callback({
-            code: status.UNIMPLEMENTED
-        })
+            code: status.UNIMPLEMENTED,
+        });
     },
     inviteUserToProject: function (
         _: ServerUnaryCall<Project_Member_Invite, Nothing>,
@@ -481,7 +479,7 @@ export const snowballRService: ISnowballR = {
             });
             return;
         }
-        
+
         callback(null, {
             members: MEMBERS.get(id)!,
         });
@@ -702,7 +700,7 @@ export const snowballRService: ISnowballR = {
             });
             return;
         }
-        
+
         callback(null, {
             projectProgress: PROGRESS.get(projectId)!,
         });
@@ -836,9 +834,9 @@ export const snowballRService: ISnowballR = {
         const { id } = call.request;
         if (PROJECT_PAPERS.has(id)) {
             callback(null, {
-                projectPapers: PROJECT_PROJECT_PAPERS
-                    .get(id)!
-                    .map((ppp) => PROJECT_PAPERS.get(ppp)!),
+                projectPapers: PROJECT_PROJECT_PAPERS.get(id)!.map(
+                    (ppp) => PROJECT_PAPERS.get(ppp)!,
+                ),
             });
         } else {
             callback({

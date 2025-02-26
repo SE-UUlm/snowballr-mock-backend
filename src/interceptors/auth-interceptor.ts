@@ -7,7 +7,7 @@ import {
 } from "@grpc/grpc-js";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
-import { getAuthenticated, isSnowballRService } from "./util";
+import { getAuthenticated, isSnowballRService } from "../util";
 
 // Checks every call to the SnowballR api requiring the user to be authenticated
 // against the currently authenticated users. If not authenticated, the call is
