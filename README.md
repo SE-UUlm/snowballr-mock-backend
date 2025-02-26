@@ -27,16 +27,22 @@ npm run start
 ```
 
 If connecting from a gRPC Web client, the `GRPC_WEB_PORT` endpoint must be
-targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
+targeted. If using a native client like `grpcui` or `grpcurl`, connecting to
 `GRPC_PORT` is required.
+
+If you're not going to use the mock backend for automated tests, but only to manually check the frontend functionality, it's useful to have some initial data.
+You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a json file.
+Ideally, this file should be located in the [data/](./data) directory.
+The data in this file is then loaded, parsed and, if it is correctly formatted, saved as initial data in a "database" with which the mock backend is started.
 
 ### Configuration
 
-| Environment Variable     | Default | Description                                                                          |
-| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
-| `GRPC_PORT`              | 3000    | The port the native server should listen on                                          |
-| `GRPC_WEB_PORT`          | 3001    | The port the gRPC Web proxy should listen on                                         |
-| `ENABLE_DUMMY_ADMIN`     | false   | Wether or not to enable a dummy admin user                                           |
+| Environment Variable     | Default | Description                                                                                                          |
+| ------------------------ | ------- |----------------------------------------------------------------------------------------------------------------------|
+| `GRPC_PORT`              | 3000    | The port the native server should listen on                                                                          |
+| `GRPC_WEB_PORT`          | 3001    | The port the gRPC Web proxy should listen on                                                                         |
+| `ENABLE_DUMMY_ADMIN`     | false   | Wether or not to enable a dummy admin user                                                                           |
+| `EXAMPLE_DATA_FILE_PATH` | ""      | Relative or absolute filepath to a file containing example data for the mock backend (e.g. ./data/standardData.json) |
 
 ## Tooling
 
