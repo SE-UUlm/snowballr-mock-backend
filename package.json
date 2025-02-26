@@ -24,7 +24,6 @@
     "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
     "devDependencies": {
         "@eslint/js": "^9.18.0",
-        "@protobuf-ts/plugin": "^2.9.4",
         "concurrently": "^9.1.0",
         "eslint": "^9.18.0",
         "globals": "^15.14.0",
@@ -39,6 +38,7 @@
         "@grpc-web/proxy": "^0.1.0",
         "@grpc/grpc-js": "^1.12.5",
         "grpc-server-reflection": "^0.1.5",
+        "@protobuf-ts/plugin": "^2.9.4",
         "pino": "^9.6.0",
         "pino-pretty": "^13.0.0",
         "protobuf-fieldmask": "^2.0.0"
