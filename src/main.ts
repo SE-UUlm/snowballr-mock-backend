@@ -1,8 +1,8 @@
 import * as grpc from "@grpc/grpc-js";
 import { snowballRService } from "./service";
 import { snowballRDefinition } from "./grpc-gen/main.grpc-server";
-import { AUTH_INTERCEPTOR } from "./auth-interceptor";
-import { LOGGING_INTERCEPTOR } from "./logging-interceptor";
+import { AUTH_INTERCEPTOR } from "./interceptors/auth-interceptor";
+import { LOGGING_INTERCEPTOR } from "./interceptors/logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
 import proxy from "@grpc-web/proxy";

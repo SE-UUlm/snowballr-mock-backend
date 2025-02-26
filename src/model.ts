@@ -6,6 +6,7 @@ import { Review } from "./grpc-gen/review";
 import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { LOG } from "./log";
+import * as fs from "fs";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
@@ -46,14 +47,54 @@ export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper
         reviews: PAPER_REVIEWS.get(paper.id)!.map((reviewId) => REVIEWS.get(reviewId)!),
     };
 }
-
-function isEnabled(option: string | undefined): boolean {
-    option = option?.toLowerCase() ?? "";
-    return option == "1" || option == "yes" || option == "true";
+function loadExampleData(filepath: string) {
+    try {
+        const rawData = fs.readFileSync(filepath, "utf-8");
+        const jsonData = JSON.parse(rawData);
+        LOG.info(
+            `Successfully loaded example data from file "${filepath}". Server is starting with preloaded data...`,
+        );
+        console.log(jsonData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+        LOG.error(
+            `Failed to load example data from file "${filepath}". Falling back to default settings, so starting server with no initial data...`,
+        );
+    }
 }
 
-if (isEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
-    LOG.warn("Security Risk: Dummy Admin User Enabled!");
+/**
+ * Checks whether the given string indicates that an option is enabled.
+ * An option is considered as enabled, if it is set to either:
+ * - 1
+ * - yes
+ * - Yes
+ * - true
+ * - True
+ *
+ * @param option
+ */
+function isOptionEnabled(option?: string): boolean {
+    option = option?.toLowerCase() ?? "";
+    switch (option) {
+        case "1":
+        case "yes":
+        case "Yes":
+        case "true":
+        case "True":
+            return true;
+        default:
+            return false;
+    }
+}
+
+/*
+Parse the environment variables.
+ */
+
+// Check, whether the dummy admin user should be added or not
+if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
+    LOG.warn("Security Risk: dummy admin user enabled!");
     USERS.set("admin@admin", {
         id: "admin@admin",
         email: "admin@admin",
@@ -66,4 +107,9 @@ if (isEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
         refreshToken: "admin",
     });
     LOG.info(USERS.get("admin@admin"), "The dummy admin user");
+}
+
+// Check, whether a filepath to a file containing example data for the mock backend is set
+if (process.env.EXAMPLE_DATA_FILE_PATH !== undefined && process.env.EXAMPLE_DATA_FILE_PATH !== "") {
+    loadExampleData(process.env.EXAMPLE_DATA_FILE_PATH);
 }
