@@ -11,7 +11,7 @@ import {
     ReviewDecisionMatrix_Pattern,
     SnowballingType,
 } from "../grpc-gen/project";
-import { ReviewDecision } from "../grpc-gen/review";
+import { Review, ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
 import { Author, Paper } from "../grpc-gen/paper";
 import { getRandomItems } from "../util";
@@ -708,6 +708,33 @@ for (let i = 0; i < 10; i++) {
     });
 }
 
+const reviews: Review[] = [];
+for (let i = 0; i < 100; i++) {
+    const selectedCriteria = getRandomItems(CRITERIA, 1, 4);
+    let decision = ReviewDecision.ACCEPTED;
+    if (
+        selectedCriteria.filter(
+            (criterion) => criterion.category === CriterionCategory.HARD_EXCLUSION,
+        ).length > 0
+    ) {
+        decision = ReviewDecision.DECLINED;
+    } else if (
+        selectedCriteria.filter((criterion) => criterion.category === CriterionCategory.EXCLUSION)
+            .length > 0 &&
+        selectedCriteria.filter((criterion) => criterion.category === CriterionCategory.INCLUSION)
+            .length > 0
+    ) {
+        decision = ReviewDecision.MAYBE;
+    }
+
+    reviews.push({
+        id: "" + i,
+        userId: "" + getRandomItems(USERS)[0].id,
+        decision: decision,
+        selectedCriteriaIds: selectedCriteria.map((criterion) => criterion.id),
+    });
+}
+
 export const exampleData: ExampleData = {
     users: USERS,
     projects: projects,
@@ -715,4 +742,5 @@ export const exampleData: ExampleData = {
     criteria: CRITERIA,
     papers: papers,
     userSettings: userSettings,
+    reviews: reviews,
 };
