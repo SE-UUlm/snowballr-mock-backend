@@ -832,7 +832,7 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Paper_List>,
     ): void {
         const { id } = call.request;
-        if (PROJECT_PAPERS.has(id)) {
+        if (PROJECTS.has(id)) {
             callback(null, {
                 projectPapers: PROJECT_PROJECT_PAPERS.get(id)!.map(
                     (ppp) => PROJECT_PAPERS.get(ppp)!,
