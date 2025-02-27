@@ -65,6 +65,7 @@ export interface ExampleData {
     userSettings?: UserSettings[];
     projects?: Project[];
     projectMembers?: { projectId: string; members: Project_Member[] }[];
+    reviews?: Review[];
 }
 
 /**
@@ -81,6 +82,7 @@ function loadExampleData(filename: string) {
 
             data.criteria?.forEach((criterion: Criterion) => CRITERIA.set(criterion.id, criterion));
             data.papers?.forEach((paper: Paper) => PAPERS.set(paper.id, paper));
+            data.reviews?.forEach((review: Review) => REVIEWS.set(review.id, review));
             data.users?.forEach((user: User) => {
                 USERS.set(
                     user.email,
