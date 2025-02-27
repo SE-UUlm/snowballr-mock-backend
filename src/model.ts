@@ -6,7 +6,7 @@ import { Review } from "./grpc-gen/review";
 import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { LOG } from "./log";
-import * as fs from "fs";
+import { fromUser } from "./util";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
@@ -47,20 +47,39 @@ export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper
         reviews: PAPER_REVIEWS.get(paper.id)!.map((reviewId) => REVIEWS.get(reviewId)!),
     };
 }
-function loadExampleData(filepath: string) {
-    try {
-        const rawData = fs.readFileSync(filepath, "utf-8");
-        const jsonData = JSON.parse(rawData);
-        LOG.info(
-            `Successfully loaded example data from file "${filepath}". Server is starting with preloaded data...`,
-        );
-        console.log(jsonData);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-        LOG.error(
-            `Failed to load example data from file "${filepath}". Falling back to default settings, so starting server with no initial data...`,
-        );
-    }
+
+export interface ExampleData {
+    users?: User[];
+}
+
+/**
+ * Imports example data from another (typescript) file and initialize mock backend with all given
+ * data.
+ *
+ *
+ * @param filename - The name of the file containing the example data
+ */
+function loadExampleData(filename: string) {
+    import(`./data/${filename.replace(".ts", "")}`)
+        .then((loadedData: { exampleData: ExampleData }) => {
+            const data = loadedData.exampleData;
+
+            data.users?.map((user: User) => {
+                USERS.set(
+                    user.email,
+                    fromUser(user, "1234", { accessToken: "", refreshToken: "" }),
+                );
+            });
+
+            LOG.info(
+                `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
+            );
+        })
+        .catch(() => {
+            LOG.error(
+                `Failed to load example data from file "${filename}". Falling back to default settings, so starting server with no initial data...`,
+            );
+        });
 }
 
 /**
@@ -89,8 +108,8 @@ function isOptionEnabled(option?: string): boolean {
 }
 
 /*
-Parse the environment variables.
- */
+    Parse the environment variables.
+*/
 
 // Check, whether the dummy admin user should be added or not
 if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
@@ -110,6 +129,6 @@ if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
-if (process.env.EXAMPLE_DATA_FILE_PATH !== undefined && process.env.EXAMPLE_DATA_FILE_PATH !== "") {
-    loadExampleData(process.env.EXAMPLE_DATA_FILE_PATH);
+if (process.env.EXAMPLE_DATA_FILE !== undefined && process.env.EXAMPLE_DATA_FILE !== "") {
+    loadExampleData(process.env.EXAMPLE_DATA_FILE);
 }

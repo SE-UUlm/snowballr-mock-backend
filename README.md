@@ -31,9 +31,17 @@ targeted. If using a native client like `grpcui` or `grpcurl`, connecting to
 `GRPC_PORT` is required.
 
 If you're not going to use the mock backend for automated tests, but only to manually check the frontend functionality, it's useful to have some initial data.
-You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a json file.
-Ideally, this file should be located in the [data/](./data) directory.
-The data in this file is then loaded, parsed and, if it is correctly formatted, saved as initial data in a "database" with which the mock backend is started.
+You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a typescript file.
+This file must be located in the [data/](src/data) directory. The data in this file is then imported and,
+if it is correct, saved as initial data in a "database" with which the mock backend is started.
+The file is considered to be correct, if it exports an object named `exampleData` conforming the `ExampleData` interface, e.g.
+```typescript
+export const exampleData: ExampleData = {
+    users: users,
+    ...
+};
+
+```
 
 ### Configuration
 A boolean variable may be enabled by setting it to either `1`, `yes`, or `true`.

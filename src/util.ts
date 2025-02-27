@@ -2,6 +2,7 @@ import { Metadata } from "@grpc/grpc-js";
 import { ServerUser, USERS } from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
+import { LoginSecret } from "./grpc-gen/authentication";
 
 export function isEmpty(string: string | null): boolean {
     if (string == null) return true;
@@ -30,6 +31,28 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
     const authorization = metadata.get("Authorization").join("");
     if (authorization.trim() == "") return null;
     return findFirst(USERS.values(), "accessToken", authorization);
+}
+
+/**
+ * Converts a user into a server user, so the user information are extended by the password and tokens
+ * of the user.
+ *
+ * @param user - The user object to be extended
+ * @param password - The password of the user
+ * @param loginSecret - The login secret, so the authorization and refresh tokens of the user
+ */
+export function fromUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
+    return {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+        password: password,
+        accessToken: loginSecret.accessToken,
+        refreshToken: loginSecret.refreshToken,
+    };
 }
 
 export function toUser(serverUser: ServerUser): User {
