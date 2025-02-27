@@ -35,6 +35,7 @@ You can start the mock backend with initial data for this purpose, whereas these
 This file must be located in the [data/](src/data) directory. The data in this file is then imported and,
 if it is correct, saved as initial data in a "database" with which the mock backend is started.
 The file is considered to be correct, if it exports an object named `exampleData` conforming the `ExampleData` interface, e.g.
+
 ```typescript
 export const exampleData: ExampleData = {
     users: users,
