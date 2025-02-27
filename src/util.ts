@@ -4,6 +4,27 @@ import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { LoginSecret } from "./grpc-gen/authentication";
 
+/**
+ * Select a random items from a list. The number of items to be selected
+ * is randomly chosen from a value between the minimum and maximum number.
+ * The default minimum or maximum number is 1, so if only the list is given,
+ * only on random item is selected.
+ *
+ * If the number of items to be chosen is greater that the number of items in the list,
+ * the entire list is returned
+ *
+ * @param list - The list the items are randomly selected of
+ * @param minNumberOfItems - The minimum number of items to be chosen
+ * @param maxNumberOfItems - The maximum number of items to be chosen
+ */
+export function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfItems = 1): T[] {
+    const shuffledList = [...list].sort(() => Math.random() - 0.5);
+    return shuffledList.slice(
+        0,
+        Math.floor(Math.random() * (maxNumberOfItems - minNumberOfItems)) + minNumberOfItems,
+    );
+}
+
 export function isEmpty(string: string | null): boolean {
     if (string == null) return true;
     else return string.trim().length == 0;

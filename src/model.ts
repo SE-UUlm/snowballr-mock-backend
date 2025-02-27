@@ -6,7 +6,7 @@ import { Review } from "./grpc-gen/review";
 import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { LOG } from "./log";
-import { fromUser } from "./util";
+import { fromUser, getRandomItems } from "./util";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
@@ -59,12 +59,12 @@ export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper
 }
 
 export interface ExampleData {
+    criteria?: Criterion[];
+    papers?: Paper[];
     users?: User[];
+    userSettings?: UserSettings[];
     projects?: Project[];
     projectMembers?: { projectId: string; members: Project_Member[] }[];
-    criteria?: Criterion[];
-    projectCriteria?: { projectId: string; criteriaIds: string[] }[];
-    papers?: Paper[];
 }
 
 /**
@@ -79,22 +79,32 @@ function loadExampleData(filename: string) {
         .then((loadedData: { exampleData: ExampleData }) => {
             const data = loadedData.exampleData;
 
-            data.users?.forEach((user: User) =>
+            data.criteria?.forEach((criterion: Criterion) => CRITERIA.set(criterion.id, criterion));
+            data.papers?.forEach((paper: Paper) => PAPERS.set(paper.id, paper));
+            data.users?.forEach((user: User) => {
                 USERS.set(
                     user.email,
                     fromUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
-                ),
-            );
+                );
 
-            data.projects?.forEach((project: Project) => PROJECTS.set(project.id, project));
+                // create random reading list for this user
+                READING_LISTS.set(user.email, getRandomItems(Array.from(PAPERS.values()), 4, 10));
+
+                // add user settings
+                USER_SETTINGS.set(user.email, getRandomItems(data.userSettings ?? [])[0]);
+            });
+            data.projects?.forEach((project: Project) => {
+                PROJECTS.set(project.id, project);
+
+                // create project criteria
+                PROJECT_CRITERIA.set(
+                    project.id,
+                    getRandomItems(Array.from(CRITERIA.keys()), 5, 10).sort(),
+                );
+            });
             data.projectMembers?.forEach(({ projectId, members }) =>
                 MEMBERS.set(projectId, members),
             );
-            data.criteria?.forEach((criterion: Criterion) => CRITERIA.set(criterion.id, criterion));
-            data.projectCriteria?.forEach(({ projectId, criteriaIds }) =>
-                PROJECT_CRITERIA.set(projectId, criteriaIds),
-            );
-            data.papers?.forEach((paper: Paper) => PAPERS.set(paper.id, paper));
 
             LOG.info(
                 `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,

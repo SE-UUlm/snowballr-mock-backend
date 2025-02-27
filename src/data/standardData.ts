@@ -14,18 +14,12 @@ import {
 import { ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
 import { Author, Paper } from "../grpc-gen/paper";
-
-function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfItems = 1): T[] {
-    const shuffledList = [...list].sort(() => Math.random() - 0.5);
-    return shuffledList.slice(
-        0,
-        Math.floor(Math.random() * (maxNumberOfItems - minNumberOfItems)) + minNumberOfItems,
-    );
-}
+import { getRandomItems } from "../util";
+import { UserSettings } from "../grpc-gen/user_settings";
 
 const USERS: User[] = [
     {
-        id: "1",
+        id: "alice.smith@example.com",
         email: "alice.smith@example.com",
         firstName: "Alice",
         lastName: "Smith",
@@ -33,7 +27,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "2",
+        id: "bob.jones@example.com",
         email: "bob.jones@example.com",
         firstName: "Bob",
         lastName: "Jones",
@@ -41,7 +35,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "3",
+        id: "charlie.davis@example.com",
         email: "charlie.davis@example.com",
         firstName: "Charlie",
         lastName: "Davis",
@@ -49,7 +43,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "4",
+        id: "diana.martin@example.com",
         email: "diana.martin@example.com",
         firstName: "Diana",
         lastName: "Martin",
@@ -57,7 +51,7 @@ const USERS: User[] = [
         status: UserStatus.DELETED,
     },
     {
-        id: "5",
+        id: "edward.miller@example.com",
         email: "edward.miller@example.com",
         firstName: "Edward",
         lastName: "Miller",
@@ -65,7 +59,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "6",
+        id: "fiona.wilson@example.com",
         email: "fiona.wilson@example.com",
         firstName: "Fiona",
         lastName: "Wilson",
@@ -73,7 +67,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "7",
+        id: "george.anderson@example.com",
         email: "george.anderson@example.com",
         firstName: "George",
         lastName: "Anderson",
@@ -81,7 +75,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "8",
+        id: "hannah.taylor@example.com",
         email: "hannah.taylor@example.com",
         firstName: "Hannah",
         lastName: "Taylor",
@@ -89,7 +83,7 @@ const USERS: User[] = [
         status: UserStatus.DELETED,
     },
     {
-        id: "9",
+        id: "ian.thomas@example.com",
         email: "ian.thomas@example.com",
         firstName: "Ian",
         lastName: "Thomas",
@@ -97,7 +91,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "10",
+        id: "julia.clark@example.com",
         email: "julia.clark@example.com",
         firstName: "Julia",
         lastName: "Clark",
@@ -113,7 +107,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "12",
+        id: "laura.harris@example.com",
         email: "laura.harris@example.com",
         firstName: "Laura",
         lastName: "Harris",
@@ -121,7 +115,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "13",
+        id: "michael.clarkson@example.com",
         email: "michael.clarkson@example.com",
         firstName: "Michael",
         lastName: "Clarkson",
@@ -129,7 +123,7 @@ const USERS: User[] = [
         status: UserStatus.DELETED,
     },
     {
-        id: "14",
+        id: "nina.evans@example.com",
         email: "nina.evans@example.com",
         firstName: "Nina",
         lastName: "Evans",
@@ -137,7 +131,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "15",
+        id: "oliver.white@example.com",
         email: "oliver.white@example.com",
         firstName: "Oliver",
         lastName: "White",
@@ -145,7 +139,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "16",
+        id: "paula.thompson@example.com",
         email: "paula.thompson@example.com",
         firstName: "Paula",
         lastName: "Thompson",
@@ -153,7 +147,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "17",
+        id: "quentin.brown@example.com",
         email: "quentin.brown@example.com",
         firstName: "Quentin",
         lastName: "Brown",
@@ -161,7 +155,7 @@ const USERS: User[] = [
         status: UserStatus.DELETED,
     },
     {
-        id: "18",
+        id: "rachel.lee@example.com",
         email: "rachel.lee@example.com",
         firstName: "Rachel",
         lastName: "Lee",
@@ -169,7 +163,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "19",
+        id: "steven.walker@example.com",
         email: "steven.walker@example.com",
         firstName: "Steven",
         lastName: "Walker",
@@ -177,7 +171,7 @@ const USERS: User[] = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: "20",
+        id: "tina.adams@example.com",
         email: "tina.adams@example.com",
         firstName: "Tina",
         lastName: "Adams",
@@ -450,14 +444,6 @@ const CRITERIA: Criterion[] = [
         category: CriterionCategory.EXCLUSION,
     },
 ];
-const projectCriteria: { projectId: string; criteriaIds: string[] }[] = [];
-const CRITERIA_IDS: string[] = CRITERIA.map((criteria) => criteria.id);
-for (const project of projects) {
-    projectCriteria.push({
-        projectId: project.id,
-        criteriaIds: getRandomItems(CRITERIA_IDS, 10, 15).sort(),
-    });
-}
 
 const AUTHORS: Author[] = [
     { firstName: "John", lastName: "Doe", orcid: "0000-0002-1825-0097" },
@@ -712,11 +698,21 @@ for (const [index, paperTitle] of PAPER_TITLES.entries()) {
     });
 }
 
+const userSettings: UserSettings[] = [];
+for (let i = 0; i < 10; i++) {
+    userSettings.push({
+        showHotkeys: Math.random() < 0.5,
+        reviewMode: Math.random() < 0.8,
+        defaultProjectSettings: getRandomItems(projectSettings)[0],
+        defaultCriteria: { criteria: getRandomItems(CRITERIA, 2, 4) },
+    });
+}
+
 export const exampleData: ExampleData = {
     users: USERS,
     projects: projects,
     projectMembers: projectMembers,
     criteria: CRITERIA,
-    projectCriteria: projectCriteria,
     papers: papers,
+    userSettings: userSettings,
 };
