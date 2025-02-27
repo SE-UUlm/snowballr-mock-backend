@@ -5,6 +5,7 @@ import {
     PaperDecision,
     Project,
     Project_Member,
+    Project_Paper,
     Project_Settings,
     ProjectStatus,
     ReviewDecisionMatrix,
@@ -292,7 +293,7 @@ const PROJECT_NAMES = [
     "Efficient Review in Healthcare",
 ];
 for (const [index, projectName] of PROJECT_NAMES.entries()) {
-    const stage: number = Math.floor(Math.random() * 2);
+    const stage: number = Math.floor(Math.random() * 2.5);
 
     projects.push({
         id: "" + index,
@@ -735,6 +736,30 @@ for (let i = 0; i < 100; i++) {
     });
 }
 
+const projectPapers: Project_Paper[] = [];
+for (const [index, paper] of papers.entries()) {
+    const reviewsOfPaper = Math.random() < 0.5 ? getRandomItems(reviews, 1, 3) : [];
+
+    let decision = PaperDecision.UNSPECIFIED;
+    if (reviewsOfPaper.length === 0 || Math.random() < 0.2) {
+        decision = PaperDecision.UNDECIDED;
+    } else if (
+        reviewsOfPaper.filter((review) => review.decision === ReviewDecision.ACCEPTED).length >
+        reviewsOfPaper.filter((review) => review.decision === ReviewDecision.DECLINED).length
+    ) {
+        decision = PaperDecision.ACCEPTED;
+    } else {
+        decision = PaperDecision.DECLINED;
+    }
+    projectPapers.push({
+        id: "" + (100 + index),
+        paper: paper,
+        stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
+        decision: decision,
+        reviews: reviewsOfPaper,
+    });
+}
+
 export const exampleData: ExampleData = {
     users: USERS,
     projects: projects,
@@ -743,4 +768,5 @@ export const exampleData: ExampleData = {
     papers: papers,
     userSettings: userSettings,
     reviews: reviews,
+    projectPapers: projectPapers,
 };

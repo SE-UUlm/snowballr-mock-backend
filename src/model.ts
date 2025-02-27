@@ -1,7 +1,7 @@
 import { LoginSecret } from "./grpc-gen/authentication";
 import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
-import { Project, Project_Member, Project_Paper } from "./grpc-gen/project";
+import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-gen/project";
 import { Review } from "./grpc-gen/review";
 import { User, UserRole, UserStatus } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
@@ -66,6 +66,68 @@ export interface ExampleData {
     projects?: Project[];
     projectMembers?: { projectId: string; members: Project_Member[] }[];
     reviews?: Review[];
+    projectPapers?: Project_Paper[];
+}
+
+/**
+ * Processes the loaded example data, i.e. (eventually) initializing the maps (= "database")
+ * containing all the data of the mock backend.
+ *
+ * @param data - The loaded example data
+ */
+function processExampleData(data: ExampleData) {
+    data.criteria?.forEach((criterion) => CRITERIA.set(criterion.id, criterion));
+    data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
+    data.reviews?.forEach((review) => REVIEWS.set(review.id, review));
+    data.projectPapers?.forEach((projectPaper) => {
+        PROJECT_PAPERS.set(projectPaper.id, projectPaper);
+
+        // add paper reviews in separate PAPER_REVIEWS map
+        PAPER_REVIEWS.set(
+            projectPaper.id,
+            projectPaper.reviews.map((review) => review.id),
+        );
+    });
+    data.users?.forEach((user) => {
+        USERS.set(
+            user.email,
+            fromUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
+        );
+
+        // create random reading list for this user
+        READING_LISTS.set(user.email, getRandomItems(Array.from(PAPERS.values()), 4, 10));
+
+        // add user settings
+        USER_SETTINGS.set(user.email, getRandomItems(data.userSettings ?? [])[0]);
+    });
+    data.projects?.forEach((project) => {
+        PROJECTS.set(project.id, project);
+
+        // create project criteria
+        PROJECT_CRITERIA.set(project.id, getRandomItems(Array.from(CRITERIA.keys()), 5, 10).sort());
+
+        // create a set of project papers
+        PROJECT_PROJECT_PAPERS.set(
+            project.id,
+            getRandomItems(Array.from(PROJECT_PAPERS.values()), 25, 40)
+                .filter((paper: Project_Paper) => paper.stage <= project.maxStage)
+                .map((paper) => paper.id),
+        );
+
+        // set the progress of the project
+        PROGRESS.set(
+            project.id,
+            PROJECT_PROJECT_PAPERS.get(project.id)
+                ?.map((id) => PROJECT_PAPERS.get(id))
+                .filter(
+                    (paper) =>
+                        paper !== undefined &&
+                        paper.stage === project.currentStage &&
+                        paper.decision !== PaperDecision.UNDECIDED,
+                ).length ?? 0,
+        );
+    });
+    data.projectMembers?.forEach(({ projectId, members }) => MEMBERS.set(projectId, members));
 }
 
 /**
@@ -80,33 +142,7 @@ function loadExampleData(filename: string) {
         .then((loadedData: { exampleData: ExampleData }) => {
             const data = loadedData.exampleData;
 
-            data.criteria?.forEach((criterion: Criterion) => CRITERIA.set(criterion.id, criterion));
-            data.papers?.forEach((paper: Paper) => PAPERS.set(paper.id, paper));
-            data.reviews?.forEach((review: Review) => REVIEWS.set(review.id, review));
-            data.users?.forEach((user: User) => {
-                USERS.set(
-                    user.email,
-                    fromUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
-                );
-
-                // create random reading list for this user
-                READING_LISTS.set(user.email, getRandomItems(Array.from(PAPERS.values()), 4, 10));
-
-                // add user settings
-                USER_SETTINGS.set(user.email, getRandomItems(data.userSettings ?? [])[0]);
-            });
-            data.projects?.forEach((project: Project) => {
-                PROJECTS.set(project.id, project);
-
-                // create project criteria
-                PROJECT_CRITERIA.set(
-                    project.id,
-                    getRandomItems(Array.from(CRITERIA.keys()), 5, 10).sort(),
-                );
-            });
-            data.projectMembers?.forEach(({ projectId, members }) =>
-                MEMBERS.set(projectId, members),
-            );
+            processExampleData(data);
 
             LOG.info(
                 `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
