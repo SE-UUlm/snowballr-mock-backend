@@ -64,6 +64,7 @@ export interface ExampleData {
     projectMembers?: { projectId: string; members: Project_Member[] }[];
     criteria?: Criterion[];
     projectCriteria?: { projectId: string; criteriaIds: string[] }[];
+    papers?: Paper[];
 }
 
 /**
@@ -93,6 +94,7 @@ function loadExampleData(filename: string) {
             data.projectCriteria?.forEach(({ projectId, criteriaIds }) =>
                 PROJECT_CRITERIA.set(projectId, criteriaIds),
             );
+            data.papers?.forEach((paper: Paper) => PAPERS.set(paper.id, paper));
 
             LOG.info(
                 `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
