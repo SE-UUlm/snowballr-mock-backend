@@ -10,7 +10,18 @@ import { fromUser } from "./util";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 
-export const AVAILABLE_FETCHERS = ["fake", "mock"];
+export const AVAILABLE_FETCHERS = [
+    "arXiv API",
+    "Semantic Scholar API",
+    "PubMed API",
+    "CrossRef API",
+    "CORE API",
+    "Springer Nature API",
+    "Elsevier Scopus API",
+    "IEEE Xplore API",
+    "OpenCitations API",
+    "Europe PMC API",
+];
 export const USERS: Map<string, ServerUser> = new Map();
 export const PROJECTS: Map<string, Project> = new Map();
 export const PROJECT_PROJECT_PAPERS: Map<string, string[]> = new Map();
@@ -28,6 +39,10 @@ export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
 
 export interface ExampleData {
     users?: User[];
+    projects?: Project[];
+    projectMembers?: { projectId: string; members: Project_Member[] }[];
+    criteria?: Criterion[];
+    projectCriteria?: { projectId: string; criteriaIds: string[] }[];
 }
 
 /**
@@ -42,12 +57,21 @@ function loadExampleData(filename: string) {
         .then((loadedData: { exampleData: ExampleData }) => {
             const data = loadedData.exampleData;
 
-            data.users?.map((user: User) => {
+            data.users?.forEach((user: User) =>
                 USERS.set(
                     user.email,
-                    fromUser(user, "1234", { accessToken: "", refreshToken: "" }),
-                );
-            });
+                    fromUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
+                ),
+            );
+
+            data.projects?.forEach((project: Project) => PROJECTS.set(project.id, project));
+            data.projectMembers?.forEach(({ projectId, members }) =>
+                MEMBERS.set(projectId, members),
+            );
+            data.criteria?.forEach((criterion: Criterion) => CRITERIA.set(criterion.id, criterion));
+            data.projectCriteria?.forEach(({ projectId, criteriaIds }) =>
+                PROJECT_CRITERIA.set(projectId, criteriaIds),
+            );
 
             LOG.info(
                 `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
