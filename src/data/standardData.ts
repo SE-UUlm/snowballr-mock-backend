@@ -710,8 +710,8 @@ for (let i = 0; i < 10; i++) {
 }
 
 const reviews: Review[] = [];
-for (let i = 0; i < 100; i++) {
-    const selectedCriteria = getRandomItems(CRITERIA, 1, 4);
+for (let i = 0; i < 200; i++) {
+    const selectedCriteria = getRandomItems(CRITERIA, 2, 4);
     let decision = ReviewDecision.ACCEPTED;
     if (
         selectedCriteria.filter(
@@ -752,7 +752,7 @@ for (const [index, paper] of papers.entries()) {
         decision = PaperDecision.DECLINED;
     }
     projectPapers.push({
-        id: "" + (100 + index),
+        id: "" + index,
         paper: paper,
         stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
         decision: decision,
