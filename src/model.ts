@@ -79,15 +79,6 @@ function processExampleData(data: ExampleData) {
     data.criteria?.forEach((criterion) => CRITERIA.set(criterion.id, criterion));
     data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
     data.reviews?.forEach((review) => REVIEWS.set(review.id, review));
-    data.projectPapers?.forEach((projectPaper) => {
-        PROJECT_PAPERS.set(projectPaper.id, projectPaper);
-
-        // add paper reviews in separate PAPER_REVIEWS map
-        PAPER_REVIEWS.set(
-            projectPaper.id,
-            projectPaper.reviews.map((review) => review.id),
-        );
-    });
     data.users?.forEach((user) => {
         USERS.set(
             user.email,
@@ -102,29 +93,39 @@ function processExampleData(data: ExampleData) {
     });
     data.projects?.forEach((project) => {
         PROJECTS.set(project.id, project);
+        PROJECT_PROJECT_PAPERS.set(project.id, []);
 
         // create project criteria
         PROJECT_CRITERIA.set(project.id, getRandomItems(Array.from(CRITERIA.keys()), 5, 10).sort());
 
         // create a set of project papers
-        PROJECT_PROJECT_PAPERS.set(
-            project.id,
-            getRandomItems(Array.from(PROJECT_PAPERS.values()), 25, 40)
-                .filter((paper: Project_Paper) => paper.stage <= project.maxStage)
-                .map((paper) => paper.id),
-        );
+        getRandomItems(Array.from(data.projectPapers ?? []), 25, 40)
+            .filter((paper) => paper.stage <= project.maxStage)
+            .map((paper) => ({ ...paper, id: project.id + "-" + paper.id }))
+            .forEach((paper: Project_Paper) => {
+                PROJECT_PAPERS.set(paper.id, paper);
+                PROJECT_PROJECT_PAPERS.get(project.id)?.push(paper.id);
+
+                // add paper reviews in separate PAPER_REVIEWS map
+                PAPER_REVIEWS.set(
+                    paper.id,
+                    paper.reviews.map((review) => review.id),
+                );
+            });
 
         // set the progress of the project
         PROGRESS.set(
             project.id,
-            PROJECT_PROJECT_PAPERS.get(project.id)
+            ((PROJECT_PROJECT_PAPERS.get(project.id)
                 ?.map((id) => PROJECT_PAPERS.get(id))
                 .filter(
                     (paper) =>
                         paper !== undefined &&
                         paper.stage === project.currentStage &&
                         paper.decision !== PaperDecision.UNDECIDED,
-                ).length ?? 0,
+                ).length ?? 0) *
+                100) /
+                (PROJECT_PROJECT_PAPERS.get(project.id)?.length ?? Infinity),
         );
     });
     data.projectMembers?.forEach(({ projectId, members }) => MEMBERS.set(projectId, members));
