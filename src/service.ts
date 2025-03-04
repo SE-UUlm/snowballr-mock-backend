@@ -194,7 +194,9 @@ export const snowballRService: ISnowballR = {
         _: ServerUnaryCall<PasswordResetRequest, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
-        callback(null, {});
+        callback({
+            code: status.UNIMPLEMENTED,
+        });
     },
     changePassword: function (
         call: ServerUnaryCall<PasswordChangeRequest, Nothing>,
@@ -439,11 +441,18 @@ export const snowballRService: ISnowballR = {
     ): void {
         const user = getAuthenticated(call.metadata)!;
         const { id } = call.request;
-        READING_LISTS.set(
-            user.id,
-            READING_LISTS.get(user.id)!.filter((p) => p.id != id),
-        );
-        callback(null, {});
+        if (READING_LISTS.get(user.id)?.some(p => p.id == id)) {
+            READING_LISTS.set(
+                user.id,
+                READING_LISTS.get(user.id)!.filter((p) => p.id != id),
+            );
+            callback(null, {});
+        } else {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Paper id not found in reading list",
+            })
+        }
     },
     getPendingInvitationsForUser: function (
         _: ServerUnaryCall<Id, Project_List>,
@@ -458,7 +467,10 @@ export const snowballRService: ISnowballR = {
         _: ServerUnaryCall<Project_Member_Invite, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
-        callback(null, {});
+        // TODO
+        callback({
+            code: status.UNIMPLEMENTED
+        })
     },
     getPendingInvitationsForProject: function (
         _: ServerUnaryCall<Id, User_List>,
@@ -492,10 +504,10 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId, userId } = call.request;
 
-        if (!MEMBERS.has(projectId)) {
+        if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project not found",
+                details: "Project does not exist",
             });
             return;
         }
@@ -695,7 +707,7 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId } = call.request;
 
-        if (!PROGRESS.has(projectId)) {
+        if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
                 details: "Project not found",
@@ -834,7 +846,7 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Paper_List>,
     ): void {
         const { id } = call.request;
-        if (PROJECT_PAPERS.has(id)) {
+        if (PROJECTS.has(id)) {
             callback(null, {
                 projectPapers: PROJECT_PROJECT_PAPERS
                     .get(id)!
@@ -852,7 +864,7 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Paper>,
     ): void {
         const { projectId, paperId, stage } = call.request;
-        if (PROJECT_PAPERS.has(projectId)) {
+        if (PROJECTS.has(projectId)) {
             const id = getNextId(PROJECT_PAPERS);
             const project_paper: Project_Paper = {
                 id: id,
