@@ -26,7 +26,7 @@ npm run build
 npm run start
 ```
 
-If connecting from a gRPC Web client, the `GRPC_WEB_PORT` endpoint must be
+If connecting from a gRPC web client, the `GRPC_WEB_PORT` endpoint must be
 targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
 `GRPC_PORT` is required.
 
@@ -35,8 +35,8 @@ targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
 | Environment Variable | Default | Description                                  |
 | -------------------- | ------- | -------------------------------------------- |
 | `GRPC_PORT`          | 3000    | The port the native server should listen on  |
-| `GRPC_WEB_PORT`      | 3001    | The port the gRPC Web proxy should listen on |
-| `ENABLE_DUMMY_ADMIN` | false   | Wether or not to enable a dummy admin user   |
+| `GRPC_WEB_PORT`      | 3001    | The port the gRPC web proxy should listen on |
+| `ENABLE_DUMMY_ADMIN` | false   | Whether or not to enable a dummy admin user  |
 
 ## Tooling
 
