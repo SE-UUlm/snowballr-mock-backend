@@ -58,4 +58,5 @@ if (isEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
         accessToken: "admin",
         refreshToken: "admin",
     });
+    LOG.info(USERS.get("admin@admin"), "The dummy admin user");
 }
