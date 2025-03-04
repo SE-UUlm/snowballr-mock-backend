@@ -32,6 +32,8 @@ targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
 
 ### Configuration
 
+A boolean variable may be enabled by setting it to either `1`, `yes`, or `true`.
+
 | Environment Variable | Default | Description                                  |
 | -------------------- | ------- | -------------------------------------------- |
 | `GRPC_PORT`          | 3000    | The port the native server should listen on  |
