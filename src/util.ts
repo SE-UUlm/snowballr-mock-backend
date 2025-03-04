@@ -8,7 +8,7 @@ export function isEmpty(string: string | null): boolean {
     else return string.trim().length == 0;
 }
 
-export function randomString(length: number): string {
+function randomString(length: number): string {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const randomNum = () => Math.floor(Math.random() * alphabet.length);
     return Array.from({ length: length }, randomNum)
