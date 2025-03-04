@@ -37,6 +37,7 @@ targeted. If using a native client like `grpcui` or `grpcurl`, conecting to
 | `GRPC_PORT`          | 3000    | The port the native server should listen on  |
 | `GRPC_WEB_PORT`      | 3001    | The port the gRPC web proxy should listen on |
 | `ENABLE_DUMMY_ADMIN` | false   | Whether or not to enable a dummy admin user  |
+| `LOG_LEVEL`          | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`. |
 
 ## Tooling
 
