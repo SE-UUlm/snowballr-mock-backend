@@ -10,6 +10,8 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { isSnowballRService } from "./util";
 import { LOG } from "./log";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 function stripPrefix(value: string, prefix: string) {
     return value.startsWith(prefix) ? value.substring(prefix.length) : value;
 }
@@ -36,10 +38,13 @@ export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
         })
         .withSendStatus((status, next) => {
             if (shouldLog && status.code != Status.OK) {
-                LOG.error({
-                    ...status,
-                    code: `${Status[status.code]} (${status.code})`,
-                },`Replied to "${methodName}" with error`);
+                LOG.error(
+                    {
+                        ...status,
+                        code: `${Status[status.code]} (${status.code})`,
+                    },
+                    `Replied to "${methodName}" with error`,
+                );
             }
             next(status);
         })

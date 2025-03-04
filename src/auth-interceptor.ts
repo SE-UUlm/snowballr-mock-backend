@@ -9,6 +9,8 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
 import { getAuthenticated, isSnowballRService } from "./util";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 // Checks every call to the SnowballR api requiring the user to be authenticated
 // against the currently authenticated users. If not authenticated, the call is
 // intercepted and replied with an 'UNAUTHENTICATED' error. If correct

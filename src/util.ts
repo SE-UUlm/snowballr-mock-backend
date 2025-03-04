@@ -16,10 +16,10 @@ function randomString(length: number): string {
         .join("");
 }
 
-let tokens: string[] = [];
+const tokens: string[] = [];
 export function randomToken(): string {
     let token = randomString(40);
-    while (tokens.some(t => t == token)) {
+    while (tokens.some((t) => t == token)) {
         token = randomString(40);
     }
     tokens.push(token);
@@ -63,6 +63,7 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
     return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }

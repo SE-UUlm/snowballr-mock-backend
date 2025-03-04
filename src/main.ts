@@ -16,7 +16,9 @@ const ENDPOINT = `${ADDRESS}:${PORT}`;
 
 proxy({
     target: `http://127.0.0.1:${PORT}`,
-} as any).listen(WEB_PORT);
+    origin: "",
+    headers: "",
+}).listen(WEB_PORT);
 
 const server = new grpc.Server({
     interceptors: [AUTH_INTERCEPTOR, LOGGING_INTERCEPTOR],
@@ -28,7 +30,7 @@ server.bindAsync(
     grpc.ServerCredentials.createInsecure(),
     (err: Error | null, port: number) => {
         if (err) {
-            LOG.fatal(`Server error: ${err.message}`)
+            LOG.fatal(`Server error: ${err.message}`);
         } else {
             LOG.info(`Native server listening on: ${ADDRESS}:${port}`);
             LOG.info(`gRPC Web proxy listening on: ${ADDRESS}:${WEB_PORT}`);

@@ -39,7 +39,6 @@ export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 // Paper Id => PDF Blob
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
 
-
 function isEnabled(option: string | undefined): boolean {
     option = option?.toLowerCase() ?? "";
     return option == "1" || option == "yes" || option == "true";
