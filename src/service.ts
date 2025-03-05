@@ -609,6 +609,17 @@ export const snowballRService: ISnowballR = {
         PROGRESS.set(id, Math.random());
         PROJECT_CRITERIA.set(id, []);
         PROJECT_PROJECT_PAPERS.set(id, []);
+        
+        for (const criterion of (USER_SETTINGS.get(user.id)?.defaultCriteria?.criteria || [])) {
+            const id = CRITERIA.size.toString();
+            CRITERIA.set(id, {
+                ...criterion,
+                id: id,
+            });
+
+            PROJECT_CRITERIA.get(id)!.push(id);
+        }
+
         callback(null, PROJECTS.get(id)!);
     },
     getProjectById: function (
