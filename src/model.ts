@@ -8,6 +8,7 @@ import { UserSettings } from "./grpc-gen/user_settings";
 import { LOG } from "./log";
 
 export type ServerUser = User & { password: string } & LoginSecret;
+export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
 export const AVAILABLE_FETCHERS = ["fake", "mock"];
 // User id => User
@@ -17,7 +18,7 @@ export const PROJECTS: Map<string, Project> = new Map();
 // Project id => Ids of Project Paper Entities belonging to Project
 export const PROJECT_PROJECT_PAPERS: Map<string, string[]> = new Map();
 // Project Paper id => Project Paper
-export const PROJECT_PAPERS: Map<string, Project_Paper> = new Map();
+export const PROJECT_PAPERS: Map<string, ServerProjectPaper> = new Map();
 // Paper id => Paper
 export const PAPERS: Map<string, Paper> = new Map();
 // User id => User Settings
@@ -38,6 +39,15 @@ export const REVIEWS: Map<string, Review> = new Map();
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 // Paper Id => PDF Blob
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
+
+export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper {
+    return {
+        ...paper,
+        reviews: PAPER_REVIEWS
+            .get(paper.id)!
+            .map(reviewId => REVIEWS.get(reviewId)!),
+    }
+}
 
 function isEnabled(option: string | undefined): boolean {
     option = option?.toLowerCase() ?? "";

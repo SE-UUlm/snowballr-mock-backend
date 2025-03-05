@@ -43,6 +43,7 @@ import {
 import { Review, Review_Create, Review_List, Review_Update } from "./grpc-gen/review";
 import { status } from "@grpc/grpc-js";
 import {
+    addProjectPaperReviews,
     AVAILABLE_FETCHERS,
     CRITERIA,
     MEMBERS,
@@ -336,7 +337,7 @@ export const snowballRService: ISnowballR = {
         callback(null, {
             projectPapers: Array.from(PROJECT_PAPERS.values()).filter(
                 (pp) => pp.decision == PaperDecision.UNDECIDED,
-            ),
+            ).map(addProjectPaperReviews),
         });
     },
     getPapersToReviewForProject: function (
@@ -356,7 +357,8 @@ export const snowballRService: ISnowballR = {
         callback(null, {
             projectPapers: (PROJECT_PROJECT_PAPERS.get(id) ?? [])
                 .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-                .filter((pp) => pp.decision == PaperDecision.UNDECIDED),
+                .filter((pp) => pp.decision == PaperDecision.UNDECIDED)
+                .map(addProjectPaperReviews),
         });
     },
     getUserSettings: function (
@@ -831,7 +833,7 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { id } = call.request;
         if (PROJECT_PAPERS.has(id)) {
-            callback(null, PROJECT_PAPERS.get(id)!);
+            callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(id)!));
         } else {
             callback({
                 code: status.NOT_FOUND,
@@ -848,7 +850,7 @@ export const snowballRService: ISnowballR = {
             callback(null, {
                 projectPapers: PROJECT_PROJECT_PAPERS.get(id)!.map(
                     (ppp) => PROJECT_PAPERS.get(ppp)!,
-                ),
+                ).map(addProjectPaperReviews),
             });
         } else {
             callback({
@@ -920,7 +922,7 @@ export const snowballRService: ISnowballR = {
             ...currentProjectPaper,
             ...(update as Project_Paper),
         });
-        callback(null, PROJECT_PAPERS.get(projectPaper.id)!);
+        callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(projectPaper.id)!));
     },
     removePaperFromProject: function (
         call: ServerUnaryCall<Id, Nothing>,
