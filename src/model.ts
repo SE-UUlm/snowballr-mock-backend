@@ -43,10 +43,8 @@ export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
 export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper {
     return {
         ...paper,
-        reviews: PAPER_REVIEWS
-            .get(paper.id)!
-            .map(reviewId => REVIEWS.get(reviewId)!),
-    }
+        reviews: PAPER_REVIEWS.get(paper.id)!.map((reviewId) => REVIEWS.get(reviewId)!),
+    };
 }
 
 function isEnabled(option: string | undefined): boolean {

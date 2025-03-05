@@ -335,9 +335,9 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Project_Paper_List>,
     ): void {
         callback(null, {
-            projectPapers: Array.from(PROJECT_PAPERS.values()).filter(
-                (pp) => pp.decision == PaperDecision.UNDECIDED,
-            ).map(addProjectPaperReviews),
+            projectPapers: Array.from(PROJECT_PAPERS.values())
+                .filter((pp) => pp.decision == PaperDecision.UNDECIDED)
+                .map(addProjectPaperReviews),
         });
     },
     getPapersToReviewForProject: function (
@@ -609,8 +609,8 @@ export const snowballRService: ISnowballR = {
         PROGRESS.set(id, 0);
         PROJECT_CRITERIA.set(id, []);
         PROJECT_PROJECT_PAPERS.set(id, []);
-        
-        for (const criterion of (USER_SETTINGS.get(user.id)?.defaultCriteria?.criteria || [])) {
+
+        for (const criterion of USER_SETTINGS.get(user.id)?.defaultCriteria?.criteria || []) {
             const id = getNextId(CRITERIA);
             CRITERIA.set(id, {
                 ...criterion,
@@ -860,9 +860,9 @@ export const snowballRService: ISnowballR = {
         const { id } = call.request;
         if (PROJECTS.has(id)) {
             callback(null, {
-                projectPapers: PROJECT_PROJECT_PAPERS.get(id)!.map(
-                    (ppp) => PROJECT_PAPERS.get(ppp)!,
-                ).map(addProjectPaperReviews),
+                projectPapers: PROJECT_PROJECT_PAPERS.get(id)!
+                    .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+                    .map(addProjectPaperReviews),
             });
         } else {
             callback({
@@ -888,7 +888,7 @@ export const snowballRService: ISnowballR = {
             PROJECT_PAPERS.set(id, project_paper);
             PAPER_REVIEWS.set(id, []);
             PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
-            PROGRESS.set(projectId, Math.min(PROGRESS.get(projectId) || 0 + 0.05, 1.0))
+            PROGRESS.set(projectId, Math.min(PROGRESS.get(projectId) || 0 + 0.05, 1.0));
             callback(null, project_paper);
         } else {
             callback({
