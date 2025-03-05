@@ -606,7 +606,7 @@ export const snowballRService: ISnowballR = {
                 user: user,
             },
         ]);
-        PROGRESS.set(id, Math.random());
+        PROGRESS.set(id, 0);
         PROJECT_CRITERIA.set(id, []);
         PROJECT_PROJECT_PAPERS.set(id, []);
         
@@ -887,6 +887,7 @@ export const snowballRService: ISnowballR = {
             PROJECT_PAPERS.set(id, project_paper);
             PAPER_REVIEWS.set(id, []);
             PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
+            PROGRESS.set(projectId, Math.min(PROGRESS.get(projectId) || 0 + 0.05, 1.0))
             callback(null, project_paper);
         } else {
             callback({
