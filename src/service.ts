@@ -591,7 +591,7 @@ export const snowballRService: ISnowballR = {
     ): void {
         const user = getAuthenticated(call.metadata)!;
         const { name } = call.request;
-        const id = PROJECTS.size.toString();
+        const id = getNextId(PROJECTS);
         PROJECTS.set(id, {
             id: id,
             name: name,
@@ -611,7 +611,7 @@ export const snowballRService: ISnowballR = {
         PROJECT_PROJECT_PAPERS.set(id, []);
         
         for (const criterion of (USER_SETTINGS.get(user.id)?.defaultCriteria?.criteria || [])) {
-            const id = CRITERIA.size.toString();
+            const id = getNextId(CRITERIA);
             CRITERIA.set(id, {
                 ...criterion,
                 id: id,
@@ -773,7 +773,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const id = CRITERIA.size.toString();
+        const id = getNextId(CRITERIA);
         CRITERIA.set(id, {
             id: id,
             tag: tag,
@@ -836,6 +836,7 @@ export const snowballRService: ISnowballR = {
                 criteria.filter((c) => c != id),
             );
         }
+        CRITERIA.delete(id);
         callback(null, {});
     },
     getProjectPaperById: function (
@@ -993,7 +994,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const id = REVIEWS.size.toString();
+        const id = getNextId(REVIEWS);
         REVIEWS.set(id, {
             id: id,
             userId: user.id,
@@ -1055,6 +1056,7 @@ export const snowballRService: ISnowballR = {
                 reviews.filter((c) => c != id),
             );
         }
+        REVIEWS.delete(id);
         callback(null, {});
     },
     getPaperById: function (
@@ -1076,7 +1078,7 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Paper>,
     ): void {
         const create = call.request;
-        const id = PAPERS.size.toString();
+        const id = getNextId(PAPERS);
         PAPERS.set(id, {
             ...create,
             id: id,
