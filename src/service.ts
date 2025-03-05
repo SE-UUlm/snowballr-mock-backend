@@ -611,13 +611,13 @@ export const snowballRService: ISnowballR = {
         PROJECT_PROJECT_PAPERS.set(id, []);
 
         for (const criterion of USER_SETTINGS.get(user.id)?.defaultCriteria?.criteria || []) {
-            const id = getNextId(CRITERIA);
-            CRITERIA.set(id, {
+            const criterionId = getNextId(CRITERIA);
+            CRITERIA.set(criterionId, {
                 ...criterion,
-                id: id,
+                id: criterionId,
             });
 
-            PROJECT_CRITERIA.get(id)!.push(id);
+            PROJECT_CRITERIA.get(id)!.push(criterionId);
         }
 
         callback(null, PROJECTS.get(id)!);
