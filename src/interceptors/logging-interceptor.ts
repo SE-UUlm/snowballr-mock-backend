@@ -8,10 +8,9 @@ import {
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { isSnowballRService } from "../util";
-import { LOG } from "../log";
+import { LOG } from "../main";
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-
 function stripPrefix(value: string, prefix: string) {
     return value.startsWith(prefix) ? value.substring(prefix.length) : value;
 }
