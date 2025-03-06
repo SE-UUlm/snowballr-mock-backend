@@ -8,7 +8,8 @@
         "start": "node dist/main.js",
         "watch": "nodemon src/main.ts",
         "format": "prettier --write .",
-        "lint": "prettier --check . && eslint ."
+        "lint": "prettier --check . && eslint .",
+        "compile:proto": "mkdir -p dist && npx protoc --ts_out src/grpc-gen --ts_opt server_grpc1,generate_dependencies --proto_path api/proto/ --descriptor_set_out=dist/schema.ds --include_imports api/proto/main.proto"
     },
     "repository": {
         "type": "git",
@@ -21,26 +22,23 @@
     },
     "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
     "devDependencies": {
-        "@eslint/js": "^9.16.0",
-        "@types/body-parser": "^1.19.5",
-        "@types/express": "^4.17.21",
-        "@types/multer": "^1.4.12",
+        "@eslint/js": "^9.18.0",
+        "@protobuf-ts/plugin": "^2.9.4",
         "concurrently": "^9.1.0",
-        "eslint": "^9.16.0",
-        "globals": "^15.13.0",
+        "eslint": "^9.18.0",
+        "globals": "^15.14.0",
         "nodemon": "^3.1.7",
         "prettier": "^3.4.2",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
-        "typescript-eslint": "^8.17.0"
+        "typescript-eslint": "^8.21.0"
     },
     "dependencies": {
-        "body-parser": "^1.20.3",
-        "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.1",
-        "express": "^4.21.1",
-        "multer": "^1.4.5-lts.1",
-        "reflect-metadata": "^0.2.2",
-        "routing-controllers": "^0.10.4"
+        "@grpc-web/proxy": "^0.1.0",
+        "@grpc/grpc-js": "^1.12.5",
+        "grpc-server-reflection": "^0.1.5",
+        "pino": "^9.6.0",
+        "pino-pretty": "^13.0.0",
+        "protobuf-fieldmask": "^2.0.0"
     }
 }
