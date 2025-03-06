@@ -3,10 +3,10 @@ import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
 import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-gen/project";
 import { Review } from "./grpc-gen/review";
-import { User, UserRole, UserStatus } from "./grpc-gen/user";
+import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
-import { LOG } from "./log";
 import { fromUser, getRandomItems } from "./util";
+import { LOG } from "./main";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
@@ -50,13 +50,6 @@ export const REVIEWS: Map<string, Review> = new Map();
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 // Paper Id => PDF Blob
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
-
-export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper {
-    return {
-        ...paper,
-        reviews: PAPER_REVIEWS.get(paper.id)!.map((reviewId) => REVIEWS.get(reviewId)!),
-    };
-}
 
 export interface ExampleData {
     criteria?: Criterion[];
@@ -138,7 +131,7 @@ function processExampleData(data: ExampleData) {
  *
  * @param filename - The name of the file containing the example data
  */
-function loadExampleData(filename: string) {
+export function loadExampleData(filename: string) {
     import(`./data/${filename.replace(".ts", "")}`)
         .then((loadedData: { exampleData: ExampleData }) => {
             const data = loadedData.exampleData;
@@ -154,55 +147,4 @@ function loadExampleData(filename: string) {
                 `Failed to load example data from file "${filename}". Falling back to default settings, so starting server with no initial data...`,
             );
         });
-}
-
-/**
- * Checks whether the given string indicates that an option is enabled.
- * An option is considered as enabled, if it is set to either:
- * - 1
- * - yes
- * - Yes
- * - true
- * - True
- *
- * @param option
- */
-function isOptionEnabled(option?: string): boolean {
-    option = option?.toLowerCase() ?? "";
-    switch (option) {
-        case "1":
-        case "yes":
-        case "Yes":
-        case "true":
-        case "True":
-            return true;
-        default:
-            return false;
-    }
-}
-
-/*
-    Parse the environment variables.
-*/
-
-// Check, whether the dummy admin user should be added or not
-if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
-    LOG.warn("Security Risk: dummy admin user enabled!");
-    USERS.set("admin@admin", {
-        id: "admin@admin",
-        email: "admin@admin",
-        firstName: "admin",
-        lastName: "admin",
-        role: UserRole.ADMIN,
-        status: UserStatus.ACTIVE,
-        password: "admin",
-        accessToken: "admin",
-        refreshToken: "admin",
-    });
-    LOG.info(USERS.get("admin@admin"), "The dummy admin user");
-}
-
-// Check, whether a filepath to a file containing example data for the mock backend is set
-if (process.env.EXAMPLE_DATA_FILE !== undefined && process.env.EXAMPLE_DATA_FILE !== "") {
-    loadExampleData(process.env.EXAMPLE_DATA_FILE);
 }

@@ -43,7 +43,6 @@ import {
 import { Review, Review_Create, Review_List, Review_Update } from "./grpc-gen/review";
 import { status } from "@grpc/grpc-js";
 import {
-    addProjectPaperReviews,
     AVAILABLE_FETCHERS,
     CRITERIA,
     MEMBERS,
@@ -61,6 +60,7 @@ import {
     USERS,
 } from "./model";
 import {
+    addProjectPaperReviews,
     anythingUndefined,
     findFirst,
     getAuthenticated,

@@ -1,8 +1,14 @@
 import { Metadata } from "@grpc/grpc-js";
-import { ServerUser, USERS } from "./model";
+import { PAPER_REVIEWS, REVIEWS, ServerProjectPaper, ServerUser, USERS } from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { LoginSecret } from "./grpc-gen/authentication";
+import { Project_Paper } from "./grpc-gen/project";
+
+export function isEmpty(string: string | null): boolean {
+    if (string == null) return true;
+    else return string.trim().length == 0;
+}
 
 /**
  * Select a random items from a list. The number of items to be selected
@@ -23,11 +29,6 @@ export function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfIt
         0,
         Math.floor(Math.random() * (maxNumberOfItems - minNumberOfItems)) + minNumberOfItems,
     );
-}
-
-export function isEmpty(string: string | null): boolean {
-    if (string == null) return true;
-    else return string.trim().length == 0;
 }
 
 function randomString(length: number): string {
@@ -89,6 +90,12 @@ export function toUser(serverUser: ServerUser): User {
     };
 }
 
+export function isSnowballRService<TRequest, TResponse>(
+    methodDescriptor: ServerMethodDefinition<TRequest, TResponse>,
+): boolean {
+    return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
+}
+
 export function findFirst<T, K extends keyof T, V extends T[K]>(
     objects: Iterable<T>,
     key: K,
@@ -99,19 +106,7 @@ export function findFirst<T, K extends keyof T, V extends T[K]>(
             return object;
         }
     }
-
     return null;
-}
-
-export function anythingUndefined<T extends object>(obj: T): boolean {
-    return Object.values(obj).some((v) => {
-        return v == undefined || (typeof v === "object" && anythingUndefined(v));
-    });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
-    return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
 
 export function getNextId<T extends Map<string, V>, V>(objs: T): string {
@@ -120,4 +115,40 @@ export function getNextId<T extends Map<string, V>, V>(objs: T): string {
         i++;
     }
     return i.toString();
+}
+
+export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper {
+    return {
+        ...paper,
+        reviews: PAPER_REVIEWS.get(paper.id)!.map((reviewId) => REVIEWS.get(reviewId)!),
+    };
+}
+
+export function anythingUndefined<T extends object>(obj: T): boolean {
+    return Object.values(obj).some((v) => {
+        return v == undefined || (typeof v === "object" && anythingUndefined(v));
+    });
+}
+
+/**
+ * Checks whether the given string indicates that an option is enabled.
+ * An option is considered as enabled, if it is set to either:
+ * - 1
+ * - (y/Y)es
+ * - (t/T)rue
+ *
+ * @param option
+ */
+export function isOptionEnabled(option?: string): boolean {
+    option = option?.toLowerCase() ?? "";
+    switch (option) {
+        case "1":
+        case "yes":
+        case "Yes":
+        case "true":
+        case "True":
+            return true;
+        default:
+            return false;
+    }
 }
