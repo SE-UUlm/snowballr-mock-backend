@@ -5,6 +5,12 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { LoginSecret } from "./grpc-gen/authentication";
 import { Project_Paper } from "./grpc-gen/project";
 
+/**
+ * Checks whether a string is the empty string
+ *
+ * @param string the string to check against the empty string
+ * @return true, if the string is empty or null, otherwise false
+ */
 export function isEmpty(string: string | null): boolean {
     if (string == null) return true;
     else return string.trim().length == 0;
@@ -19,9 +25,10 @@ export function isEmpty(string: string | null): boolean {
  * If the number of items to be chosen is greater that the number of items in the list,
  * the entire list is returned
  *
- * @param list - The list the items are randomly selected of
- * @param minNumberOfItems - The minimum number of items to be chosen
- * @param maxNumberOfItems - The maximum number of items to be chosen
+ * @param list the list the items are randomly selected of
+ * @param minNumberOfItems the minimum number of items to be chosen
+ * @param maxNumberOfItems the maximum number of items to be chosen
+ * @return the list containing the randomly selected items
  */
 export function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfItems = 1): T[] {
     const shuffledList = [...list].sort(() => Math.random() - 0.5);
@@ -31,6 +38,11 @@ export function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfIt
     );
 }
 
+/**
+ * Generates a random alphanumeric string
+ *
+ * @param length the length of the random string
+ */
 function randomString(length: number): string {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const randomNum = () => Math.floor(Math.random() * alphabet.length);
@@ -40,6 +52,9 @@ function randomString(length: number): string {
 }
 
 const tokens: string[] = [];
+/**
+ * Generates a random token, which is a random alphanumeric string of length 40
+ */
 export function randomToken(): string {
     let token = randomString(40);
     while (tokens.some((t) => t == token)) {
@@ -49,6 +64,12 @@ export function randomToken(): string {
     return token;
 }
 
+/**
+ * Search for the (server) user with the provided "Authorization" token.
+ *
+ * @param metadata the request metadata (= header) containing the "Authorization" header
+ * @return the server user with the given access token or null, if no server user was found
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAuthenticated(metadata: Metadata): ServerUser | null {
     /*const authorization = metadata.get("Authorization").join("");
@@ -61,9 +82,10 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
  * Converts a user into a server user, so the user information are extended by the password and tokens
  * of the user.
  *
- * @param user - The user object to be extended
- * @param password - The password of the user
- * @param loginSecret - The login secret, so the authorization and refresh tokens of the user
+ * @param user the user object to be extended
+ * @param password the password of the user
+ * @param loginSecret the login secret, so the authorization and refresh tokens of the user
+ * @return the server user created from the user, password and login secret
  */
 export function fromUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
     return {
@@ -79,6 +101,9 @@ export function fromUser(user: User, password: string, loginSecret: LoginSecret)
     };
 }
 
+/**
+ * Converts a server user (= user with password and login credentials) to a normal user.
+ */
 export function toUser(serverUser: ServerUser): User {
     return {
         id: serverUser.id,
@@ -96,6 +121,14 @@ export function isSnowballRService<TRequest, TResponse>(
     return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
 
+/**
+ * Finds the first object that has a specific key-value pair.
+ *
+ * @param objects an iterable collection of objects.
+ * @param key the key to check in each object.
+ * @param value the value to match against.
+ * @return the first object that matches the key-value condition, null if nothing was found
+ */
 export function findFirst<T, K extends keyof T, V extends T[K]>(
     objects: Iterable<T>,
     key: K,
@@ -109,6 +142,12 @@ export function findFirst<T, K extends keyof T, V extends T[K]>(
     return null;
 }
 
+/**
+ * Generates the next id.
+ *
+ * @param objs the map of already exist elements with ids
+ * @return the next available id
+ */
 export function getNextId<T extends Map<string, V>, V>(objs: T): string {
     let i = objs.size;
     while (objs.has(i.toString())) {
@@ -117,6 +156,12 @@ export function getNextId<T extends Map<string, V>, V>(objs: T): string {
     return i.toString();
 }
 
+/**
+ * Adds review details to a project paper.
+ *
+ * @param paper the project paper to extend with review information
+ * @return the new project paper with an added 'reviews' array populated from the associated reviews
+ */
 export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper {
     return {
         ...paper,
@@ -124,6 +169,12 @@ export function addProjectPaperReviews(paper: ServerProjectPaper): Project_Paper
     };
 }
 
+/**
+ * Checks if any property in an object (including nested objects) is undefined.
+ *
+ * @param obj the object to check
+ * @returns true if any property (or sub-property) is undefined, otherwise false
+ */
 export function anythingUndefined<T extends object>(obj: T): boolean {
     return Object.values(obj).some((v) => {
         return v == undefined || (typeof v === "object" && anythingUndefined(v));
@@ -137,7 +188,8 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
  * - (y/Y)es
  * - (t/T)rue
  *
- * @param option
+ * @param option the input to check
+ * @return true, if the given option is set to value listed above, otherwise false
  */
 export function isOptionEnabled(option?: string): boolean {
     option = option?.toLowerCase() ?? "";

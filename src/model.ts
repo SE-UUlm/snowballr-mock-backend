@@ -11,6 +11,7 @@ import { LOG } from "./main";
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
+/* Maps storing all data of the mock backend and simulating a "database" */
 export const AVAILABLE_FETCHERS = [
     "arXiv API",
     "Semantic Scholar API",
@@ -23,30 +24,31 @@ export const AVAILABLE_FETCHERS = [
     "OpenCitations API",
     "Europe PMC API",
 ];
+// User id => User (with login credentials and password)
 export const USERS: Map<string, ServerUser> = new Map();
 // Project id => Project
 export const PROJECTS: Map<string, Project> = new Map();
-// Project id => Ids of Project Paper Entities belonging to Project
+// Project id => Ids of project paper entities belonging to the project
 export const PROJECT_PROJECT_PAPERS: Map<string, string[]> = new Map();
-// Project Paper id => Project Paper
+// Project Paper id => Project paper
 export const PROJECT_PAPERS: Map<string, ServerProjectPaper> = new Map();
 // Paper id => Paper
 export const PAPERS: Map<string, Paper> = new Map();
-// User id => User Settings
+// User id => User settings
 export const USER_SETTINGS: Map<string, UserSettings> = new Map();
-// User id => List of Papers
+// User id => List of papers of the reading list of the user with the id
 export const READING_LISTS: Map<string, Paper[]> = new Map();
-// Project id => List of Project Members
+// Project id => List of project members of this project
 export const MEMBERS: Map<string, Project_Member[]> = new Map();
-// Project id => Progress in range [0,1]
+// Project id => Progress of the current stage in range [0,1]
 export const PROGRESS: Map<string, number> = new Map();
-// Project id => Ids of Criteria
+// Project id => Ids of criteria
 export const PROJECT_CRITERIA: Map<string, string[]> = new Map();
 // Criterion id => Criterion
 export const CRITERIA: Map<string, Criterion> = new Map();
 // Review id => Review
 export const REVIEWS: Map<string, Review> = new Map();
-// Project Paper id => Ids of Reviews
+// Project Paper id => Ids of reviews for this project paper
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 // Paper Id => PDF Blob
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
@@ -66,7 +68,7 @@ export interface ExampleData {
  * Processes the loaded example data, i.e. (eventually) initializing the maps (= "database")
  * containing all the data of the mock backend.
  *
- * @param data - The loaded example data
+ * @param data the loaded example data
  */
 function processExampleData(data: ExampleData) {
     data.criteria?.forEach((criterion) => CRITERIA.set(criterion.id, criterion));
@@ -129,7 +131,7 @@ function processExampleData(data: ExampleData) {
  * data.
  *
  *
- * @param filename - The name of the file containing the example data
+ * @param filename the name of the file containing the example data
  */
 export function loadExampleData(filename: string) {
     import(`./data/${filename.replace(".ts", "")}`)
