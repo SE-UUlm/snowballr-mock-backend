@@ -1,12 +1,23 @@
+import prettier from "eslint-config-prettier";
+import js from "@eslint/js";
 import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
+import ts from "typescript-eslint";
 
-/** @type {import('eslint').Linter.Config[]} */
-export default [
-    { files: ["src/**/*.{js,mjs,cjs,ts}"] },
-    { languageOptions: { globals: globals.node } },
-    pluginJs.configs.recommended,
-    ...tseslint.configs.recommended,
-    { ignores: ["src/grpc-gen/", "dist/"] },
-];
+export default ts.config(
+    js.configs.recommended,
+    ...ts.configs.recommended,
+    prettier,
+    {
+        files: ["src/**/*.{ts}"],
+    },
+    {
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+    {
+        ignores: ["dist/", "src/grpc-gen/", "api/"],
+    },
+);

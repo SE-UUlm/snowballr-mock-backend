@@ -63,8 +63,9 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isSnowballRService(methodDescriptor: ServerMethodDefinition<any, any>): boolean {
+export function isSnowballRService<RequestT, ResponseT>(
+    methodDescriptor: ServerMethodDefinition<RequestT, ResponseT>,
+): boolean {
     return methodDescriptor.path.startsWith("/snowballr.SnowballR/");
 }
 
