@@ -46,6 +46,7 @@ jobs:
               uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
               with:
                   context: .
+                  push: true
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
 
@@ -66,8 +67,6 @@ jobs:
                   mkdir -p ~/.ssh
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
                   chmod 600 ~/.ssh/id_rsa
-                  echo "StrictHostKeyChecking no" >> ~/.ssh/config
-
             - name: Pull and run docker image
               run: |
                   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
@@ -75,5 +74,5 @@ jobs:
                     
                     docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                     
-                    docker run -d --name snowballr-mock-backend -p 3001:3001 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                    docker run -d --name snowballr-mock-backend -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                   EOF
