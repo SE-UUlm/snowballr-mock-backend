@@ -96,7 +96,7 @@ function processExampleData(data: ExampleData) {
         // create a set of project papers
         getRandomItems(Array.from(data.projectPapers ?? []), 25, 40)
             .filter((paper) => paper.stage <= project.maxStage)
-            .map((paper) => ({ ...paper, id: project.id + "-" + paper.id }))
+            .map((paper) => ({ ...paper, id: `${project.id}-${paper.id}` }))
             .forEach((paper: Project_Paper) => {
                 PROJECT_PAPERS.set(paper.id, paper);
                 PROJECT_PROJECT_PAPERS.get(project.id)?.push(paper.id);
