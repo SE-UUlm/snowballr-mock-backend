@@ -32,7 +32,7 @@ targeted. If using a native client like `grpcui` or `grpcurl`, connecting to
 
 If you're not going to use the mock backend for automated tests, but only to manually check the frontend functionality, it's useful to have some initial data.
 You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a typescript file.
-This file must be located in the [data/](src/data) directory. The data in this file is then imported and,
+This file must be located in the [src/data/](src/data) directory. The data in this file is then imported and,
 if it is correct, saved as initial data in a "database" with which the mock backend is started.
 The file is considered to be correct, if it exports an object named `exampleData` conforming the `ExampleData` interface, e.g.
 
@@ -41,7 +41,6 @@ export const exampleData: ExampleData = {
     users: users,
     ...
 };
-
 ```
 
 ### Configuration
@@ -52,9 +51,9 @@ A boolean variable may be enabled by setting it to either `1`, `yes`, or `true`.
 | ------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------- |
 | `GRPC_PORT`              | 3000    | The port the native server should listen on                                                                          |
 | `GRPC_WEB_PORT`          | 3001    | The port the gRPC web proxy should listen on                                                                         |
-| `ENABLE_DUMMY_ADMIN`     | false   | Whether or not to enable a dummy admin user                                                                          |
+| `ENABLE_DUMMY_ADMIN`     | false   | Whether to enable a dummy admin user                                                                          |
 | `LOG_LEVEL`              | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.                        |
-| `EXAMPLE_DATA_FILE_PATH` | ""      | Relative or absolute filepath to a file containing example data for the mock backend (e.g. ./data/standardData.json) |
+| `EXAMPLE_DATA_FILE_PATH` | ""      | Relative path to a file inside [src/data/](src/data) containing example data for the mock backend (e.g. standardData.ts) |
 
 ## Tooling
 
