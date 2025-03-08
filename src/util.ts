@@ -6,7 +6,7 @@ import { LoginSecret } from "./grpc-gen/authentication";
 import { Project_Paper } from "./grpc-gen/project";
 
 /**
- * Checks whether a string is the empty string
+ * Checks whether a string is empty
  *
  * @param string the string to check against the empty string
  * @return true, if the string is empty or null, otherwise false
@@ -17,15 +17,15 @@ export function isEmpty(string: string | null): boolean {
 }
 
 /**
- * Select a random items from a list. The number of items to be selected
+ * Select random items from a list. The number of items to be selected
  * is randomly chosen from a value between the minimum and maximum number.
- * The default minimum or maximum number is 1, so if only the list is given,
- * only on random item is selected.
+ * The default minimum and maximum number is 1, so if only the list is given,
+ * only one random item is selected.
  *
  * If the number of items to be chosen is greater that the number of items in the list,
  * the entire list is returned
  *
- * @param list the list the items are randomly selected of
+ * @param list the list from which items are randomly selected of
  * @param minNumberOfItems the minimum number of items to be chosen
  * @param maxNumberOfItems the maximum number of items to be chosen
  * @return the list containing the randomly selected items
@@ -66,6 +66,14 @@ export function randomToken(): string {
 
 /**
  * Search for the (server) user with the provided "Authorization" token.
+ *
+ * @privateRemarks
+ *
+ * At the moment the frontend has no implementation for adding the "Authorization" header.
+ * As the different calls in mock backend are already protected with authentication,
+ * using this mock backend in the frontend is useless, as you always would get an "Unauthenticated"
+ * error. Hence, this method currently constantly return a user that is "logged in".
+ * This must be changed as soon as the authentication is completed in the frontend.
  *
  * @param metadata the request metadata (= header) containing the "Authorization" header
  * @return the server user with the given access token or null, if no server user was found
