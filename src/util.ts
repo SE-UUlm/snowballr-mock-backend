@@ -95,17 +95,12 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
  * @param loginSecret the login secret, so the authorization and refresh tokens of the user
  * @return the server user created from the user, password and login secret
  */
-export function fromUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
+export function toServerUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
     return {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        status: user.status,
+        ...user,
+        ...loginSecret,
         password: password,
-        accessToken: loginSecret.accessToken,
-        refreshToken: loginSecret.refreshToken,
+
     };
 }
 
@@ -201,14 +196,15 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
  */
 export function isOptionEnabled(option?: string): boolean {
     option = option?.toLowerCase() ?? "";
-    switch (option) {
-        case "1":
-        case "yes":
-        case "Yes":
-        case "true":
-        case "True":
-            return true;
-        default:
-            return false;
-    }
+    return ["1", "yes", "true"].includes(option);
+}
+
+/**
+ * Asserts that a given conditions holds and throws an error, if not
+ *
+ * @param condition the condition that must hold
+ * @param msg the error message, if the condition is not true
+ */
+export function assert(condition: unknown, msg?: string): asserts condition {
+    if (condition === false) throw new Error(msg)
 }

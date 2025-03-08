@@ -5,7 +5,7 @@ import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-ge
 import { Review } from "./grpc-gen/review";
 import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
-import { fromUser, getRandomItems } from "./util";
+import { toServerUser, getRandomItems } from "./util";
 import { LOG } from "./main";
 
 export type ServerUser = User & { password: string } & LoginSecret;
@@ -77,7 +77,7 @@ function processExampleData(data: ExampleData) {
     data.users?.forEach((user) => {
         USERS.set(
             user.email,
-            fromUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
+            toServerUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
         );
 
         // create random reading list for this user
