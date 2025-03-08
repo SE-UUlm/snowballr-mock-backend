@@ -70,6 +70,6 @@ if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
-if (process.env.EXAMPLE_DATA_FILE !== undefined && process.env.EXAMPLE_DATA_FILE !== "") {
+if (process.env.EXAMPLE_DATA_FILE) {
     loadExampleData(process.env.EXAMPLE_DATA_FILE);
 }

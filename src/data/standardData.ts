@@ -15,8 +15,11 @@ import {
 import { Review, ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
 import { Author, Paper } from "../grpc-gen/paper";
-import { getRandomItems } from "../util";
+import { assert, getRandomItems } from "../util";
 import { UserSettings } from "../grpc-gen/user_settings";
+
+const NUMBER_OF_USER_SETTINGS = 10;
+const NUMBER_OF_REVIEWS = 200;
 
 const USERS: User[] = [
     {
@@ -683,6 +686,11 @@ const PUBLICATION_TYPES = [
 
 const PAPER_IDS: string[] = Array.from({ length: PAPER_TITLES.length }).map((_, i) => `${i}`);
 const papers: Paper[] = [];
+
+assert(PAPER_DOIS.length >= PAPER_TITLES.length, "There must be must at least as much paper dois as paper titles.");
+assert(PAPER_ABSTRACTS.length >= PAPER_TITLES.length, "There must be must at least as much paper abstracts as paper titles.");
+assert(PUBLICATION_NAMES.length >= PAPER_TITLES.length, "There must be must at least as much publication names as paper titles.");
+assert(PAPER_IDS.length >= 10, "There must be must at least paper (titles).");
 for (const [index, paperTitle] of PAPER_TITLES.entries()) {
     papers.push({
         id: `${index}`,
@@ -700,7 +708,7 @@ for (const [index, paperTitle] of PAPER_TITLES.entries()) {
 }
 
 const userSettings: UserSettings[] = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < NUMBER_OF_USER_SETTINGS; i++) {
     userSettings.push({
         showHotkeys: Math.random() < 0.5,
         reviewMode: Math.random() < 0.8,
@@ -710,7 +718,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 const reviews: Review[] = [];
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < NUMBER_OF_REVIEWS; i++) {
     const selectedCriteria = getRandomItems(CRITERIA, 2, 4);
     let decision = ReviewDecision.ACCEPTED;
     if (
@@ -740,7 +748,7 @@ const projectPapers: Project_Paper[] = [];
 for (const [index, paper] of papers.entries()) {
     const reviewsOfPaper = Math.random() < 0.5 ? getRandomItems(reviews, 1, 3) : [];
 
-    let decision = PaperDecision.UNSPECIFIED;
+    let decision;
     if (reviewsOfPaper.length === 0 || Math.random() < 0.2) {
         decision = PaperDecision.UNDECIDED;
     } else if (
@@ -752,7 +760,7 @@ for (const [index, paper] of papers.entries()) {
         decision = PaperDecision.DECLINED;
     }
     projectPapers.push({
-        id: `${index}`
+        id: `${index}`,
         paper: paper,
         stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
         decision: decision,

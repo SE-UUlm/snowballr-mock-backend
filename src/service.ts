@@ -901,7 +901,7 @@ export const snowballRService: ISnowballR = {
             PROJECT_PAPERS.set(id, project_paper);
             PAPER_REVIEWS.set(id, []);
             PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
-            PROGRESS.set(projectId, Math.min((PROGRESS.get(projectId) || 0) + 0.05, 1.0));
+            PROGRESS.set(projectId, Math.min((PROGRESS.get(projectId) ?? 0) + 0.05, 1.0));
             callback(null, project_paper);
         }
     },
