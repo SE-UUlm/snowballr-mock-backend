@@ -296,7 +296,7 @@ for (const [index, projectName] of PROJECT_NAMES.entries()) {
     const stage: number = Math.floor(Math.random() * 2.5);
 
     projects.push({
-        id: "" + index,
+        id: `${index}`,
         name: projectName,
         status:
             Math.random() < 0.7
@@ -681,11 +681,11 @@ const PUBLICATION_TYPES = [
     "Online Article",
 ];
 
-const PAPER_IDS: string[] = Array.from({ length: PAPER_TITLES.length }).map((_, i) => "" + i);
+const PAPER_IDS: string[] = Array.from({ length: PAPER_TITLES.length }).map((_, i) => `${i}`);
 const papers: Paper[] = [];
 for (const [index, paperTitle] of PAPER_TITLES.entries()) {
     papers.push({
-        id: "" + index,
+        id: `${index}`,
         externalId: PAPER_DOIS[index],
         title: paperTitle,
         abstrakt: PAPER_ABSTRACTS[index],
@@ -729,8 +729,8 @@ for (let i = 0; i < 200; i++) {
     }
 
     reviews.push({
-        id: "" + i,
-        userId: "" + getRandomItems(USERS)[0].id,
+        id: `${i}`,
+        userId: `${getRandomItems(USERS)[0].id}`,
         decision: decision,
         selectedCriteriaIds: selectedCriteria.map((criterion) => criterion.id),
     });
@@ -752,7 +752,7 @@ for (const [index, paper] of papers.entries()) {
         decision = PaperDecision.DECLINED;
     }
     projectPapers.push({
-        id: "" + index,
+        id: `${index}`
         paper: paper,
         stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
         decision: decision,
