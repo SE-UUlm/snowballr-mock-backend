@@ -12,18 +12,7 @@ export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
 /* Maps storing all data of the mock backend and simulating a "database" */
-export const AVAILABLE_FETCHERS = [
-    "arXiv API",
-    "Semantic Scholar API",
-    "PubMed API",
-    "CrossRef API",
-    "CORE API",
-    "Springer Nature API",
-    "Elsevier Scopus API",
-    "IEEE Xplore API",
-    "OpenCitations API",
-    "Europe PMC API",
-];
+export let AVAILABLE_FETCHERS: string[] = [];
 // User id => User (with login credentials and password)
 export const USERS: Map<string, ServerUser> = new Map();
 // Project id => Project
@@ -54,10 +43,12 @@ export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
 
 export interface ExampleData {
+    availableFetchers?: string[];
     criteria?: Criterion[];
     papers?: Paper[];
     users?: User[];
-    userSettings?: UserSettings[];
+    userSettings?: Map<User, UserSettings>;
+    readingLists?: Map<User, Paper[]>;
     projects?: Project[];
     projectMembers?: { projectId: string; members: Project_Member[] }[];
     reviews?: Review[];
@@ -71,6 +62,7 @@ export interface ExampleData {
  * @param data the loaded example data
  */
 function processExampleData(data: ExampleData) {
+    AVAILABLE_FETCHERS = data.availableFetchers ?? [""];
     data.criteria?.forEach((criterion) => CRITERIA.set(criterion.id, criterion));
     data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
     data.reviews?.forEach((review) => REVIEWS.set(review.id, review));
@@ -79,22 +71,18 @@ function processExampleData(data: ExampleData) {
             user.email,
             toServerUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
         );
-
-        // create random reading list for this user
-        READING_LISTS.set(user.email, getRandomItems(Array.from(PAPERS.values()), 4, 10));
-
-        // add user settings
-        USER_SETTINGS.set(user.email, getRandomItems(data.userSettings ?? [])[0]);
+        READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
+        USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
     });
     data.projects?.forEach((project) => {
         PROJECTS.set(project.id, project);
         PROJECT_PROJECT_PAPERS.set(project.id, []);
 
         // create project criteria
-        PROJECT_CRITERIA.set(project.id, getRandomItems(Array.from(CRITERIA.keys()), 5, 10).sort());
+        PROJECT_CRITERIA.set(project.id, getRandomItems(CRITERIA.keys(), 5, 10));
 
         // create a set of project papers
-        getRandomItems(Array.from(data.projectPapers ?? []), 25, 40)
+        getRandomItems(data.projectPapers ?? [], 25, 40)
             .filter((paper) => paper.stage <= project.maxStage)
             .map((paper) => ({ ...paper, id: `${project.id}-${paper.id}` }))
             .forEach((paper: Project_Paper) => {
@@ -109,19 +97,14 @@ function processExampleData(data: ExampleData) {
             });
 
         // set the progress of the project
-        PROGRESS.set(
-            project.id,
-            ((PROJECT_PROJECT_PAPERS.get(project.id)
-                ?.map((id) => PROJECT_PAPERS.get(id))
-                .filter(
-                    (paper) =>
-                        paper !== undefined &&
-                        paper.stage === project.currentStage &&
-                        paper.decision !== PaperDecision.UNDECIDED,
-                ).length ?? 0) *
-                100) /
-                (PROJECT_PROJECT_PAPERS.get(project.id)?.length ?? Infinity),
-        );
+        const paperInStage = PROJECT_PROJECT_PAPERS.get(project.id)
+            ?.map((id) => PROJECT_PAPERS.get(id))
+            .filter((paper) => paper !== undefined && paper.stage === project.currentStage);
+        const numberOfReviewedPaperInStage =
+            paperInStage?.filter((paper) => paper?.decision !== PaperDecision.UNDECIDED).length ??
+            0;
+        const totalNumberOfPaperInStage = paperInStage?.length ?? Infinity;
+        PROGRESS.set(project.id, numberOfReviewedPaperInStage / totalNumberOfPaperInStage);
     });
     data.projectMembers?.forEach(({ projectId, members }) => MEMBERS.set(projectId, members));
 }

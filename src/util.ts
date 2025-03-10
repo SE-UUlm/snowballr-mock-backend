@@ -30,7 +30,11 @@ export function isEmpty(string: string | null): boolean {
  * @param maxNumberOfItems the maximum number of items to be chosen
  * @return the list containing the randomly selected items
  */
-export function getRandomItems<T>(list: T[], minNumberOfItems = 1, maxNumberOfItems = 1): T[] {
+export function getRandomItems<T>(
+    list: Iterable<T>,
+    minNumberOfItems = 1,
+    maxNumberOfItems = 1,
+): T[] {
     const shuffledList = [...list].sort(() => Math.random() - 0.5);
     return shuffledList.slice(
         0,
@@ -100,7 +104,6 @@ export function toServerUser(user: User, password: string, loginSecret: LoginSec
         ...user,
         ...loginSecret,
         password: password,
-
     };
 }
 
@@ -206,5 +209,5 @@ export function isOptionEnabled(option?: string): boolean {
  * @param msg the error message, if the condition is not true
  */
 export function assert(condition: unknown, msg?: string): asserts condition {
-    if (condition === false) throw new Error(msg)
+    if (condition === false) throw new Error(msg);
 }

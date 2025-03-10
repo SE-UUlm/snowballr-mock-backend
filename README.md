@@ -47,12 +47,12 @@ export const exampleData: ExampleData = {
 
 A boolean variable may be enabled by setting it to either `1`, `yes`, or `true`.
 
-| Environment Variable     | Default | Description                                                                                                          |
-| ------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `GRPC_PORT`              | 3000    | The port the native server should listen on                                                                          |
-| `GRPC_WEB_PORT`          | 3001    | The port the gRPC web proxy should listen on                                                                         |
-| `ENABLE_DUMMY_ADMIN`     | false   | Whether to enable a dummy admin user                                                                          |
-| `LOG_LEVEL`              | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.                        |
+| Environment Variable     | Default | Description                                                                                                              |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `GRPC_PORT`              | 3000    | The port the native server should listen on                                                                              |
+| `GRPC_WEB_PORT`          | 3001    | The port the gRPC web proxy should listen on                                                                             |
+| `ENABLE_DUMMY_ADMIN`     | false   | Whether to enable a dummy admin user                                                                                     |
+| `LOG_LEVEL`              | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.                            |
 | `EXAMPLE_DATA_FILE_PATH` | ""      | Relative path to a file inside [src/data/](src/data) containing example data for the mock backend (e.g. standardData.ts) |
 
 ## Tooling
