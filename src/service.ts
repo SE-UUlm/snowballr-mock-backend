@@ -212,10 +212,9 @@ export const snowballRService: ISnowballR = {
                 details: "The old password is incorrect",
             });
             return;
-        } else {
-            USERS.get(user.email)!.password = newPassword;
-            callback(null, {});
         }
+        USERS.get(user.email)!.password = newPassword;
+        callback(null, {});
     },
     getAllUsers: function (
         _: ServerUnaryCall<Nothing, User_List>,
@@ -239,9 +238,9 @@ export const snowballRService: ISnowballR = {
                 code: status.NOT_FOUND,
                 details: "User with given id was not found",
             });
-        } else {
-            callback(null, toUser(user));
+            return;
         }
+        callback(null, toUser(user));
     },
     getUserByEmail: function (
         call: ServerUnaryCall<Id, User>,
@@ -254,9 +253,8 @@ export const snowballRService: ISnowballR = {
                 details: "User with given email was not found",
             });
             return;
-        } else {
-            callback(null, toUser(USERS.get(email)!));
         }
+        callback(null, toUser(USERS.get(email)!));
     },
     updateUser: function (
         call: ServerUnaryCall<User_Update, User>,
@@ -369,7 +367,7 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<UserSettings>,
     ): void {
         const user = getAuthenticated(call.metadata)!;
-        callback(null, USER_SETTINGS.get(user.id)!);
+        callback(null, USER_SETTINGS.get(user.id));
     },
     updateUserSettings: function (
         call: ServerUnaryCall<UserSettings_Update, UserSettings>,
@@ -400,7 +398,7 @@ export const snowballRService: ISnowballR = {
             ...currentSettings,
             ...(update as UserSettings),
         });
-        callback(null, USER_SETTINGS.get(user.id)!);
+        callback(null, USER_SETTINGS.get(user.id));
     },
     getReadingList: function (
         call: ServerUnaryCall<Nothing, Paper_List>,
@@ -428,15 +426,14 @@ export const snowballRService: ISnowballR = {
         const user = getAuthenticated(call.metadata)!;
         const { id } = call.request;
         const paper = PAPERS.get(id);
-        if (paper == undefined) {
+        if (paper === undefined) {
             callback({
                 code: status.NOT_FOUND,
                 details: "The paper with the given id does not exist",
             });
-        } else {
-            READING_LISTS.get(user.id)!.push(paper);
-            callback(null, {});
         }
+        READING_LISTS.get(user.id)!.push(paper!);
+        callback(null, {});
     },
     removePaperFromReadingList: function (
         call: ServerUnaryCall<Id, Nothing>,
@@ -444,18 +441,18 @@ export const snowballRService: ISnowballR = {
     ): void {
         const user = getAuthenticated(call.metadata)!;
         const { id } = call.request;
-        if (READING_LISTS.get(user.id)?.some((p) => p.id == id)) {
-            READING_LISTS.set(
-                user.id,
-                READING_LISTS.get(user.id)!.filter((p) => p.id != id),
-            );
-            callback(null, {});
-        } else {
+        if (!READING_LISTS.get(user.id)?.some((p) => p.id == id)) {
             callback({
                 code: status.NOT_FOUND,
                 details: "The paper with the given id was not found in reading list",
             });
+            return;
         }
+        READING_LISTS.set(
+            user.id,
+            READING_LISTS.get(user.id)!.filter((p) => p.id != id),
+        );
+        callback(null, {});
     },
     getPendingInvitationsForUser: function (
         _: ServerUnaryCall<Id, Project_List>,
@@ -623,7 +620,7 @@ export const snowballRService: ISnowballR = {
             PROJECT_CRITERIA.get(id)!.push(criterionId);
         }
 
-        callback(null, PROJECTS.get(id)!);
+        callback(null, PROJECTS.get(id));
     },
     getProjectById: function (
         call: ServerUnaryCall<Id, Project>,
@@ -638,7 +635,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        callback(null, PROJECTS.get(id)!);
+        callback(null, PROJECTS.get(id));
     },
     updateProject: function (
         call: ServerUnaryCall<Project_Update, Project>,
@@ -670,7 +667,7 @@ export const snowballRService: ISnowballR = {
             ...currentProject,
             ...(update as Project),
         });
-        callback(null, PROJECTS.get(project.id)!);
+        callback(null, PROJECTS.get(project.id));
     },
     exportProject: function (
         _: ServerUnaryCall<ExportRequest, Blob>,
@@ -744,9 +741,8 @@ export const snowballRService: ISnowballR = {
                 details: "Criterion with the given id was not found",
             });
             return;
-        } else {
-            callback(null, CRITERIA.get(id)!);
         }
+        callback(null, CRITERIA.get(id));
     },
     getAllCriteriaForProject: function (
         call: ServerUnaryCall<Id, Criterion_List>,
@@ -759,11 +755,10 @@ export const snowballRService: ISnowballR = {
                 details: "Project with the given id was not found",
             });
             return;
-        } else {
-            callback(null, {
-                criteria: PROJECT_CRITERIA.get(id)!.map((id) => CRITERIA.get(id)!),
-            });
         }
+        callback(null, {
+            criteria: PROJECT_CRITERIA.get(id)!.map((id) => CRITERIA.get(id)!),
+        });
     },
     createCriterion: function (
         call: ServerUnaryCall<Criterion_Create, Criterion>,
@@ -788,7 +783,7 @@ export const snowballRService: ISnowballR = {
         });
 
         PROJECT_CRITERIA.get(projectId)!.push(id);
-        callback(null, CRITERIA.get(id)!);
+        callback(null, CRITERIA.get(id));
     },
     updateCriterion: function (
         call: ServerUnaryCall<Criterion_Update, Criterion>,
@@ -855,9 +850,8 @@ export const snowballRService: ISnowballR = {
                 details: "Project paper with the given id was not found",
             });
             return;
-        } else {
-            callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(id)!));
         }
+        callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(id)!));
     },
     getAllProjectPapersForProject: function (
         call: ServerUnaryCall<Id, Project_Paper_List>,
@@ -870,13 +864,12 @@ export const snowballRService: ISnowballR = {
                 details: "Project with the given id was not found",
             });
             return;
-        } else {
-            callback(null, {
-                projectPapers: PROJECT_PROJECT_PAPERS.get(id)!
-                    .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-                    .map(addProjectPaperReviews),
-            });
         }
+        callback(null, {
+            projectPapers: PROJECT_PROJECT_PAPERS.get(id)!
+                .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+                .map(addProjectPaperReviews),
+        });
     },
     addPaperToProject: function (
         call: ServerUnaryCall<Project_Paper_Add, Project_Paper>,
@@ -889,21 +882,20 @@ export const snowballRService: ISnowballR = {
                 details: "Project with the given id was not found",
             });
             return;
-        } else {
-            const id = getNextId(PROJECT_PAPERS);
-            const project_paper: Project_Paper = {
-                id: id,
-                stage: stage,
-                decision: PaperDecision.UNDECIDED,
-                reviews: [],
-                paper: PAPERS.get(paperId)!,
-            };
-            PROJECT_PAPERS.set(id, project_paper);
-            PAPER_REVIEWS.set(id, []);
-            PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
-            PROGRESS.set(projectId, Math.min((PROGRESS.get(projectId) ?? 0) + 0.05, 1.0));
-            callback(null, project_paper);
         }
+        const id = getNextId(PROJECT_PAPERS);
+        const project_paper: Project_Paper = {
+            id: id,
+            stage: stage,
+            decision: PaperDecision.UNDECIDED,
+            reviews: [],
+            paper: PAPERS.get(paperId)!,
+        };
+        PROJECT_PAPERS.set(id, project_paper);
+        PAPER_REVIEWS.set(id, []);
+        PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
+        PROGRESS.set(projectId, Math.min((PROGRESS.get(projectId) ?? 0) + 0.05, 1.0));
+        callback(null, project_paper);
     },
     updateProjectPaper: function (
         call: ServerUnaryCall<Project_Paper_Update, Project_Paper>,
@@ -969,9 +961,8 @@ export const snowballRService: ISnowballR = {
                 details: "Review with the given id was not found",
             });
             return;
-        } else {
-            callback(null, REVIEWS.get(id)!);
         }
+        callback(null, REVIEWS.get(id));
     },
     getAllReviewsForProjectPaper: function (
         call: ServerUnaryCall<Id, Review_List>,
@@ -984,11 +975,10 @@ export const snowballRService: ISnowballR = {
                 details: "Review with the given id was not found",
             });
             return;
-        } else {
-            callback(null, {
-                reviews: PAPER_REVIEWS.get(id)!.map((id) => REVIEWS.get(id)!),
-            });
         }
+        callback(null, {
+            reviews: PAPER_REVIEWS.get(id)!.map((id) => REVIEWS.get(id)!),
+        });
     },
     createReview: function (
         call: ServerUnaryCall<Review_Create, Review>,
@@ -1013,7 +1003,7 @@ export const snowballRService: ISnowballR = {
         });
 
         PAPER_REVIEWS.get(projectPaperId)!.push(id);
-        callback(null, REVIEWS.get(id)!);
+        callback(null, REVIEWS.get(id));
     },
     updateReview: function (
         call: ServerUnaryCall<Review_Update, Review>,
@@ -1053,7 +1043,7 @@ export const snowballRService: ISnowballR = {
             ...currentReview,
             ...(update as Review),
         });
-        callback(null, REVIEWS.get(review.id)!);
+        callback(null, REVIEWS.get(review.id));
     },
     deleteReview: function (
         call: ServerUnaryCall<Id, Nothing>,
@@ -1080,9 +1070,8 @@ export const snowballRService: ISnowballR = {
                 details: "Paper with the given id was not found",
             });
             return;
-        } else {
-            callback(null, PAPERS.get(id)!);
         }
+        callback(null, PAPERS.get(id));
     },
     createPaper: function (
         call: ServerUnaryCall<Paper, Paper>,
@@ -1095,7 +1084,7 @@ export const snowballRService: ISnowballR = {
             id: id,
         });
         PAPER_PDFS.set(id, new Uint8Array());
-        callback(null, PAPERS.get(id)!);
+        callback(null, PAPERS.get(id));
     },
     updatePaper: function (
         call: ServerUnaryCall<Paper_Update, Paper>,
@@ -1135,7 +1124,7 @@ export const snowballRService: ISnowballR = {
             ...currentPaper,
             ...(update as Paper),
         });
-        callback(null, PAPERS.get(paper.id)!);
+        callback(null, PAPERS.get(paper.id));
     },
     /// TODO: replace the following two calls with better implementations
     getForwardReferencedPapers: function (
@@ -1162,11 +1151,10 @@ export const snowballRService: ISnowballR = {
                 details: "Paper with the given id was not found",
             });
             return;
-        } else {
-            callback(null, {
-                data: PAPER_PDFS.get(id)!,
-            });
         }
+        callback(null, {
+            data: PAPER_PDFS.get(id)!,
+        });
     },
     setPaperPdf: function (
         call: ServerUnaryCall<Paper_PdfUpdate, Nothing>,
@@ -1179,8 +1167,7 @@ export const snowballRService: ISnowballR = {
                 details: "Paper with the given id was not found",
             });
             return;
-        } else {
-            PAPER_PDFS.set(paperId, pdf?.data ?? new Uint8Array());
         }
+        PAPER_PDFS.set(paperId, pdf?.data ?? new Uint8Array());
     },
 };
