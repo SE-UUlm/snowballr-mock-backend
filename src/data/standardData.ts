@@ -15,8 +15,9 @@ import {
 import { Review, ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
 import { Author, Paper } from "../grpc-gen/paper";
-import { assert, getRandomItems } from "../util";
+import { getRandomItems } from "../util";
 import { UserSettings } from "../grpc-gen/user_settings";
+import assert from "node:assert";
 
 const NUMBER_OF_REVIEWS = 200;
 
@@ -241,19 +242,48 @@ const PATTERN_3: ReviewDecisionMatrix_Pattern[] = [
     },
 ];
 
-const reviewDecisionMatrices: ReviewDecisionMatrix[] = [];
-for (let i = 0; i < 7; i++) {
-    reviewDecisionMatrices.push({
+const reviewDecisionMatrices: ReviewDecisionMatrix[] = [
+    {
         numberOfReviewers: 2,
-        patterns: getRandomItems(PATTERN_2, 2, 5),
-    });
-}
-for (let i = 0; i < 3; i++) {
-    reviewDecisionMatrices.push({
+        patterns: [PATTERN_2[0], PATTERN_2[1], PATTERN_2[2]],
+    },
+    {
+        numberOfReviewers: 2,
+        patterns: [PATTERN_2[0], PATTERN_2[2], PATTERN_2[4]],
+    },
+    {
+        numberOfReviewers: 2,
+        patterns: [PATTERN_2[0], PATTERN_2[2], PATTERN_2[3], PATTERN_2[4]],
+    },
+    {
+        numberOfReviewers: 2,
+        patterns: [PATTERN_2[0], PATTERN_2[1], PATTERN_2[2], PATTERN_2[3]],
+    },
+    {
+        numberOfReviewers: 2,
+        patterns: [PATTERN_2[0], PATTERN_2[3], PATTERN_2[4]],
+    },
+    {
         numberOfReviewers: 3,
-        patterns: getRandomItems(PATTERN_3, 2, 4),
-    });
-}
+        patterns: [PATTERN_3[0], PATTERN_3[2], PATTERN_3[3]],
+    },
+    {
+        numberOfReviewers: 3,
+        patterns: [PATTERN_3[0], PATTERN_3[1], PATTERN_3[2], PATTERN_3[3]],
+    },
+    {
+        numberOfReviewers: 3,
+        patterns: [PATTERN_3[3], PATTERN_3[4], PATTERN_3[5]],
+    },
+    {
+        numberOfReviewers: 3,
+        patterns: [PATTERN_3[2], PATTERN_3[3], PATTERN_3[4]],
+    },
+    {
+        numberOfReviewers: 3,
+        patterns: [PATTERN_3[2], PATTERN_3[3], PATTERN_3[4], PATTERN_3[5]],
+    },
+];
 
 const projectSettings: Project_Settings[] = [];
 for (let i = 0; i < 7; i++) {

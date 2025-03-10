@@ -201,13 +201,3 @@ export function isOptionEnabled(option?: string): boolean {
     option = option?.toLowerCase() ?? "";
     return ["1", "yes", "true"].includes(option);
 }
-
-/**
- * Asserts that a given conditions holds and throws an error, if not
- *
- * @param condition the condition that must hold
- * @param msg the error message, if the condition is not true
- */
-export function assert(condition: unknown, msg?: string): asserts condition {
-    if (condition === false) throw new Error(msg);
-}
