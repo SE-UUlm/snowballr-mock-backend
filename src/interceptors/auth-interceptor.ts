@@ -7,7 +7,7 @@ import {
 } from "@grpc/grpc-js";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { status } from "@grpc/grpc-js";
-import { getAuthenticated, isSnowballRService } from "./util";
+import { getAuthenticated, isSnowballRService } from "../util";
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 

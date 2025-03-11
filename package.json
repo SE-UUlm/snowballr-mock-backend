@@ -6,6 +6,7 @@
     "scripts": {
         "build": "npx tsc",
         "start": "node dist/main.js",
+        "dev": "npm run build && EXAMPLE_DATA_FILE=\"standardData.ts\" ENABLE_DUMMY_ADMIN=true npm run start",
         "watch": "nodemon src/main.ts",
         "format": "prettier --write .",
         "lint": "prettier --check . && eslint .",
