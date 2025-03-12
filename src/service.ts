@@ -45,6 +45,7 @@ import { status } from "@grpc/grpc-js";
 import {
     AVAILABLE_FETCHERS,
     CRITERIA,
+    INVITATIONS,
     MEMBERS,
     PAPER_PDFS,
     PAPER_REVIEWS,
@@ -455,29 +456,66 @@ export const snowballRService: ISnowballR = {
         callback(null, {});
     },
     getPendingInvitationsForUser: function (
-        _: ServerUnaryCall<Id, Project_List>,
+        call: ServerUnaryCall<Id, Project_List>,
         callback: sendUnaryData<Project_List>,
     ): void {
-        // TODO
-        callback({
-            code: status.UNIMPLEMENTED,
+        const { id } = call.request;
+        if (!USERS.has(id)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "User with given id was not found",
+            });
+            return;
+        }
+
+        const invitationsOfUser = INVITATIONS.get(id) ?? [];
+
+        callback(null, {
+            projects: invitationsOfUser
+                .map((projectId) => PROJECTS.get(projectId))
+                .filter((project) => project !== undefined),
         });
     },
     inviteUserToProject: function (
-        _: ServerUnaryCall<Project_Member_Invite, Nothing>,
+        call: ServerUnaryCall<Project_Member_Invite, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
-        // TODO
-        callback({
-            code: status.UNIMPLEMENTED,
-        });
+        const { projectId, userEmail } = call.request;
+        if (!USERS.has(userEmail)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "User with given id was not found",
+            });
+            return;
+        }
+
+        INVITATIONS.set(userEmail, [...INVITATIONS.get(userEmail)!, projectId]);
+        callback(null, {});
     },
     getPendingInvitationsForProject: function (
-        _: ServerUnaryCall<Id, User_List>,
+        call: ServerUnaryCall<Id, User_List>,
         callback: sendUnaryData<User_List>,
     ): void {
+        const { id } = call.request;
+        if (!PROJECTS.has(id)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Project with given id was not found",
+            });
+            return;
+        }
+
+        const userIdsInvitedInThisProject: string[] = [];
+        for (const [user, projects] of INVITATIONS) {
+            if (projects.includes(id)) {
+                userIdsInvitedInThisProject.push(user);
+            }
+        }
+
         callback(null, {
-            users: [],
+            users: userIdsInvitedInThisProject
+                .map((userId) => USERS.get(userId))
+                .filter((user) => user !== undefined),
         });
     },
     getProjectMembers: function (
