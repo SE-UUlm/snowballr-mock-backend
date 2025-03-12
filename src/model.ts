@@ -49,6 +49,7 @@ export interface ExampleData {
     criteria?: Criterion[];
     papers?: Paper[];
     users?: User[];
+    invitations?: Map<User, Project[]>;
     userSettings?: Map<User, UserSettings>;
     readingLists?: Map<User, Paper[]>;
     projects?: Project[];
@@ -75,6 +76,7 @@ function processExampleData(data: ExampleData) {
         );
         READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
+        INVITATIONS.set(user.email, (data.invitations?.get(user) ?? []).map((project) => project.id));
     });
     data.projects?.forEach((project) => {
         PROJECTS.set(project.id, project);
