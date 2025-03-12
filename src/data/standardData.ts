@@ -755,6 +755,11 @@ for (const user of USERS) {
     });
 }
 
+const invitations: Map<User, Project[]> = new Map();
+for (const user of USERS) {
+    invitations.set(user, getRandomItems(projects, 0, 2));
+}
+
 const readingLists: Map<User, Paper[]> = new Map();
 for (const user of USERS) {
     readingLists.set(user, getRandomItems(papers, 4, 10));
@@ -816,6 +821,7 @@ export const exampleData: ExampleData = {
     users: USERS,
     readingLists: readingLists,
     userSettings: userSettings,
+    invitations: invitations,
     projects: projects,
     projectMembers: projectMembers,
     criteria: CRITERIA,
