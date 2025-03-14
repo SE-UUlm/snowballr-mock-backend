@@ -68,11 +68,17 @@ jobs:
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
                   chmod 600 ~/.ssh/id_rsa
             - name: Pull and run docker image
+              env:
+                  CONTAINER_NAME: snowballr-mock-backend
               run: |
                   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
                     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
                     
-                    docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                    docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+                    if [ "$(docker ps -a -q -f name=^/${CONTAINER_NAME}$)" ]; then
+                      docker stop $CONTAINER_NAME
+                      docker rm $CONTAINER_NAME
+                    fi
                     
-                    docker run -d --name snowballr-mock-backend -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                    docker run --env-file mock-backend/.env -d --name $CONTAINER_NAME -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
                   EOF
