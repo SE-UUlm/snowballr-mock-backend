@@ -6,7 +6,7 @@ including databases. This application neither implements real api queries for
 scanning papers, nor does it persist any data.
 
 > [!CAUTION]
-> Security is an afterthough and this server should **never** be used in
+> Security is an afterthought and this server should **never** be used in
 > production. Passwords are stored in plaintext and nothing is encrypted.
 
 ## Building
@@ -29,6 +29,10 @@ npm run start
 If connecting from a gRPC web client, the `GRPC_WEB_PORT` endpoint must be
 targeted. If using a native client like `grpcui` or `grpcurl`, connecting to
 `GRPC_PORT` is required.
+
+Alternatively, you can start the application by running:
+`docker compose up --build`.
+The mock backend will be available at http://localhost:3001 per default.
 
 If you're not going to use the mock backend for automated tests, but only to manually check the frontend functionality, it's useful to have some initial data.
 You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a typescript file.

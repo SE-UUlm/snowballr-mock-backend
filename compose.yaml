@@ -1,0 +1,9 @@
+services:
+    mock-backend:
+        build:
+            context: .
+        environment:
+            NODE_ENV: development
+        ports:
+            - "3000:3000"
+            - "3001:3001"

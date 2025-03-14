@@ -10,14 +10,13 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { isSnowballRService } from "../util";
 import { LOG } from "../main";
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 function stripPrefix(value: string, prefix: string) {
     return value.startsWith(prefix) ? value.substring(prefix.length) : value;
 }
 
 // Logs every gRPC call and its contents to the console with debug level.
-export const LOGGING_INTERCEPTOR: ServerInterceptor = function (
-    methodDescriptor: ServerMethodDefinition<any, any>,
+export const LOGGING_INTERCEPTOR: ServerInterceptor = function <RequestT, ResponseT>(
+    methodDescriptor: ServerMethodDefinition<RequestT, ResponseT>,
     call: ServerInterceptingCallInterface,
 ): ServerInterceptingCall {
     const methodName = stripPrefix(methodDescriptor.path, "/snowballr.SnowballR/");
