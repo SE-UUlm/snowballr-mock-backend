@@ -32,15 +32,17 @@
         "eslint-config-prettier": "^10.0.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
-        "typescript-eslint": "^8.21.0"
+        "typescript-eslint": "^8.21.0",
+        "@protobuf-ts/plugin": "^2.9.4"
     },
     "dependencies": {
         "@grpc-web/proxy": "^0.1.0",
         "@grpc/grpc-js": "^1.12.5",
         "grpc-server-reflection": "^0.1.5",
-        "@protobuf-ts/plugin": "^2.9.4",
         "pino": "^9.6.0",
         "pino-pretty": "^13.0.0",
-        "protobuf-fieldmask": "^2.0.0"
+        "protobuf-fieldmask": "^2.0.0",
+        "@protobuf-ts/runtime": "^2.9.5",
+        "@protobuf-ts/runtime-rpc": "^2.9.5"
     }
 }
