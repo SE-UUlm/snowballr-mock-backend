@@ -4,6 +4,12 @@ inputs:
     node_version:
         description: "Node.js version"
         required: true
+    do_protobuf_generation:
+        description: "Whether to generate the gRPC web server code"
+        default: "true"
+        required: false
+        type: boolean
+
 runs:
     using: composite
     steps:
@@ -18,4 +24,5 @@ runs:
 
         - name: Generate gRPC web server code
           shell: bash
+          if: ${{ inputs.do_protobuf_generation }}
           run: npm run compile:proto

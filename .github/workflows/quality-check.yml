@@ -17,13 +17,12 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
 
             - name: Setup
               uses: ./.github/workflows/setup/
               with:
                   node_version: ${{ env.node_version }}
+                  do_protobuf_generation: "false"
 
             - name: Run Prettier & ESLint
               run: npm run lint
