@@ -481,15 +481,8 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<Nothing>,
     ): void {
         const { projectId, userEmail } = call.request;
-        if (!USERS.has(userEmail)) {
-            callback({
-                code: status.NOT_FOUND,
-                details: "User with given id was not found",
-            });
-            return;
-        }
 
-        INVITATIONS.set(userEmail, [...INVITATIONS.get(userEmail)!, projectId]);
+        INVITATIONS.set(userEmail, [...(INVITATIONS.get(userEmail) ?? []), projectId]);
         callback(null, {});
     },
     getPendingInvitationsForProject: function (
