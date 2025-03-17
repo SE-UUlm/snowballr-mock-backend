@@ -7,8 +7,8 @@ on:
 
 env:
     REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository.name }}
-    CONTAINER_NAME: $(basename ${{ github.repository }})
+    IMAGE_NAME: $(echo "${{github.repository}}" | awk '{print tolower($0)}') # lower case owner name and repository name
+    CONTAINER_NAME: $(basename ${{ github.repository }}) # only repository name
 
 jobs:
     build-and-publish-docker-image:
