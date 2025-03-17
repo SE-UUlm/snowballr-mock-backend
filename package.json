@@ -1,7 +1,7 @@
 {
     "name": "snowballr-mock-backend",
-    "version": "1.0.0",
-    "description": "A Mock Backend for the SnowballR Frontend Development",
+    "version": "0.1.0",
+    "description": "A mock backend for the SnowballR project",
     "main": "dist/main.js",
     "scripts": {
         "build": "npx tsc",
@@ -24,15 +24,16 @@
     "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
     "devDependencies": {
         "@eslint/js": "^9.18.0",
-        "@protobuf-ts/plugin": "^2.9.4",
         "concurrently": "^9.1.0",
         "eslint": "^9.18.0",
         "globals": "^15.14.0",
         "nodemon": "^3.1.7",
         "prettier": "^3.4.2",
+        "eslint-config-prettier": "^10.0.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
-        "typescript-eslint": "^8.21.0"
+        "typescript-eslint": "^8.21.0",
+        "@protobuf-ts/plugin": "^2.9.4"
     },
     "dependencies": {
         "@grpc-web/proxy": "^0.1.0",
@@ -40,6 +41,8 @@
         "grpc-server-reflection": "^0.1.5",
         "pino": "^9.6.0",
         "pino-pretty": "^13.0.0",
-        "protobuf-fieldmask": "^2.0.0"
+        "protobuf-fieldmask": "^2.0.0",
+        "@protobuf-ts/runtime": "^2.9.5",
+        "@protobuf-ts/runtime-rpc": "^2.9.5"
     }
 }
