@@ -7,7 +7,8 @@ on:
 
 env:
     REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository }}
+    IMAGE_NAME: ${{ github.repository.name }}
+    CONTAINER_NAME: $(basename ${{ github.repository }})
 
 jobs:
     build-and-publish-docker-image:
@@ -75,10 +76,10 @@ jobs:
                     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
                     
                     docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-                    if [ "$(docker ps -a -q -f name=^/${CONTAINER_NAME}$)" ]; then
-                      docker stop $CONTAINER_NAME
-                      docker rm $CONTAINER_NAME
+                    if [ "$(docker ps -a -q -f name=^/${{env.CONTAINER_NAME}}$)" ]; then
+                      docker stop ${{env.CONTAINER_NAME}}
+                      docker rm ${{env.CONTAINER_NAME}}
                     fi
                     
-                    docker run --env-file mock-backend/.env -d --name $CONTAINER_NAME -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+                    docker run --env-file mock-backend/.env -d --name ${{env.CONTAINER_NAME}} -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
                   EOF

@@ -8,6 +8,7 @@ on:
 
 env:
     node_version: ${{ vars.NODE_VERSION }}
+    REPOSITORY_NAME: $(basename ${{ github.repository }})
 
 jobs:
     build:
@@ -25,4 +26,6 @@ jobs:
                   node_version: ${{ env.node_version }}
 
             - name: Build application
-              run: npm run build
+              run: |
+                  echo "Building ${{ env.REPOSITORY_NAME }} ..."
+                  npm run build
