@@ -15,6 +15,8 @@ export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 export let AVAILABLE_FETCHERS: string[] = [];
 // User id => User (with login credentials and password)
 export const USERS: Map<string, ServerUser> = new Map();
+// User id => Ids of projects to which the user has been invited
+export const INVITATIONS: Map<string, string[]> = new Map();
 // Project id => Project
 export const PROJECTS: Map<string, Project> = new Map();
 // Project id => Ids of project paper entities belonging to the project
@@ -47,6 +49,7 @@ export interface ExampleData {
     criteria?: Criterion[];
     papers?: Paper[];
     users?: User[];
+    invitations?: Map<User, Project[]>;
     userSettings?: Map<User, UserSettings>;
     readingLists?: Map<User, Paper[]>;
     projects?: Project[];
@@ -73,6 +76,10 @@ function processExampleData(data: ExampleData) {
         );
         READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
+        INVITATIONS.set(
+            user.email,
+            (data.invitations?.get(user) ?? []).map((project) => project.id),
+        );
     });
     data.projects?.forEach((project) => {
         PROJECTS.set(project.id, project);
