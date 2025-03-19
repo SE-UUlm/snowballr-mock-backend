@@ -7,8 +7,8 @@ on:
 
 env:
     REGISTRY: ghcr.io
-    IMAGE_NAME: $(echo "${{github.repository}}" | awk '{print tolower($0)}') # lower case owner name and repository name
-    CONTAINER_NAME: $(basename ${{ github.repository }}) # only repository name
+    IMAGE_NAME: ${{github.repository}}
+    CONTAINER_NAME: ${{ github.event.repository.name }} # only repository name
 
 jobs:
     build-and-publish-docker-image:
@@ -75,16 +75,18 @@ jobs:
                   mkdir -p ~/.ssh
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
                   chmod 600 ~/.ssh/id_rsa
-            - name: Pull and run docker image
+            - name: Convert image name to lowercase
+              run: |
+                  echo "IMAGE_NAME_LOWER=${IMAGE_NAME,,}" >> $GITHUB_ENV
+            - name: Pull and (re)start docker image
               run: |
                   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << EOF
                     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
                     
-                    docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-                    if [ -n "$(docker container ls -qa name=^${{env.CONTAINER_NAME}}$)" ]; then
-                      docker stop ${{env.CONTAINER_NAME}}
-                      docker rm ${{env.CONTAINER_NAME}}
-                    fi
-                    
-                    docker run -d --env-file mock-backend/.env --name ${{env.CONTAINER_NAME}} -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+                    docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:main
+
+                    docker stop ${{env.CONTAINER_NAME}} &> /dev/null
+                    docker rm ${{env.CONTAINER_NAME}} &> /dev/null
+                                        
+                    docker run -d --env-file mock-backend/.env --name ${{env.CONTAINER_NAME}} -p 3001:3001 -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:main
                   EOF
