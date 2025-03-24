@@ -809,6 +809,7 @@ for (const [index, paper] of papers.entries()) {
     }
     projectPapers.push({
         id: `${index}`,
+        localId: `${index}`,
         paper: paper,
         stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
         decision: decision,

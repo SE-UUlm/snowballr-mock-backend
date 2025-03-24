@@ -4,11 +4,9 @@ import { ISnowballR } from "./grpc-gen/main.grpc-server";
 import { Nothing, Id, BoolValue, Blob } from "./grpc-gen/base";
 import {
     LoginRequest,
-    LoginSecret,
     PasswordChangeRequest,
     PasswordResetRequest,
     RegisterRequest,
-    RenewRequest,
     RequestPasswordResetRequest,
 } from "./grpc-gen/authentication";
 import { User, User_List, User_Update, UserRole, UserStatus } from "./grpc-gen/user";
@@ -21,8 +19,10 @@ import {
     Project_Member_Invite,
     Project_Member_List,
     Project_Member_Remove,
+    Project_Member_Update,
     Project_Paper,
     Project_Paper_Add,
+    Project_Paper_Get,
     Project_Paper_List,
     Project_Paper_Update,
     Project_Statistics,
@@ -67,6 +67,7 @@ import {
     getAuthenticated,
     getNextId,
     isEmpty,
+    makeResponseAuthMetadata,
     randomToken,
     toUser,
 } from "./util";
@@ -80,8 +81,8 @@ export const snowballRService: ISnowballR = {
         callback(null, { fetcherApis: AVAILABLE_FETCHERS });
     },
     register: function (
-        call: ServerUnaryCall<RegisterRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<RegisterRequest, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
         const { lastName, firstName, password, email } = call.request;
         if (USERS.has(email)) {
@@ -128,14 +129,17 @@ export const snowballRService: ISnowballR = {
         });
         READING_LISTS.set(email, []);
 
-        callback(null, {
-            accessToken,
-            refreshToken,
-        });
+        callback(
+            {
+                code: status.OK,
+                metadata: makeResponseAuthMetadata(accessToken, refreshToken),
+            },
+            {},
+        );
     },
     login: function (
-        call: ServerUnaryCall<LoginRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<LoginRequest, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
         const { email, password } = call.request;
         if (!USERS.has(email) || USERS.get(email)?.password != password) {
@@ -143,12 +147,24 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const { accessToken, refreshToken } = USERS.get(email)!;
+        const user = USERS.get(email)!;
 
-        callback(null, {
+        const accessToken = randomToken();
+        const refreshToken = randomToken();
+
+        USERS.set(user.email, {
+            ...user,
             accessToken,
             refreshToken,
         });
+
+        callback(
+            {
+                code: status.OK,
+                metadata: makeResponseAuthMetadata(accessToken, refreshToken),
+            },
+            {},
+        );
     },
     logout: function (
         call: ServerUnaryCall<Nothing, Nothing>,
@@ -160,7 +176,13 @@ export const snowballRService: ISnowballR = {
             accessToken: randomToken(),
             refreshToken: randomToken(),
         });
-        callback(null);
+        callback(
+            {
+                code: status.OK,
+                metadata: makeResponseAuthMetadata("", ""),
+            },
+            {},
+        );
     },
     isAuthenticated: function (
         call: ServerUnaryCall<Nothing, BoolValue>,
@@ -172,15 +194,27 @@ export const snowballRService: ISnowballR = {
         });
     },
     renewSession: function (
-        call: ServerUnaryCall<RenewRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<Nothing, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
-        const user = getAuthenticated(call.metadata);
+        const user = getAuthenticated(call.metadata)!;
 
-        callback(null, {
-            accessToken: user?.accessToken ?? "",
-            refreshToken: user?.refreshToken ?? "",
+        const accessToken = randomToken();
+
+        USERS.set(user.email, {
+            ...user,
+            accessToken,
         });
+
+        const { refreshToken } = USERS.get(user.email)!;
+
+        callback(
+            {
+                code: status.OK,
+                metadata: makeResponseAuthMetadata(accessToken, refreshToken),
+            },
+            {},
+        );
     },
     requestPasswordReset: function (
         call: ServerUnaryCall<RequestPasswordResetRequest, Nothing>,
@@ -917,6 +951,7 @@ export const snowballRService: ISnowballR = {
         const id = getNextId(PROJECT_PAPERS);
         const project_paper: Project_Paper = {
             id: id,
+            localId: PROJECT_PROJECT_PAPERS.get(projectId)!.length.toString(),
             stage: stage,
             decision: PaperDecision.UNDECIDED,
             reviews: [],
@@ -1200,5 +1235,17 @@ export const snowballRService: ISnowballR = {
             return;
         }
         PAPER_PDFS.set(paperId, pdf?.data ?? new Uint8Array());
+    },
+    updateProjectMemberRole: function (
+        call: ServerUnaryCall<Project_Member_Update, Nothing>,
+        callback: sendUnaryData<Nothing>,
+    ): void {
+        throw new Error("Function not implemented.");
+    },
+    getProjectPaperByRelativeId: function (
+        call: ServerUnaryCall<Project_Paper_Get, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        throw new Error("Function not implemented.");
     },
 };
