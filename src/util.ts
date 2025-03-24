@@ -2,8 +2,8 @@ import { Metadata } from "@grpc/grpc-js";
 import { PAPER_REVIEWS, REVIEWS, ServerProjectPaper, ServerUser, USERS } from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
-import { LoginSecret } from "./grpc-gen/authentication";
 import { Project_Paper } from "./grpc-gen/project";
+import * as cookie from "cookie";
 
 /**
  * Checks whether a string is empty
@@ -69,25 +69,51 @@ export function randomToken(): string {
 }
 
 /**
- * Search for the (server) user with the provided "Authorization" token.
+ * Search for the (server) user with the provided access token token.
  *
- * @privateRemarks
  *
- * At the moment the frontend has no implementation for adding the "Authorization" header.
- * As the different calls in mock backend are already protected with authentication,
- * using this mock backend in the frontend is useless, as you always would get an "Unauthenticated"
- * error. Hence, this method currently constantly return a user that is "logged in".
- * This must be changed as soon as the authentication is completed in the frontend.
- *
- * @param metadata the request metadata (= header) containing the "Authorization" header
+ * @param metadata the request metadata (= header) containing the cookies
  * @return the server user with the given access token or null, if no server user was found
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAuthenticated(metadata: Metadata): ServerUser | null {
-    /*const authorization = metadata.get("Authorization").join("");
-    if (authorization.trim() == "") return null;
-    return findFirst(USERS.values(), "accessToken", authorization);*/
-    return USERS.get("alice.smith@example.com")!;
+    const tokenPair = getTokenPair(metadata);
+    if (tokenPair === undefined) return null;
+    return findFirst(USERS.values(), "accessToken", tokenPair.accessToken);
+}
+
+/**
+ * Extract access- and refresh-token from the cookies inside of the headers of
+ * a gRPC call.
+ *
+ * @param metadata the request metadata (= header) containing the cookies
+ * @return the token pair or undefined if no or invalid tokens were provided
+ */
+export function getTokenPair(metadata: Metadata):
+    | {
+          accessToken: string;
+          refreshToken: string;
+      }
+    | undefined {
+    let accessToken = undefined;
+    let refreshToken = undefined;
+
+    for (const header of metadata.get("cookie").reverse()) {
+        const cookies = cookie.parse(header.toString());
+        accessToken ??= cookies["accessToken"];
+        refreshToken ??= cookies["refreshToken"];
+    }
+
+    accessToken = accessToken?.trim();
+    refreshToken = refreshToken?.trim();
+
+    if (
+        accessToken === undefined ||
+        refreshToken === undefined ||
+        accessToken === "" ||
+        refreshToken === ""
+    )
+        return undefined;
+    else return { accessToken, refreshToken };
 }
 
 /**
@@ -99,10 +125,16 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
  * @param loginSecret the login secret, so the authorization and refresh tokens of the user
  * @return the server user created from the user, password and login secret
  */
-export function toServerUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
+export function toServerUser(
+    user: User,
+    password: string,
+    accessToken: string,
+    refreshToken: string,
+): ServerUser {
     return {
         ...user,
-        ...loginSecret,
+        accessToken,
+        refreshToken,
         password: password,
     };
 }
@@ -200,4 +232,13 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
 export function isOptionEnabled(option?: string): boolean {
     option = option?.toLowerCase() ?? "";
     return ["1", "yes", "true"].includes(option);
+}
+
+export function makeResponseAuthMetadata(accessToken: string, refreshToken: string): Metadata {
+    let meta = new Metadata();
+    // set-cookie should probably also have 'secure', 'max-age' or 'expires'
+    // properties. For testing purposes 'secure' may be inconvenient.
+    meta.add("set-cookie", `accessToken=${accessToken}; HttpOnly`);
+    meta.add("set-cookie", `refreshToken=${refreshToken}; HttpOnly`);
+    return meta;
 }

@@ -1,4 +1,3 @@
-import { LoginSecret } from "./grpc-gen/authentication";
 import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
 import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-gen/project";
@@ -8,7 +7,7 @@ import { UserSettings } from "./grpc-gen/user_settings";
 import { toServerUser, getRandomItems } from "./util";
 import { LOG } from "./main";
 
-export type ServerUser = User & { password: string } & LoginSecret;
+export type ServerUser = User & { password: string; accessToken: string; refreshToken: string };
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
 /* Maps storing all data of the mock backend and simulating a "database" */
@@ -70,10 +69,7 @@ function processExampleData(data: ExampleData) {
     data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
     data.reviews?.forEach((review) => REVIEWS.set(review.id, review));
     data.users?.forEach((user) => {
-        USERS.set(
-            user.email,
-            toServerUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
-        );
+        USERS.set(user.email, toServerUser(user, `user${user.id}`, "", ""));
         READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
         INVITATIONS.set(
