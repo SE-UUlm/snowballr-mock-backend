@@ -131,6 +131,7 @@ export const snowballRService: ISnowballR = {
 
         callback(
             {
+                code: status.OK,
                 metadata: makeResponseAuthMetadata(accessToken, refreshToken),
             },
             {},
@@ -159,6 +160,7 @@ export const snowballRService: ISnowballR = {
 
         callback(
             {
+                code: status.OK,
                 metadata: makeResponseAuthMetadata(accessToken, refreshToken),
             },
             {},
@@ -176,6 +178,7 @@ export const snowballRService: ISnowballR = {
         });
         callback(
             {
+                code: status.OK,
                 metadata: makeResponseAuthMetadata("", ""),
             },
             {},
@@ -207,6 +210,7 @@ export const snowballRService: ISnowballR = {
 
         callback(
             {
+                code: status.OK,
                 metadata: makeResponseAuthMetadata(accessToken, refreshToken),
             },
             {},
