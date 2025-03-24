@@ -84,7 +84,10 @@ function processExampleData(data: ExampleData) {
     data.users?.forEach((user) => {
         USERS.set(
             user.email,
-            toServerUser(user, `user${user.id}`, { accessToken: "", refreshToken: "" }),
+            toServerUser(user, `user${user.id}`, {
+                accessToken: "",
+                refreshToken: "",
+            }),
         );
         READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);

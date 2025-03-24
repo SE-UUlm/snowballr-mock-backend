@@ -17,8 +17,10 @@ const ENDPOINT = `${ADDRESS}:${PORT}`;
 
 proxy({
     target: `http://127.0.0.1:${PORT}`,
-    origin: "",
-    headers: "",
+    // Hack applied due to limiting types of @grpc-web/proxy. See cors library
+    // for more options.
+    origin: /.*/ as any as string,
+    headers: [],
 }).listen(WEB_PORT);
 
 const server = new grpc.Server({
