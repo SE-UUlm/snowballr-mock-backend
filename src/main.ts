@@ -9,6 +9,7 @@ import proxy from "@grpc-web/proxy";
 import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { isOptionEnabled } from "./util";
+import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
 import { LOG } from "./log";
 
 const PORT = process.env.GRPC_PORT ?? "3000";
@@ -24,7 +25,7 @@ proxy({
 }).listen(WEB_PORT);
 
 const server = new grpc.Server({
-    interceptors: [AUTH_INTERCEPTOR, LOGGING_INTERCEPTOR],
+    interceptors: [AUTH_INTERCEPTOR, LOGGING_INTERCEPTOR, DELAYING_INTERCEPTOR],
 });
 server.addService(snowballRDefinition, snowballRService);
 addReflection(server, path.join(__dirname, "schema.ds"));
