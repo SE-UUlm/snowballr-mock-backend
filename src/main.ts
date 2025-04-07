@@ -6,10 +6,10 @@ import { LOGGING_INTERCEPTOR } from "./interceptors/logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
 import proxy from "@grpc-web/proxy";
-import pino from "pino";
 import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { isOptionEnabled } from "./util";
+import { LOG } from "./log";
 
 const PORT = process.env.GRPC_PORT ?? "3000";
 const WEB_PORT = process.env.GRPC_WEB_PORT ?? "3001";
@@ -42,15 +42,6 @@ server.bindAsync(
 );
 
 /* parse environment variables */
-
-// Initializing the logging
-const level = process.env.LOG_LEVEL ?? "debug";
-export const LOG = pino({
-    level: level,
-    transport: {
-        target: "pino-pretty",
-    },
-});
 
 // Check, whether the dummy admin user should be added or not
 if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {

@@ -6,7 +6,7 @@ import { Review } from "./grpc-gen/review";
 import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { toServerUser, getRandomItems } from "./util";
-import { LOG } from "./main";
+import { LOG } from "./log";
 
 export type ServerUser = User & { password: string } & LoginSecret;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
