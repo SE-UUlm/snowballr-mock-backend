@@ -3,12 +3,12 @@ import { AvailableFetcherApis } from "./grpc-gen/main";
 import { ISnowballR } from "./grpc-gen/main.grpc-server";
 import { Nothing, Id, BoolValue, Blob } from "./grpc-gen/base";
 import {
+    AuthenticationStatus,
+    AuthenticationStatusResponse,
     LoginRequest,
-    LoginSecret,
     PasswordChangeRequest,
     PasswordResetRequest,
     RegisterRequest,
-    RenewRequest,
     RequestPasswordResetRequest,
 } from "./grpc-gen/authentication";
 import { User, User_List, User_Update, UserRole, UserStatus } from "./grpc-gen/user";
@@ -17,16 +17,20 @@ import {
     PaperDecision,
     Project,
     Project_Create,
+    Project_Information,
+    Project_Information_DecisionStatistics,
+    Project_Information_DecisionStatistics_Get,
+    Project_Information_Get,
     Project_List,
     Project_Member_Invite,
     Project_Member_List,
     Project_Member_Remove,
+    Project_Member_Update,
     Project_Paper,
     Project_Paper_Add,
+    Project_Paper_Get,
     Project_Paper_List,
     Project_Paper_Update,
-    Project_Statistics,
-    Project_Statistics_Get,
     Project_Update,
     ProjectStatus,
     SnowballingType,
@@ -50,8 +54,8 @@ import {
     PAPER_PDFS,
     PAPER_REVIEWS,
     PAPERS,
-    PROGRESS,
     PROJECT_CRITERIA,
+    PROJECT_INFORMATION,
     PROJECT_PAPERS,
     PROJECT_PROJECT_PAPERS,
     PROJECTS,
@@ -71,6 +75,7 @@ import {
 } from "./util";
 import { randomToken } from "./random";
 import { applyFieldMask } from "protobuf-fieldmask";
+import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
 
 export const snowballRService: ISnowballR = {
     getAvailableFetcherApis: function (
@@ -80,8 +85,8 @@ export const snowballRService: ISnowballR = {
         callback(null, { fetcherApis: AVAILABLE_FETCHERS });
     },
     register: function (
-        call: ServerUnaryCall<RegisterRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<RegisterRequest, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
         const { lastName, firstName, password, email } = call.request;
         if (USERS.has(email)) {
@@ -134,8 +139,8 @@ export const snowballRService: ISnowballR = {
         });
     },
     login: function (
-        call: ServerUnaryCall<LoginRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<LoginRequest, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
         const { email, password } = call.request;
         if (!USERS.has(email) || USERS.get(email)?.password != password) {
@@ -162,18 +167,9 @@ export const snowballRService: ISnowballR = {
         });
         callback(null);
     },
-    isAuthenticated: function (
-        call: ServerUnaryCall<Nothing, BoolValue>,
-        callback: sendUnaryData<BoolValue>,
-    ): void {
-        const user = getAuthenticated(call.metadata);
-        callback(null, {
-            value: user != null,
-        });
-    },
     renewSession: function (
-        call: ServerUnaryCall<RenewRequest, LoginSecret>,
-        callback: sendUnaryData<LoginSecret>,
+        call: ServerUnaryCall<Nothing, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
         const user = getAuthenticated(call.metadata);
 
@@ -338,7 +334,11 @@ export const snowballRService: ISnowballR = {
         // TODO: implement basic logic to get all papers to review for the current user
         callback(null, {
             projectPapers: Array.from(PROJECT_PAPERS.values())
-                .filter((pp) => pp.decision == PaperDecision.UNDECIDED)
+                .filter(
+                    (pp) =>
+                        pp.decision == PaperDecision.UNREVIEWED ||
+                        pp.decision == PaperDecision.IN_REVIEW,
+                )
                 .map(addProjectPaperReviews),
         });
     },
@@ -359,7 +359,11 @@ export const snowballRService: ISnowballR = {
         callback(null, {
             projectPapers: (PROJECT_PROJECT_PAPERS.get(id) ?? [])
                 .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-                .filter((pp) => pp.decision == PaperDecision.UNDECIDED)
+                .filter(
+                    (pp) =>
+                        pp.decision == PaperDecision.UNREVIEWED ||
+                        pp.decision == PaperDecision.IN_REVIEW,
+                )
                 .map(addProjectPaperReviews),
         });
     },
@@ -678,7 +682,11 @@ export const snowballRService: ISnowballR = {
                 user: user,
             },
         ]);
-        PROGRESS.set(id, 0);
+        PROJECT_INFORMATION.set(id, {
+            projectProgress: 0,
+            creationDate: Timestamp.now(),
+            lastStageStarted: Timestamp.now(),
+        });
         PROJECT_CRITERIA.set(id, []);
         PROJECT_PROJECT_PAPERS.set(id, []);
 
@@ -783,24 +791,6 @@ export const snowballRService: ISnowballR = {
 
         PROJECTS.get(id)!.status = ProjectStatus.ACTIVE;
         callback(null, {});
-    },
-    getProjectStatistics: function (
-        call: ServerUnaryCall<Project_Statistics_Get, Project_Statistics>,
-        callback: sendUnaryData<Project_Statistics>,
-    ): void {
-        const { projectId } = call.request;
-
-        if (!PROJECTS.has(projectId)) {
-            callback({
-                code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
-            });
-            return;
-        }
-
-        callback(null, {
-            projectProgress: PROGRESS.get(projectId)!,
-        });
     },
     getCriterionById: function (
         call: ServerUnaryCall<Id, Criterion>,
@@ -958,15 +948,22 @@ export const snowballRService: ISnowballR = {
         const id = getNextId(PROJECT_PAPERS);
         const project_paper: Project_Paper = {
             id: id,
+            localId: getNextId(PROJECT_PROJECT_PAPERS),
             stage: stage,
-            decision: PaperDecision.UNDECIDED,
+            decision: PaperDecision.UNREVIEWED,
             reviews: [],
             paper: PAPERS.get(paperId)!,
         };
         PROJECT_PAPERS.set(id, project_paper);
         PAPER_REVIEWS.set(id, []);
         PROJECT_PROJECT_PAPERS.get(projectId)!.push(id);
-        PROGRESS.set(projectId, Math.min((PROGRESS.get(projectId) ?? 0) + 0.05, 1.0));
+        PROJECT_INFORMATION.set(projectId, {
+            ...PROJECT_INFORMATION.get(projectId)!,
+            projectProgress: Math.min(
+                (PROJECT_INFORMATION.get(projectId)!.projectProgress ?? 0) + 0.05,
+                1.0,
+            ),
+        });
         callback(null, project_paper);
     },
     updateProjectPaper: function (
@@ -1241,5 +1238,123 @@ export const snowballRService: ISnowballR = {
             return;
         }
         PAPER_PDFS.set(paperId, pdf?.data ?? new Uint8Array());
+    },
+    getProjectInformation: function (
+        call: ServerUnaryCall<Project_Information_Get, Project_Information>,
+        callback: sendUnaryData<Project_Information>,
+    ): void {
+        const { projectId } = call.request;
+
+        if (!PROJECT_INFORMATION.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Project with the given id was not found",
+            });
+            return;
+        }
+
+        callback(null, PROJECT_INFORMATION.get(projectId)!);
+    },
+    getDecisionStatisticsForStage: function (
+        call: ServerUnaryCall<
+            Project_Information_DecisionStatistics_Get,
+            Project_Information_DecisionStatistics
+        >,
+        callback: sendUnaryData<Project_Information_DecisionStatistics>,
+    ): void {
+        const { projectId, stage } = call.request;
+
+        if (!PROJECTS.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Project with the given id was not found",
+            });
+            return;
+        }
+
+        callback(null, {
+            statistics: [
+                PaperDecision.ACCEPTED,
+                PaperDecision.DECLINED,
+                PaperDecision.IN_REVIEW,
+                PaperDecision.UNREVIEWED,
+            ].map((decision) => {
+                return {
+                    decision,
+                    count: BigInt(Math.random() * 10) * 10n + stage,
+                };
+            }),
+        });
+    },
+    updateProjectMemberRole: function (
+        call: ServerUnaryCall<Project_Member_Update, Nothing>,
+        callback: sendUnaryData<Nothing>,
+    ): void {
+        const { projectId, newRole, userId } = call.request;
+
+        if (!MEMBERS.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "Project with the given id was not found",
+            });
+            return;
+        }
+
+        const members = MEMBERS.get(projectId)!;
+        const member = members.find((m) => m.user!.id === userId);
+
+        if (member === undefined) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "User with the given id was not found in the provided Project",
+            });
+            return;
+        }
+
+        const newMembers = members.filter((m) => m.user!.id !== userId);
+        newMembers.push({
+            ...member,
+            role: newRole,
+        });
+
+        MEMBERS.set(projectId, newMembers);
+        callback(null, {});
+    },
+    getProjectPaperByRelativeId: function (
+        call: ServerUnaryCall<Project_Paper_Get, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        const { projectId, relativeProjectPaperId } = call.request;
+
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)
+            ?.map((ppid) => PROJECT_PAPERS.get(ppid))
+            .find((pp) => pp !== undefined && pp.localId === relativeProjectPaperId);
+
+        if (projectPapers == undefined) {
+            callback({
+                code: status.NOT_FOUND,
+                details:
+                    "Project Paper with the given local id was not found in the provided project",
+            });
+            return;
+        }
+
+        callback(null, addProjectPaperReviews(projectPapers));
+    },
+    getAuthenticationStatus: function (
+        call: ServerUnaryCall<Nothing, AuthenticationStatusResponse>,
+        callback: sendUnaryData<AuthenticationStatusResponse>,
+    ): void {
+        const user = getAuthenticated(call.metadata);
+
+        if (user === null) {
+            callback(null, {
+                authenticationStatus: AuthenticationStatus.UNAUTHENTICATED,
+            });
+        } else {
+            callback(null, {
+                authenticationStatus: AuthenticationStatus.AUTHENTICATED,
+            });
+        }
     },
 };

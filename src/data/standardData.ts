@@ -18,6 +18,7 @@ import { Author, Paper } from "../grpc-gen/paper";
 import { getRandomItems, random } from "../random";
 import { UserSettings } from "../grpc-gen/user_settings";
 import assert from "node:assert";
+import { makeReviewDecisionMatrixPattern } from "../util";
 
 const NUMBER_OF_REVIEWS = 200;
 
@@ -198,48 +199,21 @@ const AVAILABLE_FETCHERS = [
 ];
 
 const PATTERN_2: ReviewDecisionMatrix_Pattern[] = [
-    {
-        reviews: [ReviewDecision.ACCEPTED, ReviewDecision.ACCEPTED],
-        decision: PaperDecision.ACCEPTED,
-    },
-    {
-        reviews: [ReviewDecision.DECLINED, ReviewDecision.DECLINED],
-        decision: PaperDecision.DECLINED,
-    },
-    {
-        reviews: [ReviewDecision.ACCEPTED, ReviewDecision.DECLINED],
-        decision: PaperDecision.UNDECIDED,
-    },
-    { reviews: [ReviewDecision.ACCEPTED, ReviewDecision.MAYBE], decision: PaperDecision.UNDECIDED },
-    { reviews: [ReviewDecision.DECLINED, ReviewDecision.MAYBE], decision: PaperDecision.DECLINED },
-    { reviews: [ReviewDecision.MAYBE, ReviewDecision.MAYBE], decision: PaperDecision.UNDECIDED },
+    makeReviewDecisionMatrixPattern(2, 0, 0, PaperDecision.ACCEPTED),
+    makeReviewDecisionMatrixPattern(0, 2, 0, PaperDecision.ACCEPTED),
+    makeReviewDecisionMatrixPattern(1, 1, 0, PaperDecision.IN_REVIEW),
+    makeReviewDecisionMatrixPattern(1, 0, 1, PaperDecision.IN_REVIEW),
+    makeReviewDecisionMatrixPattern(0, 1, 1, PaperDecision.DECLINED),
+    makeReviewDecisionMatrixPattern(0, 0, 2, PaperDecision.IN_REVIEW),
 ];
 
 const PATTERN_3: ReviewDecisionMatrix_Pattern[] = [
-    {
-        reviews: [ReviewDecision.ACCEPTED, ReviewDecision.ACCEPTED, ReviewDecision.ACCEPTED],
-        decision: PaperDecision.ACCEPTED,
-    },
-    {
-        reviews: [ReviewDecision.ACCEPTED, ReviewDecision.ACCEPTED, ReviewDecision.DECLINED],
-        decision: PaperDecision.ACCEPTED,
-    },
-    {
-        reviews: [ReviewDecision.DECLINED, ReviewDecision.ACCEPTED, ReviewDecision.DECLINED],
-        decision: PaperDecision.DECLINED,
-    },
-    {
-        reviews: [ReviewDecision.DECLINED, ReviewDecision.MAYBE, ReviewDecision.ACCEPTED],
-        decision: PaperDecision.UNDECIDED,
-    },
-    {
-        reviews: [ReviewDecision.ACCEPTED, ReviewDecision.MAYBE, ReviewDecision.MAYBE],
-        decision: PaperDecision.ACCEPTED,
-    },
-    {
-        reviews: [ReviewDecision.DECLINED, ReviewDecision.MAYBE, ReviewDecision.MAYBE],
-        decision: PaperDecision.DECLINED,
-    },
+    makeReviewDecisionMatrixPattern(3, 0, 0, PaperDecision.ACCEPTED),
+    makeReviewDecisionMatrixPattern(2, 1, 0, PaperDecision.ACCEPTED),
+    makeReviewDecisionMatrixPattern(1, 2, 0, PaperDecision.DECLINED),
+    makeReviewDecisionMatrixPattern(1, 1, 1, PaperDecision.IN_REVIEW),
+    makeReviewDecisionMatrixPattern(1, 0, 2, PaperDecision.ACCEPTED),
+    makeReviewDecisionMatrixPattern(0, 1, 2, PaperDecision.DECLINED),
 ];
 
 const reviewDecisionMatrices: ReviewDecisionMatrix[] = [
@@ -803,7 +777,7 @@ for (const [index, paper] of papers.entries()) {
 
     let decision;
     if (reviewsOfPaper.length === 0 || random() < 0.2) {
-        decision = PaperDecision.UNDECIDED;
+        decision = PaperDecision.UNREVIEWED;
     } else if (
         reviewsOfPaper.filter((review) => review.decision === ReviewDecision.ACCEPTED).length >
         reviewsOfPaper.filter((review) => review.decision === ReviewDecision.DECLINED).length
@@ -814,6 +788,7 @@ for (const [index, paper] of papers.entries()) {
     }
     projectPapers.push({
         id: `${index}`,
+        localId: `${index}`,
         paper: paper,
         stage: random() < 0.3 ? 0n : BigInt(Math.floor(random() * 2.5) + 1),
         decision: decision,
