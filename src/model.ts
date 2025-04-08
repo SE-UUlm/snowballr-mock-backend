@@ -1,14 +1,24 @@
-import { LoginSecret } from "./grpc-gen/authentication";
 import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
-import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-gen/project";
+import {
+    PaperDecision,
+    Project,
+    Project_Information,
+    Project_Member,
+    Project_Paper,
+} from "./grpc-gen/project";
 import { Review } from "./grpc-gen/review";
 import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { toServerUser, getRandomItems } from "./util";
 import { LOG } from "./log";
 
-export type ServerUser = User & { password: string } & LoginSecret;
+export interface TokenPair {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export type ServerUser = User & { password: string } & TokenPair;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
 /* Maps storing all data of the mock backend and simulating a "database" */
@@ -31,8 +41,6 @@ export const USER_SETTINGS: Map<string, UserSettings> = new Map();
 export const READING_LISTS: Map<string, Paper[]> = new Map();
 // Project id => List of project members of this project
 export const MEMBERS: Map<string, Project_Member[]> = new Map();
-// Project id => Progress of the current stage in range [0,1]
-export const PROGRESS: Map<string, number> = new Map();
 // Project id => Ids of criteria
 export const PROJECT_CRITERIA: Map<string, string[]> = new Map();
 // Criterion id => Criterion
@@ -43,6 +51,8 @@ export const REVIEWS: Map<string, Review> = new Map();
 export const PAPER_REVIEWS: Map<string, string[]> = new Map();
 // Paper Id => PDF Blob
 export const PAPER_PDFS: Map<string, Uint8Array> = new Map();
+// Project Id => Project Information
+export const PROJECT_INFORMATION: Map<string, Project_Information> = new Map();
 
 export interface ExampleData {
     availableFetchers?: string[];
@@ -108,10 +118,16 @@ function processExampleData(data: ExampleData) {
             ?.map((id) => PROJECT_PAPERS.get(id))
             .filter((paper) => paper !== undefined && paper.stage === project.currentStage);
         const numberOfReviewedPaperInStage =
-            paperInStage?.filter((paper) => paper?.decision !== PaperDecision.UNDECIDED).length ??
-            0;
+            paperInStage?.filter((paper) =>
+                [PaperDecision.ACCEPTED, PaperDecision.DECLINED].includes(
+                    paper?.decision ?? PaperDecision.UNSPECIFIED,
+                ),
+            ).length ?? 0;
         const totalNumberOfPaperInStage = paperInStage?.length ?? Infinity;
-        PROGRESS.set(project.id, numberOfReviewedPaperInStage / totalNumberOfPaperInStage);
+        PROJECT_INFORMATION.set(project.id, {
+            ...PROJECT_INFORMATION.get(project.id)!,
+            projectProgress: numberOfReviewedPaperInStage / totalNumberOfPaperInStage,
+        });
     });
     data.projectMembers?.forEach(({ projectId, members }) => MEMBERS.set(projectId, members));
 }
