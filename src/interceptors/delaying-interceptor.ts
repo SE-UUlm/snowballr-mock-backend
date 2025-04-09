@@ -8,7 +8,8 @@ import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { RESPONSE_DELAY_MS } from "../options";
 
 // Adds a delay to every response in accordance to an environment variable.
-// Helps testing loading-skeletons in the frontend.
+// This can be used to better test the loading behavior and the skeletons in the
+// frontend.
 export const DELAYING_INTERCEPTOR: ServerInterceptor = function <RequestT, ResponseT>(
     _: ServerMethodDefinition<RequestT, ResponseT>,
     call: ServerInterceptingCallInterface,
