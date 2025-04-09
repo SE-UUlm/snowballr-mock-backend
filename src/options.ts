@@ -2,21 +2,21 @@ import { assert } from "@protobuf-ts/runtime";
 import { LOG } from "./log";
 
 /**
- * Parses environment variables using a set of functions.
+ * Parses an environment variable using a set of functions.
  * A value is parsed and verified using the according functions.
  * Every output of this function is guaranteed to pass the `verify` condition.
  *
- * If the input is `undefined`, the fallback value is used and `onDefault` is
- * called.
+ * If the input is `undefined`, the fallback value is returned and `onDefault`
+ * is called.
  *
  * If the parsing function throws or returns `undefined`, the fallback value is
- * used and `onParseFailed` is called.
+ * returned and `onParseFailed` is called.
  *
  * If the parsing was successful but the `verify`-condition was violated, the
- * fallback value is used and `onVerifyFailed` is called.
+ * fallback value is returned and `onVerifyFailed` is called.
  *
  * If the value was parsed successfully and passed the `verify`-check, it is
- * used and `onSuccess` is called.
+ * returned and `onSuccess` is called.
  */
 function parseOption<T>(
     str: string | undefined,
@@ -57,10 +57,10 @@ function parseOption<T>(
 }
 
 /**
- * Parse boolean options from an optional string.
+ * Parses a boolean option from an optional string.
  * The following values are interpreted as:
- *   `true`:  "yes", "1", "true"
- *   `false`: "no", "0", "false"
+ *  - `true`:  "yes", "1", "true"
+ *  - `false`: "no", "0", "false"
  *
  * Strings are compared case-insensitive, thus for example "YeS" is also
  * considered to be `true`.
@@ -85,30 +85,25 @@ export const RESPONSE_DELAY_MS = parseOption(
     50,
     parseInt,
     (v) => !isNaN(v) && v >= 0,
-    (v) => LOG.info("The server is responding %dms delayed.", v),
+    (v) => LOG.info("The server responds with a delay of %dms.", v),
     () => {},
     (u, _, s) =>
         LOG.error(
-            'The provided response delay "%s" was not a valid non-negative integer. Using %dms instead.',
+            'The provided response delay of "%s" was not a valid non-negative integer. Using a delay of %dms instead.',
             s,
             u,
         ),
-    (v) => LOG.info("The server is responding %dms delayed.", v),
+    (v) => LOG.info("The server responds with a delay of %dms.", v),
 );
 
-export const PORT = parseOption(
-    process.env.GRPC_PORT,
-    "3000",
-    (s) => s,
-    (s) => !isNaN(parseInt(s)),
-);
+function verifyPort(str: string): boolean {
+    const port = parseInt(str);
+    return !isNaN(port) && port > 0 && port < 1 << 16;
+}
 
-export const WEB_PORT = parseOption(
-    process.env.GRPC_WEB_PORT,
-    "3001",
-    (s) => s,
-    (s) => !isNaN(parseInt(s)),
-);
+export const PORT = parseOption(process.env.GRPC_PORT, "3000", (s) => s, verifyPort);
+
+export const WEB_PORT = parseOption(process.env.GRPC_WEB_PORT, "3001", (s) => s, verifyPort);
 
 export const ENABLE_DUMMY_ADMIN = parseBoolOption(process.env.ENABLE_DUMMY_ADMIN, false);
 

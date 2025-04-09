@@ -59,6 +59,6 @@ if (ENABLE_DUMMY_ADMIN) {
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
-if (EXAMPLE_DATA_FILE !== undefined) {
+if (EXAMPLE_DATA_FILE) {
     loadExampleData(EXAMPLE_DATA_FILE);
 }
