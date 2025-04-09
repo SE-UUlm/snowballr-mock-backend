@@ -130,6 +130,23 @@ export const WEB_PORT = parseOption(
     logVerifyFailedPort,
 );
 
+
+function logUsedOrigin(origin: RegExp) {
+    logger.info("Allowing gRPC Web Requests from Origins matching this RegExp: \"%s\"", origin.source);
+}
+
+export const WEB_ORIGIN = parseOption(
+    process.env.GRPC_ALLOW_ORIGIN,
+    /.*/,
+    s => new RegExp(s),
+    () => true,
+    logUsedOrigin,
+    (usedVal, parsedStr) => {
+        logger.warn("Could not parse Origin as RegExp: \"%s\", using \"%s\" instead", parsedStr, usedVal.source);
+        logUsedOrigin(usedVal)
+    },
+);
+
 export const ENABLE_DUMMY_ADMIN = parseBoolOption(process.env.ENABLE_DUMMY_ADMIN, false);
 
 export const EXAMPLE_DATA_FILE = parseOption(process.env.EXAMPLE_DATA_FILE, undefined, (s) => s);
