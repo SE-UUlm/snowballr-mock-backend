@@ -130,20 +130,26 @@ export const WEB_PORT = parseOption(
     logVerifyFailedPort,
 );
 
-
 function logUsedOrigin(origin: RegExp) {
-    logger.info("Allowing gRPC Web Requests from Origins matching this RegExp: \"%s\"", origin.source);
+    logger.info(
+        'Allowing gRPC Web Requests from Origins matching this RegExp: "%s"',
+        origin.source,
+    );
 }
 
 export const WEB_ORIGIN = parseOption(
     process.env.GRPC_ALLOW_ORIGIN,
     /.*/,
-    s => new RegExp(s),
+    (s) => new RegExp(s),
     () => true,
     logUsedOrigin,
     (usedVal, parsedStr) => {
-        logger.warn("Could not parse Origin as RegExp: \"%s\", using \"%s\" instead", parsedStr, usedVal.source);
-        logUsedOrigin(usedVal)
+        logger.warn(
+            'Could not parse Origin as RegExp: "%s", using "%s" instead',
+            parsedStr,
+            usedVal.source,
+        );
+        logUsedOrigin(usedVal);
     },
 );
 

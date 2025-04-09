@@ -181,10 +181,12 @@ export const snowballRService: ISnowballR = {
             refreshToken: randomToken(),
         });
 
-        call.sendMetadata(makeResponseAuthMetadata({
-            accessToken: "",
-            refreshToken: "",
-        }));
+        call.sendMetadata(
+            makeResponseAuthMetadata({
+                accessToken: "",
+                refreshToken: "",
+            }),
+        );
         callback(null, {});
     },
     renewSession: function (
