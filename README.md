@@ -9,30 +9,46 @@ scanning papers, nor does it persist any data.
 > Security is an afterthought and this server should **never** be used in
 > production. Passwords are stored in plaintext and nothing is encrypted.
 
-## Building
+## Get Started
 
-Make sure you've cloned the repository with the `--recursive` flag or executed
-`git submodule update --init` afterwards.
+The fastest way to get started is to clone the repository and run the mock
+backend using docker compose. This will start the mock backend and a gRPC web
+proxy. The mock backend will be available at `http://localhost:3001` and the gRPC
+web proxy at `http://localhost:3000`.
+
+```sh
+git clone git@github.com:SE-UUlm/snowballr-mock-backend.git
+cd snowballr-mock-backend
+git submodule update --init
+docker compose up
+```
+
+To start the mock backend with existing data and an admin user, you can use the `mock-sample` profile.
+
+```sh
+docker compose --profile mock-sample up
+```
+
+Alternatively, you can build and run the mock backend from source.
 
 ```sh
 npm i
 npm run compile:proto
 npm run build
+npm run start
 ```
 
-## Usage
+To run the mock backend with existing data and an admin user, you can use the following command:
 
 ```sh
-npm run start
+npm run dev
 ```
 
 If connecting from a gRPC web client, the `GRPC_WEB_PORT` endpoint must be
 targeted. If using a native client like `grpcui` or `grpcurl`, connecting to
 `GRPC_PORT` is required.
 
-Alternatively, you can start the application by running:
-`docker compose up --build`.
-The mock backend will be available at http://localhost:3001 per default.
+### Initial data
 
 If you're not going to use the mock backend for automated tests, but only to manually check the frontend functionality, it's useful to have some initial data.
 You can start the mock backend with initial data for this purpose, whereas these initial data must be saved in a typescript file.
@@ -51,13 +67,13 @@ export const exampleData: ExampleData = {
 
 A boolean variable may be enabled by setting it to either `1`, `yes`, or `true`.
 
-| Environment Variable     | Default | Description                                                                                                              |
-| ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `GRPC_PORT`              | 3000    | The port the native server should listen on                                                                              |
-| `GRPC_WEB_PORT`          | 3001    | The port the gRPC web proxy should listen on                                                                             |
-| `ENABLE_DUMMY_ADMIN`     | false   | Whether to enable a dummy admin user                                                                                     |
-| `LOG_LEVEL`              | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.                            |
-| `EXAMPLE_DATA_FILE_PATH` | ""      | Relative path to a file inside [src/data/](src/data) containing example data for the mock backend (e.g. standardData.ts) |
+| Environment Variable | Default | Description                                                                                                              |
+| -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `GRPC_PORT`          | 3000    | The port the native server should listen on                                                                              |
+| `GRPC_WEB_PORT`      | 3001    | The port the gRPC web proxy should listen on                                                                             |
+| `ENABLE_DUMMY_ADMIN` | false   | Whether to enable a dummy admin user                                                                                     |
+| `LOG_LEVEL`          | `debug` | The log level to use. One of `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.                            |
+| `EXAMPLE_DATA_FILE`  | ""      | Relative path to a file inside [src/data/](src/data) containing example data for the mock backend (e.g. standardData.ts) |
 
 ## Tooling
 
