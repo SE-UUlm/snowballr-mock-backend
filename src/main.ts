@@ -23,14 +23,17 @@ export const LOG = pino({
 const PORT = process.env.GRPC_PORT ?? "3000";
 const WEB_PORT = process.env.GRPC_WEB_PORT ?? "3001";
 const ORIGIN = (() => {
-    try { return new RegExp(process.env.GRPC_ALLOW_ORIGIN ?? ".*"); }
-    catch { return /.*/; }
+    try {
+        return new RegExp(process.env.GRPC_ALLOW_ORIGIN ?? ".*");
+    } catch {
+        return /.*/;
+    }
 })();
 
 const ADDRESS = "0.0.0.0";
 const ENDPOINT = `${ADDRESS}:${PORT}`;
 
-LOG.info("Allowing requests from origins matching this regex: \"%s\"", ORIGIN.source)
+LOG.info('Allowing requests from origins matching this regex: "%s"', ORIGIN.source);
 
 proxy({
     target: `http://127.0.0.1:${PORT}`,
@@ -38,6 +41,7 @@ proxy({
     // Currently allows every origin
     // Hack applied due to limiting types of @grpc-web/proxy. See cors library
     // for more options.
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     origin: ORIGIN as any,
     headers: [],
 }).listen(WEB_PORT);
