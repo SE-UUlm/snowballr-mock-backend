@@ -101,9 +101,33 @@ function verifyPort(str: string): boolean {
     return !isNaN(port) && port > 0 && port < 1 << 16;
 }
 
-export const PORT = parseOption(process.env.GRPC_PORT, "3000", (s) => s, verifyPort);
+function logVerifyFailedPort(usedVal: string, _: string, parsedStr: string) {
+    LOG.error(
+        'The provided port "%s" was either not a number or not in the range 0 < port < 65535. Using the port %s.',
+        parsedStr,
+        usedVal,
+    );
+}
 
-export const WEB_PORT = parseOption(process.env.GRPC_WEB_PORT, "3001", (s) => s, verifyPort);
+export const PORT = parseOption(
+    process.env.GRPC_PORT,
+    "3000",
+    (s) => s,
+    verifyPort,
+    undefined,
+    undefined,
+    logVerifyFailedPort,
+);
+
+export const WEB_PORT = parseOption(
+    process.env.GRPC_WEB_PORT,
+    "3001",
+    (s) => s,
+    verifyPort,
+    undefined,
+    undefined,
+    logVerifyFailedPort,
+);
 
 export const ENABLE_DUMMY_ADMIN = parseBoolOption(process.env.ENABLE_DUMMY_ADMIN, false);
 
