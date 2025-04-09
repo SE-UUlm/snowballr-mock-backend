@@ -186,18 +186,3 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
         return v == undefined || (typeof v === "object" && anythingUndefined(v));
     });
 }
-
-/**
- * Checks whether the given string indicates that an option is enabled.
- * An option is considered as enabled, if it is set to either:
- * - 1
- * - (y/Y)es
- * - (t/T)rue
- *
- * @param option the input to check
- * @return true, if the given option is set to value listed above, otherwise false
- */
-export function isOptionEnabled(option?: string): boolean {
-    option = option?.toLowerCase() ?? "";
-    return ["1", "yes", "true"].includes(option);
-}
