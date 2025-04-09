@@ -10,7 +10,7 @@ import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
 import { logger } from "./logger";
-import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, PORT, RANDOMNESS_SEED, WEB_PORT } from "./options";
+import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, WEB_ORIGIN, PORT, RANDOMNESS_SEED, WEB_PORT } from "./options";
 
 const ADDRESS = "0.0.0.0";
 const ENDPOINT = `${ADDRESS}:${PORT}`;
@@ -19,7 +19,7 @@ proxy({
     target: `http://127.0.0.1:${PORT}`,
     // Hack applied due to limiting types of @grpc-web/proxy. See cors library
     // for more options.
-    origin: /.*/ as any as string,
+    origin: WEB_ORIGIN as any,
     headers: [],
 }).listen(WEB_PORT);
 
