@@ -8,12 +8,9 @@ import * as path from "path";
 import proxy from "@grpc-web/proxy";
 import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
-import { isOptionEnabled } from "./util";
 import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
 import { LOG } from "./log";
-
-const PORT = process.env.GRPC_PORT ?? "3000";
-const WEB_PORT = process.env.GRPC_WEB_PORT ?? "3001";
+import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, PORT, WEB_PORT } from "./options";
 
 const ADDRESS = "0.0.0.0";
 const ENDPOINT = `${ADDRESS}:${PORT}`;
@@ -45,7 +42,7 @@ server.bindAsync(
 /* parse environment variables */
 
 // Check, whether the dummy admin user should be added or not
-if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
+if (ENABLE_DUMMY_ADMIN) {
     LOG.warn("Security Risk: dummy admin user enabled!");
     USERS.set("admin@admin", {
         id: "admin@admin",
@@ -62,6 +59,6 @@ if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
-if (process.env.EXAMPLE_DATA_FILE) {
-    loadExampleData(process.env.EXAMPLE_DATA_FILE);
+if (EXAMPLE_DATA_FILE !== undefined) {
+    loadExampleData(EXAMPLE_DATA_FILE);
 }
