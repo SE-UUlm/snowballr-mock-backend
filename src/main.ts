@@ -11,11 +11,26 @@ import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { isOptionEnabled } from "./util";
 
+// Initializing the logging
+const level = process.env.LOG_LEVEL ?? "debug";
+export const LOG = pino({
+    level: level,
+    transport: {
+        target: "pino-pretty",
+    },
+});
+
 const PORT = process.env.GRPC_PORT ?? "3000";
 const WEB_PORT = process.env.GRPC_WEB_PORT ?? "3001";
+const ORIGIN = (() => {
+    try { return new RegExp(process.env.GRPC_ALLOW_ORIGIN ?? ".*"); }
+    catch { return /.*/; }
+})();
 
 const ADDRESS = "0.0.0.0";
 const ENDPOINT = `${ADDRESS}:${PORT}`;
+
+LOG.info("Allowing requests from origins matching this regex: \"%s\"", ORIGIN.source)
 
 proxy({
     target: `http://127.0.0.1:${PORT}`,
@@ -23,7 +38,7 @@ proxy({
     // Currently allows every origin
     // Hack applied due to limiting types of @grpc-web/proxy. See cors library
     // for more options.
-    origin: /.*/ as any as string,
+    origin: ORIGIN as any,
     headers: [],
 }).listen(WEB_PORT);
 
@@ -46,15 +61,6 @@ server.bindAsync(
 );
 
 /* parse environment variables */
-
-// Initializing the logging
-const level = process.env.LOG_LEVEL ?? "debug";
-export const LOG = pino({
-    level: level,
-    transport: {
-        target: "pino-pretty",
-    },
-});
 
 // Check, whether the dummy admin user should be added or not
 if (isOptionEnabled(process.env.ENABLE_DUMMY_ADMIN)) {
