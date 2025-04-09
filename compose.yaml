@@ -1,9 +1,29 @@
 services:
+    # mock backend with no users and other data
     mock-backend:
         build:
             context: .
         environment:
             NODE_ENV: development
+            GRPC_PORT: ${GRPC_PORT:-3000}
+            GRPC_WEB_PORT: ${GRPC_WEB_PORT:-3001}
         ports:
-            - "3000:3000"
-            - "3001:3001"
+            - ${GRPC_PORT:-3000}:${GRPC_PORT:-3000}
+            - ${GRPC_WEB_PORT:-3001}:${GRPC_WEB_PORT:-3001}
+        profiles: [""]
+
+    # mock backend with dummy admin and sample data
+    mock-backend-sample:
+        build:
+            context: .
+        environment:
+            NODE_ENV: development
+            GRPC_PORT: ${GRPC_PORT:-3000}
+            GRPC_WEB_PORT: ${GRPC_WEB_PORT:-3001}
+            ENABLE_DUMMY_ADMIN: true
+            EXAMPLE_DATA_FILE: "standardData.ts"
+        ports:
+            - ${GRPC_PORT:-3000}:${GRPC_PORT:-3000}
+            - ${GRPC_WEB_PORT:-3001}:${GRPC_WEB_PORT:-3001}
+        profiles:
+            - mock-sample
