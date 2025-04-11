@@ -543,11 +543,40 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        MEMBERS.set(
-            projectId,
-            MEMBERS.get(projectId)!.filter((p) => p.user?.id != userId),
-        );
-        callback(null, {});
+        if (!MEMBERS.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                details: "No members found for this project",
+            });
+            return;
+        }
+
+        // First, check whether use is a project member
+        const projectMembers = MEMBERS.get(projectId)!;
+        if (projectMembers.some((member) => member.user?.id == userId)) {
+            MEMBERS.set(
+                projectId,
+                MEMBERS.get(projectId)!.filter((p) => p.user?.id != userId),
+            );
+            callback(null, {});
+            return;
+        }
+
+        // If not, check whether user is invited to this project
+        const invitations = INVITATIONS.get(userId) ?? [];
+        if (invitations.includes(projectId)) {
+            INVITATIONS.set(
+                userId,
+                invitations.filter((p) => p != projectId),
+            );
+            callback(null, {});
+            return;
+        }
+
+        callback({
+            code: status.NOT_FOUND,
+            details: "User is neither a project member nor invited to this project",
+        });
     },
     getAllProjects: function (
         _: ServerUnaryCall<Nothing, Project_List>,
