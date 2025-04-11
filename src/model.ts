@@ -134,9 +134,9 @@ export function loadExampleData(filename: string) {
                 `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
             );
         })
-        .catch(() => {
+        .catch((error) => {
             LOG.error(
-                `Failed to load example data from file "${filename}". Falling back to default settings, so starting server with no initial data...`,
+                `Failed to load example data from file "${filename}". Falling back to default settings, so starting server with no initial data...\nError: ${error}`,
             );
         });
 }

@@ -757,7 +757,12 @@ for (const user of USERS) {
 
 const invitations: Map<User, Project[]> = new Map();
 for (const user of USERS) {
-    invitations.set(user, getRandomItems(projects, 0, 2));
+    const selectedProjects = getRandomItems(projects, 0, 2).filter((project) => {
+        // Filter out projects where the user is already a member
+        const membersOfProject = projectMembers.find((p) => p.projectId === project.id);
+        return membersOfProject?.members.some((member) => member.user?.id === user.id) === false;
+    });
+    invitations.set(user, selectedProjects);
 }
 
 const readingLists: Map<User, Paper[]> = new Map();
