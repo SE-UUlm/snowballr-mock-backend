@@ -505,10 +505,22 @@ export const snowballRService: ISnowballR = {
             }
         }
 
+        const invitedUsers = userIdsInvitedInThisProject.map((userId) => {
+            const existingUser = USERS.get(userId);
+            if (existingUser) {
+                return existingUser;
+            } else {
+                const newUser: User = User.create({
+                    id: userId,
+                    email: userId,
+                    firstName: userId,
+                });
+                return newUser;
+            }
+        });
+
         callback(null, {
-            users: userIdsInvitedInThisProject
-                .map((userId) => USERS.get(userId))
-                .filter((user) => user !== undefined),
+            users: invitedUsers,
         });
     },
     getProjectMembers: function (
