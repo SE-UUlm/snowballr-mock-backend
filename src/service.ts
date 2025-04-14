@@ -551,7 +551,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        // First, check whether use is a project member
+        // First, check whether user is a member of the given project
         const projectMembers = MEMBERS.get(projectId)!;
         if (projectMembers.some((member) => member.user?.id == userId)) {
             MEMBERS.set(
