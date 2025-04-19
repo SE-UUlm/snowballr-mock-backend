@@ -22,7 +22,7 @@ export const AUTH_INTERCEPTOR: ServerInterceptor = function <RequestT, ResponseT
     const uncheckedCalls = [
         "Login",
         "Register",
-        "IsAuthenticated",
+        "GetAuthenticationStatus",
         "RenewSession",
         "RequestPasswordReset",
     ];
