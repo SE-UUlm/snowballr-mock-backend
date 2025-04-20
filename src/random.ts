@@ -65,3 +65,16 @@ export function randomToken(): string {
     tokens.push(token);
     return token;
 }
+
+/**
+ * Creates a random date in between the provided ones.
+ *
+ * @param from the earliest date to be generated
+ * @param to the latest date to be generated
+ * @returns a date in between `from` and `to`
+ */
+export function getRandomDateBetween(from: Date, to: Date) {
+    const fromInMS = from.getTime();
+    const toInMS = to.getTime();
+    return new Date(fromInMS + random() * (toInMS - fromInMS));
+}

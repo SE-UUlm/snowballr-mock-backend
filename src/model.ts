@@ -10,9 +10,10 @@ import {
 import { Review } from "./grpc-gen/review";
 import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
+import { getRandomItems, getRandomDateBetween } from "./random";
 import { toServerUser } from "./util";
-import { getRandomItems } from "./random";
 import { LOG } from "./log";
+import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
 
 export interface TokenPair {
     accessToken: string;
@@ -128,8 +129,12 @@ function processExampleData(data: ExampleData) {
                 ),
             ).length ?? 0;
         const totalNumberOfPaperInStage = paperInStage?.length ?? Infinity;
+        const projectCreationDate = getRandomDateBetween(new Date("2023"), new Date("2024"));
+        const lastStageStartedDate = getRandomDateBetween(projectCreationDate, new Date ("2025"));
         PROJECT_INFORMATION.set(project.id, {
             ...PROJECT_INFORMATION.get(project.id)!,
+            creationDate: Timestamp.fromDate(projectCreationDate),
+            lastStageStarted: Timestamp.fromDate(lastStageStartedDate),
             projectProgress: numberOfReviewedPaperInStage / totalNumberOfPaperInStage,
         });
     });
