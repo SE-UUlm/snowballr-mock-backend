@@ -949,7 +949,7 @@ export const snowballRService: ISnowballR = {
         const id = getNextId(PROJECT_PAPERS);
         const project_paper: Project_Paper = {
             id: id,
-            localId: getNextId(PROJECT_PROJECT_PAPERS),
+            localId: PROJECT_PROJECT_PAPERS.get(projectId)!.length.toString(),
             stage: stage,
             decision: PaperDecision.UNREVIEWED,
             reviews: [],
