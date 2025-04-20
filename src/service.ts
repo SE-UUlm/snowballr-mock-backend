@@ -328,18 +328,19 @@ export const snowballRService: ISnowballR = {
         callback(null, {});
     },
     getAllPapersToReview: function (
-        _: ServerUnaryCall<Nothing, Project_Paper_List>,
+        call: ServerUnaryCall<Nothing, Project_Paper_List>,
         callback: sendUnaryData<Project_Paper_List>,
     ): void {
-        // TODO: implement basic logic to get all papers to review for the current user
+        const { id: userId } = getAuthenticated(call.metadata)!;
         callback(null, {
             projectPapers: Array.from(PROJECT_PAPERS.values())
+                .map(addProjectPaperReviews)
                 .filter(
                     (pp) =>
-                        pp.decision == PaperDecision.UNREVIEWED ||
-                        pp.decision == PaperDecision.IN_REVIEW,
-                )
-                .map(addProjectPaperReviews),
+                        (pp.decision == PaperDecision.UNREVIEWED ||
+                        pp.decision == PaperDecision.IN_REVIEW) &&
+                    pp.reviews.every(r => r.userId != userId),
+                ),
         });
     },
     getPapersToReviewForProject: function (
