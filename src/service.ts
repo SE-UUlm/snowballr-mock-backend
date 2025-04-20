@@ -432,7 +432,7 @@ export const snowballRService: ISnowballR = {
         const user = getAuthenticated(call.metadata)!;
         const { id } = call.request;
         const paper = PAPERS.get(id);
-        if (paper === undefined) {
+        if (!paper) {
             callback({
                 code: status.NOT_FOUND,
                 details: "The paper with the given id does not exist",
@@ -1308,7 +1308,7 @@ export const snowballRService: ISnowballR = {
         const members = MEMBERS.get(projectId)!;
         const member = members.find((m) => m.user!.id === userId);
 
-        if (member === undefined) {
+        if (!member) {
             callback({
                 code: status.NOT_FOUND,
                 details: "User with the given id was not found in the provided project",
@@ -1335,7 +1335,7 @@ export const snowballRService: ISnowballR = {
             ?.map((ppid) => PROJECT_PAPERS.get(ppid))
             .find((pp) => pp !== undefined && pp.localId === relativeProjectPaperId);
 
-        if (projectPaper == undefined) {
+        if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
                 details:
