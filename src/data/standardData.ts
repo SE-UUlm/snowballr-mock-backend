@@ -775,14 +775,20 @@ const projectPapers: Project_Paper[] = [];
 for (const [index, paper] of papers.entries()) {
     const reviewsOfPaper = random() < 0.5 ? getRandomItems(reviews, 1, 3) : [];
 
+    const acceptingReviews = reviewsOfPaper.filter(
+        (review) => review.decision === ReviewDecision.ACCEPTED,
+    );
+    const decliningReviews = reviewsOfPaper.filter(
+        (review) => review.decision === ReviewDecision.DECLINED,
+    );
+
     let decision;
-    if (reviewsOfPaper.length === 0 || random() < 0.2) {
+    if (reviewsOfPaper.length === 0) {
         decision = PaperDecision.UNREVIEWED;
-    } else if (
-        reviewsOfPaper.filter((review) => review.decision === ReviewDecision.ACCEPTED).length >
-        reviewsOfPaper.filter((review) => review.decision === ReviewDecision.DECLINED).length
-    ) {
+    } else if (acceptingReviews.length > decliningReviews.length) {
         decision = PaperDecision.ACCEPTED;
+    } else if (acceptingReviews.length == decliningReviews.length) {
+        decision = PaperDecision.IN_REVIEW;
     } else {
         decision = PaperDecision.DECLINED;
     }
