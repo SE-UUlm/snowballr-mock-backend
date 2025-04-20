@@ -130,7 +130,7 @@ function processExampleData(data: ExampleData) {
             ).length ?? 0;
         const totalNumberOfPaperInStage = paperInStage?.length ?? Infinity;
         const projectCreationDate = getRandomDateBetween(new Date("2023"), new Date("2024"));
-        const lastStageStartedDate = getRandomDateBetween(projectCreationDate, new Date ("2025"));
+        const lastStageStartedDate = getRandomDateBetween(projectCreationDate, new Date("2025"));
         PROJECT_INFORMATION.set(project.id, {
             ...PROJECT_INFORMATION.get(project.id)!,
             creationDate: Timestamp.fromDate(projectCreationDate),

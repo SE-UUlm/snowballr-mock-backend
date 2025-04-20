@@ -338,8 +338,8 @@ export const snowballRService: ISnowballR = {
                 .filter(
                     (pp) =>
                         (pp.decision == PaperDecision.UNREVIEWED ||
-                        pp.decision == PaperDecision.IN_REVIEW) &&
-                    pp.reviews.every(r => r.userId != userId),
+                            pp.decision == PaperDecision.IN_REVIEW) &&
+                        pp.reviews.every((r) => r.userId != userId),
                 ),
         });
     },
@@ -1282,11 +1282,11 @@ export const snowballRService: ISnowballR = {
             ].map((decision) => {
                 return {
                     decision,
-                    count: BigInt(PROJECT_PROJECT_PAPERS
-                        .get(projectId)!
-                        .map(pp => PROJECT_PAPERS.get(pp)!)
-                        .filter(pp => pp.decision == decision && pp.stage == stage)
-                        .length),
+                    count: BigInt(
+                        PROJECT_PROJECT_PAPERS.get(projectId)!
+                            .map((pp) => PROJECT_PAPERS.get(pp)!)
+                            .filter((pp) => pp.decision == decision && pp.stage == stage).length,
+                    ),
                 };
             }),
         });
