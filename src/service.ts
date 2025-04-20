@@ -1331,11 +1331,11 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId, relativeProjectPaperId } = call.request;
 
-        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)
+        const projectPaper = PROJECT_PROJECT_PAPERS.get(projectId)
             ?.map((ppid) => PROJECT_PAPERS.get(ppid))
             .find((pp) => pp !== undefined && pp.localId === relativeProjectPaperId);
 
-        if (projectPapers == undefined) {
+        if (projectPaper == undefined) {
             callback({
                 code: status.NOT_FOUND,
                 details:
@@ -1344,7 +1344,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        callback(null, addProjectPaperReviews(projectPapers));
+        callback(null, addProjectPaperReviews(projectPaper));
     },
     getAuthenticationStatus: function (
         call: ServerUnaryCall<Nothing, AuthenticationStatusResponse>,
