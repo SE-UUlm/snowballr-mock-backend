@@ -1282,7 +1282,11 @@ export const snowballRService: ISnowballR = {
             ].map((decision) => {
                 return {
                     decision,
-                    count: BigInt(Math.random() * 10) * 10n + stage,
+                    count: BigInt(PROJECT_PROJECT_PAPERS
+                        .get(projectId)!
+                        .map(pp => PROJECT_PAPERS.get(pp)!)
+                        .filter(pp => pp.decision == decision && pp.stage == stage)
+                        .length),
                 };
             }),
         });
