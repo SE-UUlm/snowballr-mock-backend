@@ -104,7 +104,10 @@ function processExampleData(data: ExampleData) {
             .filter((paper) => paper.stage <= project.maxStage)
             .map((paper) => ({ ...paper, id: `${project.id}-${paper.id}` }))
             .forEach((paper: Project_Paper) => {
-                PROJECT_PAPERS.set(paper.id, paper);
+                PROJECT_PAPERS.set(paper.id, {
+                    ...paper,
+                    localId: PROJECT_PROJECT_PAPERS.get(project.id)!.length.toString(),
+                });
                 PROJECT_PROJECT_PAPERS.get(project.id)?.push(paper.id);
 
                 // add paper reviews in separate PAPER_REVIEWS map
