@@ -1311,7 +1311,7 @@ export const snowballRService: ISnowballR = {
         if (member === undefined) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with the given id was not found in the provided Project",
+                details: "User with the given id was not found in the provided project",
             });
             return;
         }

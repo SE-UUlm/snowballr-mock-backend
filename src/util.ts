@@ -44,7 +44,7 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
  *
  * @param user the user object to be extended
  * @param password the password of the user
- * @param loginSecret the login secret, so the authorization and refresh tokens of the user
+ * @param tokenPair the login tokens, so the authorization and refresh tokens of the user
  * @return the server user created from the user, password and login secret
  */
 export function toServerUser(user: User, password: string, tokenPair: TokenPair): ServerUser {
