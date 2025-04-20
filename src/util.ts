@@ -135,6 +135,21 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     });
 }
 
+/**
+ * Construct a single pattern for the ReviewDecisionMatrix. A pattern applies to
+ * a given paper if and only if the exact number of reviews for each category
+ * "accepted/declined/maybe" is equivalent with the provided one. If a pattern
+ * applies to a paper its decision is directed by the one stored in the pattern.
+ *
+ * @param countAccepted the required count of accepting reviews for this pattern
+ * to apply.
+ * @param countDeclined the required count of declining reviews for this pattern
+ * to apply.
+ * @param countMaybe the required count of maybe reviews for this pattern
+ * to apply.
+ * @param decision the decision for the paper if this pattern applies.
+ * @returns ReviewDecisionMatrix_Pattern
+ */
 export function makeReviewDecisionMatrixPattern(
     countAccepted: number,
     countDeclined: number,
