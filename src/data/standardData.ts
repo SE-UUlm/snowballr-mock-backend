@@ -15,7 +15,7 @@ import {
 import { Review, ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
 import { Author, Paper } from "../grpc-gen/paper";
-import { getRandomItems } from "../util";
+import { getRandomItems, random } from "../random";
 import { UserSettings } from "../grpc-gen/user_settings";
 import assert from "node:assert";
 
@@ -288,16 +288,16 @@ const reviewDecisionMatrices: ReviewDecisionMatrix[] = [
 const projectSettings: Project_Settings[] = [];
 for (let i = 0; i < 7; i++) {
     projectSettings.push({
-        similarityThreshold: Math.random() * 0.2 + 0.5,
+        similarityThreshold: random() * 0.2 + 0.5,
         decisionMatrix: getRandomItems(reviewDecisionMatrices)[0],
         fetcherApis: getRandomItems(AVAILABLE_FETCHERS, 2, 7),
         snowballingType:
-            Math.random() < 0.7
+            random() < 0.7
                 ? SnowballingType.BOTH
-                : Math.random() < 0.5
+                : random() < 0.5
                   ? SnowballingType.FORWARD
                   : SnowballingType.BACKWARD,
-        reviewMaybeAllowed: Math.random() < 0.7,
+        reviewMaybeAllowed: random() < 0.7,
     });
 }
 
@@ -325,19 +325,19 @@ const PROJECT_NAMES = [
     "Efficient Review in Healthcare",
 ];
 for (const [index, projectName] of PROJECT_NAMES.entries()) {
-    const stage: number = Math.floor(Math.random() * 2.5);
+    const stage: number = Math.floor(random() * 2.5);
 
     projects.push({
         id: `${index}`,
         name: projectName,
         status:
-            Math.random() < 0.7
+            random() < 0.7
                 ? ProjectStatus.ACTIVE
-                : Math.random() < 0.5
+                : random() < 0.5
                   ? ProjectStatus.ARCHIVED
                   : ProjectStatus.DELETED,
         currentStage: BigInt(stage),
-        maxStage: BigInt(Math.random() < 0.6 ? stage : stage + 1),
+        maxStage: BigInt(random() < 0.6 ? stage : stage + 1),
         settings: getRandomItems(projectSettings)[0],
     });
 }
@@ -739,7 +739,7 @@ for (const [index, paperTitle] of PAPER_TITLES.entries()) {
         publisher: getRandomItems(PUBLISHER)[0],
         publicationName: PUBLICATION_NAMES[index],
         publicationType: getRandomItems(PUBLICATION_TYPES)[0],
-        hasPdf: Math.random() < 0.6,
+        hasPdf: random() < 0.6,
         authors: getRandomItems(AUTHORS, 0, 4),
         backwardReferencedIds: getRandomItems(PAPER_IDS, 3, 10),
     });
@@ -748,8 +748,8 @@ for (const [index, paperTitle] of PAPER_TITLES.entries()) {
 const userSettings: Map<User, UserSettings> = new Map();
 for (const user of USERS) {
     userSettings.set(user, {
-        showHotkeys: Math.random() < 0.5,
-        reviewMode: Math.random() < 0.8,
+        showHotkeys: random() < 0.5,
+        reviewMode: random() < 0.8,
         defaultProjectSettings: getRandomItems(projectSettings)[0],
         defaultCriteria: { criteria: getRandomItems(CRITERIA, 2, 4) },
     });
@@ -799,10 +799,10 @@ for (let i = 0; i < NUMBER_OF_REVIEWS; i++) {
 
 const projectPapers: Project_Paper[] = [];
 for (const [index, paper] of papers.entries()) {
-    const reviewsOfPaper = Math.random() < 0.5 ? getRandomItems(reviews, 1, 3) : [];
+    const reviewsOfPaper = random() < 0.5 ? getRandomItems(reviews, 1, 3) : [];
 
     let decision;
-    if (reviewsOfPaper.length === 0 || Math.random() < 0.2) {
+    if (reviewsOfPaper.length === 0 || random() < 0.2) {
         decision = PaperDecision.UNDECIDED;
     } else if (
         reviewsOfPaper.filter((review) => review.decision === ReviewDecision.ACCEPTED).length >
@@ -815,7 +815,7 @@ for (const [index, paper] of papers.entries()) {
     projectPapers.push({
         id: `${index}`,
         paper: paper,
-        stage: Math.random() < 0.3 ? 0n : BigInt(Math.floor(Math.random() * 2.5) + 1),
+        stage: random() < 0.3 ? 0n : BigInt(Math.floor(random() * 2.5) + 1),
         decision: decision,
         reviews: reviewsOfPaper,
     });

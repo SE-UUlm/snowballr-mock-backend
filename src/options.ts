@@ -1,5 +1,6 @@
 import { assert } from "@protobuf-ts/runtime";
 import { LOG } from "./log";
+import { ALPHABET } from "./constants";
 
 /**
  * Parses an environment variable using a set of functions.
@@ -132,3 +133,9 @@ export const WEB_PORT = parseOption(
 export const ENABLE_DUMMY_ADMIN = parseBoolOption(process.env.ENABLE_DUMMY_ADMIN, false);
 
 export const EXAMPLE_DATA_FILE = parseOption(process.env.EXAMPLE_DATA_FILE, undefined, (s) => s);
+
+// We cannot use anything from `random.ts` here because this needs be initialized before
+const fallbackSeed = ALPHABET.split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
+export const RANDOMNESS_SEED = parseOption(process.env.RANDOMNESS_SEED, fallbackSeed, (s) => s);
