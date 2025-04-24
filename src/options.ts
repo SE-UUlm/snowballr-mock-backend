@@ -138,4 +138,7 @@ export const EXAMPLE_DATA_FILE = parseOption(process.env.EXAMPLE_DATA_FILE, unde
 const fallbackSeed = ALPHABET.split("")
     .sort(() => Math.random() - 0.5)
     .join("");
-export const RANDOMNESS_SEED = parseOption(process.env.RANDOMNESS_SEED, fallbackSeed, (s) => s);
+export const RANDOMNESS_SEED = parseOption(process.env.RANDOMNESS_SEED, fallbackSeed, (s) =>
+    // return undefined if the string is blank
+    s.trim() ? s : undefined,
+);
