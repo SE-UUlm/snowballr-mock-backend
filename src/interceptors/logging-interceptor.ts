@@ -8,7 +8,7 @@ import {
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { isSnowballRService } from "../util";
-import { LOG } from "../log";
+import { logger } from "../logger";
 
 function stripPrefix(value: string, prefix: string) {
     return value.startsWith(prefix) ? value.substring(prefix.length) : value;
@@ -24,19 +24,19 @@ export const LOGGING_INTERCEPTOR: ServerInterceptor = function <RequestT, Respon
     const shouldLog = isSnowballRService(methodDescriptor);
     const listener = new ServerListenerBuilder()
         .withOnReceiveMessage((message, next) => {
-            if (shouldLog) LOG.debug(message, `Received "${methodName}" call`);
+            if (shouldLog) logger.debug(message, `Received "${methodName}" call`);
             next(message);
         })
         .build();
     const responder = new ResponderBuilder()
         .withStart((next) => next(listener))
         .withSendMessage((message, next) => {
-            if (shouldLog) LOG.debug(message, `Replied to "${methodName}"`);
+            if (shouldLog) logger.debug(message, `Replied to "${methodName}"`);
             next(message);
         })
         .withSendStatus((status, next) => {
             if (shouldLog && status.code != Status.OK) {
-                LOG.error(
+                logger.error(
                     {
                         ...status,
                         code: `${Status[status.code]} (${status.code})`,

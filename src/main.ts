@@ -9,7 +9,7 @@ import proxy from "@grpc-web/proxy";
 import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
-import { LOG } from "./log";
+import { logger } from "./logger";
 import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, PORT, RANDOMNESS_SEED, WEB_PORT } from "./options";
 
 const ADDRESS = "0.0.0.0";
@@ -31,10 +31,10 @@ server.bindAsync(
     grpc.ServerCredentials.createInsecure(),
     (err: Error | null, port: number) => {
         if (err) {
-            LOG.fatal(`Server error: ${err.message}`);
+            logger.fatal(`Server error: ${err.message}`);
         } else {
-            LOG.info(`Native server listening on: ${ADDRESS}:${port}`);
-            LOG.info(`gRPC Web proxy listening on: ${ADDRESS}:${WEB_PORT}`);
+            logger.info(`Native server listening on: ${ADDRESS}:${port}`);
+            logger.info(`gRPC Web proxy listening on: ${ADDRESS}:${WEB_PORT}`);
         }
     },
 );
@@ -43,7 +43,7 @@ server.bindAsync(
 
 // Check, whether the dummy admin user should be added or not
 if (ENABLE_DUMMY_ADMIN) {
-    LOG.warn("Security Risk: dummy admin user enabled!");
+    logger.warn("Security Risk: dummy admin user enabled!");
     USERS.set("admin@admin", {
         id: "admin@admin",
         email: "admin@admin",
@@ -55,7 +55,7 @@ if (ENABLE_DUMMY_ADMIN) {
         accessToken: "admin",
         refreshToken: "admin",
     });
-    LOG.info(USERS.get("admin@admin"), "The dummy admin user");
+    logger.info(USERS.get("admin@admin"), "The dummy admin user");
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
@@ -63,4 +63,4 @@ if (EXAMPLE_DATA_FILE) {
     loadExampleData(EXAMPLE_DATA_FILE);
 }
 
-LOG.info(`Using randomness seed ${RANDOMNESS_SEED}`);
+logger.info(`Using randomness seed ${RANDOMNESS_SEED}`);

@@ -1,5 +1,5 @@
 import { assert } from "@protobuf-ts/runtime";
-import { LOG } from "./log";
+import { logger } from "./logger";
 import { ALPHABET } from "./constants";
 
 /**
@@ -86,15 +86,15 @@ export const RESPONSE_DELAY_MS = parseOption(
     50,
     parseInt,
     (v) => !isNaN(v) && v >= 0,
-    (v) => LOG.info("The server responds with a delay of %dms.", v),
+    (v) => logger.info("The server responds with a delay of %dms.", v),
     () => {},
     (u, _, s) =>
-        LOG.error(
+        logger.error(
             'The provided response delay of "%s" was not a valid non-negative integer. Using a delay of %dms instead.',
             s,
             u,
         ),
-    (v) => LOG.info("The server responds with a delay of %dms.", v),
+    (v) => logger.info("The server responds with a delay of %dms.", v),
 );
 
 function verifyPort(str: string): boolean {
@@ -103,7 +103,7 @@ function verifyPort(str: string): boolean {
 }
 
 function logVerifyFailedPort(usedVal: string, _: string, parsedStr: string) {
-    LOG.error(
+    logger.error(
         'The provided port "%s" was either not a number or not in the range 0 < port < 65535. Using the port %s.',
         parsedStr,
         usedVal,
