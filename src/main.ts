@@ -10,7 +10,7 @@ import { loadExampleData, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
 import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
 import { LOG } from "./log";
-import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, PORT, WEB_PORT } from "./options";
+import { ENABLE_DUMMY_ADMIN, EXAMPLE_DATA_FILE, PORT, RANDOMNESS_SEED, WEB_PORT } from "./options";
 
 const ADDRESS = "0.0.0.0";
 const ENDPOINT = `${ADDRESS}:${PORT}`;
@@ -62,3 +62,5 @@ if (ENABLE_DUMMY_ADMIN) {
 if (EXAMPLE_DATA_FILE) {
     loadExampleData(EXAMPLE_DATA_FILE);
 }
+
+LOG.info(`Using randomness seed ${RANDOMNESS_SEED}`);

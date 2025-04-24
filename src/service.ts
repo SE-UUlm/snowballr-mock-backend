@@ -67,9 +67,9 @@ import {
     getAuthenticated,
     getNextId,
     isEmpty,
-    randomToken,
     toUser,
 } from "./util";
+import { randomToken } from "./random";
 import { applyFieldMask } from "protobuf-fieldmask";
 
 export const snowballRService: ISnowballR = {

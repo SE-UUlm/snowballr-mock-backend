@@ -5,7 +5,8 @@ import { PaperDecision, Project, Project_Member, Project_Paper } from "./grpc-ge
 import { Review } from "./grpc-gen/review";
 import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
-import { toServerUser, getRandomItems } from "./util";
+import { toServerUser } from "./util";
+import { getRandomItems } from "./random";
 import { LOG } from "./log";
 
 export type ServerUser = User & { password: string } & LoginSecret;
@@ -131,7 +132,7 @@ export function loadExampleData(filename: string) {
             processExampleData(data);
 
             LOG.info(
-                `Successfully load example data from file "${filename}". Server is starting with preloaded data...`,
+                `Successfully loaded example data from file "${filename}". Server is starting with preloaded data...`,
             );
         })
         .catch((error) => {
