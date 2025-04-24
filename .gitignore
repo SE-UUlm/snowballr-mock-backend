@@ -6,3 +6,6 @@ dist/
 
 # pre-commit
 .pre-commit-config.yaml
+
+# log files
+*.log

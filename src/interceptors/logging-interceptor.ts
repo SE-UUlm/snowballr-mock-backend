@@ -24,14 +24,14 @@ export const LOGGING_INTERCEPTOR: ServerInterceptor = function <RequestT, Respon
     const shouldLog = isSnowballRService(methodDescriptor);
     const listener = new ServerListenerBuilder()
         .withOnReceiveMessage((message, next) => {
-            if (shouldLog) logger.debug(message, `Received "${methodName}" call`);
+            if (shouldLog) logger.trace(message, `Received "${methodName}" call`);
             next(message);
         })
         .build();
     const responder = new ResponderBuilder()
         .withStart((next) => next(listener))
         .withSendMessage((message, next) => {
-            if (shouldLog) logger.debug(message, `Replied to "${methodName}"`);
+            if (shouldLog) logger.trace(message, `Replied to "${methodName}"`);
             next(message);
         })
         .withSendStatus((status, next) => {
