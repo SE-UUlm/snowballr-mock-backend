@@ -103,10 +103,10 @@ function processExampleData(data: ExampleData) {
         // create a set of project papers
         getRandomItems(data.projectPapers ?? [], 25, 40)
             .filter((paper) => paper.stage <= project.maxStage)
-            .map((paper) => ({
+            .map((paper, index) => ({
                 ...paper,
                 id: `${project.id}-${paper.id}`,
-                localId: PROJECT_PROJECT_PAPERS.get(project.id)!.length.toString(),
+                localId: index.toString(),
             }))
             .forEach((paper: Project_Paper) => {
                 PROJECT_PAPERS.set(paper.id, paper);
