@@ -103,12 +103,13 @@ function processExampleData(data: ExampleData) {
         // create a set of project papers
         getRandomItems(data.projectPapers ?? [], 25, 40)
             .filter((paper) => paper.stage <= project.maxStage)
-            .map((paper) => ({ ...paper, id: `${project.id}-${paper.id}` }))
+            .map((paper) => ({
+                ...paper,
+                id: `${project.id}-${paper.id}`,
+                localId: PROJECT_PROJECT_PAPERS.get(project.id)!.length.toString(),
+            }))
             .forEach((paper: Project_Paper) => {
-                PROJECT_PAPERS.set(paper.id, {
-                    ...paper,
-                    localId: PROJECT_PROJECT_PAPERS.get(project.id)!.length.toString(),
-                });
+                PROJECT_PAPERS.set(paper.id, paper);
                 PROJECT_PROJECT_PAPERS.get(project.id)?.push(paper.id);
 
                 // add paper reviews in separate PAPER_REVIEWS map
