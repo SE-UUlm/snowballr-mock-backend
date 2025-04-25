@@ -1,9 +1,9 @@
 import { Metadata } from "@grpc/grpc-js";
-import { PAPER_REVIEWS, REVIEWS, ServerProjectPaper, ServerUser, USERS } from "./model";
+import { PAPER_REVIEWS, REVIEWS, ServerProjectPaper, ServerUser, TokenPair, USERS } from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
-import { LoginSecret } from "./grpc-gen/authentication";
-import { Project_Paper } from "./grpc-gen/project";
+import { PaperDecision, Project_Paper, ReviewDecisionMatrix_Pattern } from "./grpc-gen/project";
+import { ReviewDecision } from "./grpc-gen/review";
 
 /**
  * Checks whether a string is empty
@@ -44,13 +44,13 @@ export function getAuthenticated(metadata: Metadata): ServerUser | null {
  *
  * @param user the user object to be extended
  * @param password the password of the user
- * @param loginSecret the login secret, so the authorization and refresh tokens of the user
+ * @param tokenPair the login tokens, so the authorization and refresh tokens of the user
  * @return the server user created from the user, password and login secret
  */
-export function toServerUser(user: User, password: string, loginSecret: LoginSecret): ServerUser {
+export function toServerUser(user: User, password: string, tokenPair: TokenPair): ServerUser {
     return {
         ...user,
-        ...loginSecret,
+        ...tokenPair,
         password: password,
     };
 }
@@ -133,4 +133,44 @@ export function anythingUndefined<T extends object>(obj: T): boolean {
     return Object.values(obj).some((v) => {
         return v == undefined || (typeof v === "object" && anythingUndefined(v));
     });
+}
+
+/**
+ * Construct a single pattern for the ReviewDecisionMatrix. A pattern applies to
+ * a given paper if and only if the exact number of reviews for each category
+ * "accepted/declined/maybe" is equivalent with the provided one. If a pattern
+ * applies to a paper its decision is directed by the one stored in the pattern.
+ *
+ * @param countAccepted the required count of accepting reviews for this pattern
+ * to apply.
+ * @param countDeclined the required count of declining reviews for this pattern
+ * to apply.
+ * @param countMaybe the required count of maybe reviews for this pattern
+ * to apply.
+ * @param decision the decision for the paper if this pattern applies.
+ * @returns ReviewDecisionMatrix_Pattern
+ */
+export function makeReviewDecisionMatrixPattern(
+    countAccepted: number,
+    countDeclined: number,
+    countMaybe: number,
+    decision: PaperDecision,
+): ReviewDecisionMatrix_Pattern {
+    return {
+        entries: [
+            {
+                reviewDecision: ReviewDecision.ACCEPTED,
+                count: BigInt(countAccepted),
+            },
+            {
+                reviewDecision: ReviewDecision.DECLINED,
+                count: BigInt(countDeclined),
+            },
+            {
+                reviewDecision: ReviewDecision.MAYBE,
+                count: BigInt(countMaybe),
+            },
+        ],
+        decision,
+    };
 }
