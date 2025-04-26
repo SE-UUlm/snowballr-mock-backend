@@ -12,8 +12,8 @@ import { User } from "./grpc-gen/user";
 import { UserSettings } from "./grpc-gen/user_settings";
 import { getRandomItems, getRandomDateBetween } from "./random";
 import { toServerUser } from "./util";
-import { LOG } from "./log";
 import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
+import { logger } from "./logger";
 
 export interface TokenPair {
     accessToken: string;
@@ -156,12 +156,12 @@ export function loadExampleData(filename: string) {
 
             processExampleData(data);
 
-            LOG.info(
+            logger.info(
                 `Successfully loaded example data from file "${filename}". Server is starting with preloaded data...`,
             );
         })
         .catch((error) => {
-            LOG.error(
+            logger.error(
                 `Failed to load example data from file "${filename}". Falling back to default settings, so starting server with no initial data...\nError: ${error}`,
             );
         });
