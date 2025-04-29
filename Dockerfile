@@ -47,6 +47,10 @@ FROM base AS final
 # Use development node environment by default.
 ENV NODE_ENV=development
 
+# Create the log file and set proper permissions
+RUN touch mock-backend.log && \
+    chown -R node:node mock-backend.log
+
 # Run the application as a non-root user.
 USER node
 
