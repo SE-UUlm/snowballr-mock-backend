@@ -1438,6 +1438,7 @@ export const snowballRService: ISnowballR = {
             });
             return;
         }
+        // Search for the next paper to review
         let stage = projectPaper.stage;
         let currentPaperId = projectPaper.localId;
         while (stage <= PROJECTS.get(projectId)!.maxStage) {
@@ -1447,10 +1448,12 @@ export const snowballRService: ISnowballR = {
                     paper.stage == stage &&
                     parseInt(paper.localId) > parseInt(currentPaperId),
             );
+            // If a paper to review exists on the same stage
             if (nextPapers.length > 0) {
                 callback(null, addProjectPaperReviews(nextPapers[0]));
                 return;
             }
+            // If no paper with a higher local id on the max stage exists, that needs a review
             if (stage == PROJECTS.get(projectId)!.maxStage && nextPapers.length == 0) {
                 callback(null, addProjectPaperReviews(projectPaper));
                 return;
@@ -1510,6 +1513,7 @@ export const snowballRService: ISnowballR = {
             });
             return;
         }
+        // Search for the previous paper to review
         let stage = projectPaper.stage;
         let currentPaperId = projectPaper.localId;
         while (stage >= 0) {
@@ -1519,10 +1523,12 @@ export const snowballRService: ISnowballR = {
                     paper.stage == stage &&
                     parseInt(paper.localId) < parseInt(currentPaperId),
             );
+            // If a paper to review exists on the same stage
             if (previousPapers.length > 0) {
                 callback(null, addProjectPaperReviews(previousPapers[previousPapers.length - 1]));
                 return;
             }
+            // If no paper with a lower local id on stage 0 exists, that needs a review
             if (stage == 0n && previousPapers.length == 0) {
                 callback(null, addProjectPaperReviews(projectPaper));
                 return;
