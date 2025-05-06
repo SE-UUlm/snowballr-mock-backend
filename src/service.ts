@@ -1,7 +1,7 @@
-import { ServerUnaryCall, sendUnaryData } from "@grpc/grpc-js";
+import { sendUnaryData, ServerUnaryCall, status } from "@grpc/grpc-js";
 import { AvailableFetcherApis } from "./grpc-gen/main";
 import { ISnowballR } from "./grpc-gen/main.grpc-server";
-import { Nothing, Id, BoolValue, Blob } from "./grpc-gen/base";
+import { Blob, BoolValue, Id, Nothing } from "./grpc-gen/base";
 import {
     AuthenticationStatus,
     AuthenticationStatusResponse,
@@ -45,7 +45,6 @@ import {
     Criterion_Update,
 } from "./grpc-gen/criterion";
 import { Review, Review_Create, Review_List, Review_Update } from "./grpc-gen/review";
-import { status } from "@grpc/grpc-js";
 import {
     AVAILABLE_FETCHERS,
     CRITERIA,
@@ -1361,5 +1360,155 @@ export const snowballRService: ISnowballR = {
                 authenticationStatus: AuthenticationStatus.AUTHENTICATED,
             });
         }
+    },
+    getNextPaper: function (
+        call: ServerUnaryCall<Id, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        const { id } = call.request;
+        const projectId = id.split("-")[0];
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+            .map(addProjectPaperReviews);
+        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        if (!projectPaper) {
+            callback({
+                code: status.NOT_FOUND,
+                details:
+                    "Project Paper with the given local id was not found in the provided project",
+            });
+            return;
+        }
+        const nextPaper = projectPapers.find(
+            (paper) => parseInt(paper.localId) == parseInt(projectPaper.localId) + 1,
+        );
+        if (nextPaper) {
+            callback(null, addProjectPaperReviews(nextPaper));
+            return;
+        }
+        callback(null, addProjectPaperReviews(projectPaper));
+        return;
+    },
+    getNextPaperToReview: function (
+        call: ServerUnaryCall<Id, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        const { id } = call.request;
+        const projectId = id.split("-")[0];
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+            .map(addProjectPaperReviews);
+        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        if (!projectPaper) {
+            callback({
+                code: status.NOT_FOUND,
+                details:
+                    "Project Paper with the given local id was not found in the provided project",
+            });
+            return;
+        }
+        // Search for the next paper to review
+        let stage = projectPaper.stage;
+        let currentPaperId = projectPaper.localId;
+        while (stage <= PROJECTS.get(projectId)!.maxStage) {
+            const nextPapers = projectPapers.filter(
+                (paper) =>
+                    paper.reviews.length == 0 &&
+                    paper.stage == stage &&
+                    parseInt(paper.localId) > parseInt(currentPaperId),
+            );
+            // If a paper to review exists on the same stage
+            if (nextPapers.length > 0) {
+                callback(null, addProjectPaperReviews(nextPapers[0]));
+                return;
+            }
+            // If no paper with a higher local id on the max stage exists, that needs a review
+            if (stage == PROJECTS.get(projectId)!.maxStage && nextPapers.length == 0) {
+                callback(null, addProjectPaperReviews(projectPaper));
+                return;
+            }
+            currentPaperId = "0";
+            stage++;
+        }
+        callback({
+            code: status.NOT_FOUND,
+            details: "Error while searching for next project paper.",
+        });
+        return;
+    },
+    getPreviousPaper: function (
+        call: ServerUnaryCall<Id, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        const { id } = call.request;
+        const projectId = id.split("-")[0];
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+            .map(addProjectPaperReviews);
+        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        if (!projectPaper) {
+            callback({
+                code: status.NOT_FOUND,
+                details:
+                    "Project Paper with the given local id was not found in the provided project",
+            });
+            return;
+        }
+        const nextPaper = projectPapers.find(
+            (paper) => parseInt(paper.localId) == parseInt(projectPaper.localId) - 1,
+        );
+        if (nextPaper) {
+            callback(null, addProjectPaperReviews(nextPaper));
+            return;
+        }
+        callback(null, addProjectPaperReviews(projectPaper));
+        return;
+    },
+    getPreviousPaperToReview: function (
+        call: ServerUnaryCall<Id, Project_Paper>,
+        callback: sendUnaryData<Project_Paper>,
+    ): void {
+        const { id } = call.request;
+        const projectId = id.split("-")[0];
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+            .map(addProjectPaperReviews);
+        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        if (!projectPaper) {
+            callback({
+                code: status.NOT_FOUND,
+                details:
+                    "Project Paper with the given local id was not found in the provided project",
+            });
+            return;
+        }
+        // Search for the previous paper to review
+        let stage = projectPaper.stage;
+        let currentPaperId = projectPaper.localId;
+        while (stage >= 0) {
+            const previousPapers = projectPapers.filter(
+                (paper) =>
+                    paper.reviews.length == 0 &&
+                    paper.stage == stage &&
+                    parseInt(paper.localId) < parseInt(currentPaperId),
+            );
+            // If a paper to review exists on the same stage
+            if (previousPapers.length > 0) {
+                callback(null, addProjectPaperReviews(previousPapers[previousPapers.length - 1]));
+                return;
+            }
+            // If no paper with a lower local id on stage 0 exists, that needs a review
+            if (stage == 0n && previousPapers.length == 0) {
+                callback(null, addProjectPaperReviews(projectPaper));
+                return;
+            }
+            currentPaperId = projectPapers.length.toString();
+            stage--;
+        }
+        callback({
+            code: status.NOT_FOUND,
+            details: "Error while searching for next project paper.",
+        });
+        return;
     },
 };
