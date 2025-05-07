@@ -4,6 +4,7 @@ import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { PaperDecision, Project_Paper, ReviewDecisionMatrix_Pattern } from "./grpc-gen/project";
 import { ReviewDecision } from "./grpc-gen/review";
+import * as cookie from "cookie";
 
 /**
  * Checks whether a string is empty
@@ -17,25 +18,43 @@ export function isEmpty(string: string | null): boolean {
 }
 
 /**
- * Search for the (server) user with the provided "Authorization" token.
- *
- * @privateRemarks
- *
- * At the moment the frontend has no implementation for adding the "Authorization" header.
- * As the different calls in mock backend are already protected with authentication,
- * using this mock backend in the frontend is useless, as you always would get an "Unauthenticated"
- * error. Hence, this method currently constantly return a user that is "logged in".
- * This must be changed as soon as the authentication is completed in the frontend.
- *
- * @param metadata the request metadata (= header) containing the "Authorization" header
+ * @param metadata the request metadata (= header) containing the cookies
  * @return the server user with the given access token or null, if no server user was found
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAuthenticated(metadata: Metadata): ServerUser | null {
-    /*const authorization = metadata.get("Authorization").join("");
-    if (authorization.trim() == "") return null;
-    return findFirst(USERS.values(), "accessToken", authorization);*/
-    return USERS.get("alice.smith@example.com")!;
+    const tokenPair = getTokenPair(metadata);
+    if (tokenPair === undefined) return null;
+    return findFirst(USERS.values(), "accessToken", tokenPair.accessToken);
+}
+
+/**
+ * Extract access- and refresh-token from the cookies inside of the headers of
+ * a gRPC call.
+ *
+ * @param metadata the request metadata (= header) containing the cookies
+ * @return the token pair or undefined if no or invalid tokens were provided
+ */
+export function getTokenPair(metadata: Metadata): TokenPair | undefined {
+    let accessToken = undefined;
+    let refreshToken = undefined;
+
+    for (const header of metadata.get("cookie").reverse()) {
+        const cookies = cookie.parse(header.toString());
+        accessToken ??= cookies["accessToken"];
+        refreshToken ??= cookies["refreshToken"];
+    }
+
+    accessToken = accessToken?.trim();
+    refreshToken = refreshToken?.trim();
+
+    if (
+        accessToken === undefined ||
+        refreshToken === undefined ||
+        accessToken === "" ||
+        refreshToken === ""
+    )
+        return undefined;
+    else return { accessToken, refreshToken };
 }
 
 /**
@@ -173,4 +192,13 @@ export function makeReviewDecisionMatrixPattern(
         ],
         decision,
     };
+}
+
+export function makeResponseAuthMetadata(tokenPair: TokenPair): Metadata {
+    const meta = new Metadata();
+    // set-cookie should probably also have 'secure', 'max-age' or 'expires'
+    // properties. For testing purposes 'secure' may be inconvenient.
+    meta.add("set-cookie", `accessToken=${tokenPair.accessToken}; HttpOnly`);
+    meta.add("set-cookie", `refreshToken=${tokenPair.refreshToken}; HttpOnly`);
+    return meta;
 }
