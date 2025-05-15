@@ -1417,7 +1417,10 @@ export const snowballRService: ISnowballR = {
             callback(null, addProjectPaperReviews(nextPaper));
             return;
         }
-        callback(null, addProjectPaperReviews(projectPaper));
+        callback({
+            code: status.UNAVAILABLE,
+            details: "No next project paper available.",
+        });
         return;
     },
     getNextPaperToReview: function (
@@ -1455,10 +1458,13 @@ export const snowballRService: ISnowballR = {
             }
             // If no paper with a higher local id on the max stage exists, that needs a review
             if (stage == PROJECTS.get(projectId)!.maxStage && nextPapers.length == 0) {
-                callback(null, addProjectPaperReviews(projectPaper));
+                callback({
+                    code: status.UNAVAILABLE,
+                    details: "No next project paper available.",
+                });
                 return;
             }
-            currentPaperId = "0";
+            currentPaperId = "-1";
             stage++;
         }
         callback({
@@ -1492,54 +1498,19 @@ export const snowballRService: ISnowballR = {
             callback(null, addProjectPaperReviews(nextPaper));
             return;
         }
-        callback(null, addProjectPaperReviews(projectPaper));
+        callback({
+            code: status.UNAVAILABLE,
+            details: "No previous project paper available.",
+        });
         return;
     },
+    // THIS METHOD CAN BE REMOVED
     getPreviousPaperToReview: function (
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
+        // These two calls are necessary for the linter, to not get a pipeline fail because of unused code
         const { id } = call.request;
-        const projectId = id.split("-")[0];
-        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
-            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-            .map(addProjectPaperReviews);
-        const projectPaper = projectPapers.find((pp) => pp.id === id);
-        if (!projectPaper) {
-            callback({
-                code: status.NOT_FOUND,
-                details:
-                    "Project Paper with the given local id was not found in the provided project",
-            });
-            return;
-        }
-        // Search for the previous paper to review
-        let stage = projectPaper.stage;
-        let currentPaperId = projectPaper.localId;
-        while (stage >= 0) {
-            const previousPapers = projectPapers.filter(
-                (paper) =>
-                    paper.reviews.length == 0 &&
-                    paper.stage == stage &&
-                    parseInt(paper.localId) < parseInt(currentPaperId),
-            );
-            // If a paper to review exists on the same stage
-            if (previousPapers.length > 0) {
-                callback(null, addProjectPaperReviews(previousPapers[previousPapers.length - 1]));
-                return;
-            }
-            // If no paper with a lower local id on stage 0 exists, that needs a review
-            if (stage == 0n && previousPapers.length == 0) {
-                callback(null, addProjectPaperReviews(projectPaper));
-                return;
-            }
-            currentPaperId = projectPapers.length.toString();
-            stage--;
-        }
-        callback({
-            code: status.NOT_FOUND,
-            details: "Error while searching for next project paper.",
-        });
-        return;
+        callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(id)!));
     },
 };
