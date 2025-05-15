@@ -44,9 +44,9 @@ server.bindAsync(
 // Check, whether the dummy admin user should be added or not
 if (ENABLE_DUMMY_ADMIN) {
     logger.warn("Security Risk: dummy admin user enabled!");
-    USERS.set("admin@admin", {
-        id: "admin@admin",
-        email: "admin@admin",
+    USERS.set("admin@example.com", {
+        id: "admin@example.com",
+        email: "admin@example.com",
         firstName: "admin",
         lastName: "admin",
         role: UserRole.ADMIN,
@@ -55,7 +55,7 @@ if (ENABLE_DUMMY_ADMIN) {
         accessToken: "admin",
         refreshToken: "admin",
     });
-    logger.info(USERS.get("admin@admin"), "The dummy admin user");
+    logger.info(USERS.get("admin@example.com"), "The dummy admin user");
 }
 
 // Check, whether a filepath to a file containing example data for the mock backend is set
