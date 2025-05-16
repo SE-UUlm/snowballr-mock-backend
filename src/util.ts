@@ -194,6 +194,17 @@ export function makeReviewDecisionMatrixPattern(
     };
 }
 
+/**
+ * Create gRPC headers from a set of authentication tokens to set these tokens
+ * as cookies in the client. Other calls will check for their existence when
+ * a requests comes in.
+ *
+ * Send these headers to the client like this:
+ * ```
+ * call.sendMetadata(makeResponseAuthMetadata(tokenPair));
+ * ```
+ * Using the response trailer WILL NOT WORK.
+ */
 export function makeResponseAuthMetadata(tokenPair: TokenPair): Metadata {
     const meta = new Metadata();
     // set-cookie should probably also have 'secure', 'max-age' or 'expires'
