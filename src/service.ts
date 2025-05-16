@@ -70,6 +70,7 @@ import {
     findFirst,
     getAuthenticated,
     getNextId,
+    getProjectPaperData,
     isEmpty,
     makeResponseAuthMetadata,
     toUser,
@@ -99,7 +100,7 @@ export const snowballRService: ISnowballR = {
         if (emptyParams.length != 0) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: `${emptyParams.map((p) => p[1]).join(", ")} are empty`,
+                message: `${emptyParams.map((p) => p[1]).join(", ")} are empty`,
             });
             return;
         }
@@ -238,7 +239,7 @@ export const snowballRService: ISnowballR = {
         if (user.password != oldPassword) {
             callback({
                 code: status.UNAUTHENTICATED,
-                details: "The old password is incorrect",
+                message: "The old password is incorrect",
             });
             return;
         }
@@ -265,7 +266,7 @@ export const snowballRService: ISnowballR = {
         if (user == null) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with given id was not found",
+                message: "User with given id was not found",
             });
             return;
         }
@@ -279,7 +280,7 @@ export const snowballRService: ISnowballR = {
         if (!USERS.has(email)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with given email was not found",
+                message: "User with given email was not found",
             });
             return;
         }
@@ -313,7 +314,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -334,7 +335,7 @@ export const snowballRService: ISnowballR = {
         if (!USERS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with given id was not found",
+                message: "User with given id was not found",
             });
             return;
         }
@@ -351,7 +352,7 @@ export const snowballRService: ISnowballR = {
         if (!USERS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with given id was not found",
+                message: "User with given id was not found",
             });
             return;
         }
@@ -384,7 +385,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with given id was not found",
+                message: "Project with given id was not found",
             });
             return;
         }
@@ -427,7 +428,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -467,7 +468,7 @@ export const snowballRService: ISnowballR = {
         if (!paper) {
             callback({
                 code: status.NOT_FOUND,
-                details: "The paper with the given id does not exist",
+                message: "The paper with the given id does not exist",
             });
         }
         READING_LISTS.get(user.id)!.push(paper!);
@@ -482,7 +483,7 @@ export const snowballRService: ISnowballR = {
         if (!READING_LISTS.get(user.id)?.some((p) => p.id == id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "The paper with the given id was not found in reading list",
+                message: "The paper with the given id was not found in reading list",
             });
             return;
         }
@@ -500,7 +501,7 @@ export const snowballRService: ISnowballR = {
         if (!USERS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with given id was not found",
+                message: "User with given id was not found",
             });
             return;
         }
@@ -530,7 +531,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with given id was not found",
+                message: "Project with given id was not found",
             });
             return;
         }
@@ -569,7 +570,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -587,7 +588,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -595,7 +596,7 @@ export const snowballRService: ISnowballR = {
         if (!MEMBERS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "No members found for this project",
+                message: "No members found for this project",
             });
             return;
         }
@@ -624,7 +625,7 @@ export const snowballRService: ISnowballR = {
 
         callback({
             code: status.NOT_FOUND,
-            details: "User is neither a project member nor invited to this project",
+            message: "User is neither a project member nor invited to this project",
         });
     },
     getAllProjects: function (
@@ -743,7 +744,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -759,7 +760,7 @@ export const snowballRService: ISnowballR = {
         if (project?.id == undefined || !PROJECTS.has(project.id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -771,7 +772,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -800,7 +801,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -817,7 +818,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -833,7 +834,7 @@ export const snowballRService: ISnowballR = {
         if (!CRITERIA.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Criterion with the given id was not found",
+                message: "Criterion with the given id was not found",
             });
             return;
         }
@@ -847,7 +848,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECT_CRITERIA.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -863,7 +864,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -889,7 +890,7 @@ export const snowballRService: ISnowballR = {
         if (criterion?.id == null) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Id must not be undefined",
+                message: "Id must not be undefined",
             });
             return;
         }
@@ -897,7 +898,7 @@ export const snowballRService: ISnowballR = {
         if (!CRITERIA.has(criterion.id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Criterion with the given id was not found",
+                message: "Criterion with the given id was not found",
             });
             return;
         }
@@ -909,7 +910,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -942,7 +943,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECT_PAPERS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project paper with the given id was not found",
+                message: "Project paper with the given id was not found",
             });
             return;
         }
@@ -956,7 +957,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -974,7 +975,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -1008,7 +1009,7 @@ export const snowballRService: ISnowballR = {
         if (projectPaper?.id == null) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Id must not be undefined",
+                message: "Id must not be undefined",
             });
             return;
         }
@@ -1016,7 +1017,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECT_PAPERS.has(projectPaper.id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project paper with the given id was not found",
+                message: "Project paper with the given id was not found",
             });
             return;
         }
@@ -1028,7 +1029,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -1060,7 +1061,7 @@ export const snowballRService: ISnowballR = {
         if (!REVIEWS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Review with the given id was not found",
+                message: "Review with the given id was not found",
             });
             return;
         }
@@ -1074,7 +1075,7 @@ export const snowballRService: ISnowballR = {
         if (!PAPER_REVIEWS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Review with the given id was not found",
+                message: "Review with the given id was not found",
             });
             return;
         }
@@ -1091,7 +1092,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECT_PAPERS.has(projectPaperId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project paper with the given id was not found",
+                message: "Project paper with the given id was not found",
             });
             return;
         }
@@ -1116,7 +1117,7 @@ export const snowballRService: ISnowballR = {
         if (review?.id == null) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Id must not be undefined",
+                message: "Id must not be undefined",
             });
             return;
         }
@@ -1124,7 +1125,7 @@ export const snowballRService: ISnowballR = {
         if (!REVIEWS.has(review.id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Review with the given id was not found",
+                message: "Review with the given id was not found",
             });
             return;
         }
@@ -1136,7 +1137,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -1169,7 +1170,7 @@ export const snowballRService: ISnowballR = {
         if (!PAPERS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Paper with the given id was not found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1197,7 +1198,7 @@ export const snowballRService: ISnowballR = {
         if (paper?.id == null) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "Id must not be undefined",
+                message: "Id must not be undefined",
             });
             return;
         }
@@ -1205,7 +1206,7 @@ export const snowballRService: ISnowballR = {
         if (!PAPERS.has(paper.id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Paper with the given id was not found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1217,7 +1218,7 @@ export const snowballRService: ISnowballR = {
         if (anythingUndefined(update)) {
             callback({
                 code: status.INVALID_ARGUMENT,
-                details: "A provided field specified by the field mask was undefined",
+                message: "A provided field specified by the field mask was undefined",
             });
             return;
         }
@@ -1250,7 +1251,7 @@ export const snowballRService: ISnowballR = {
         if (!PAPER_PDFS.has(id)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Paper with the given id was not found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1266,7 +1267,7 @@ export const snowballRService: ISnowballR = {
         if (!PAPER_PDFS.has(paperId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Paper with the given id was not found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1281,7 +1282,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECT_INFORMATION.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -1300,7 +1301,7 @@ export const snowballRService: ISnowballR = {
         if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -1332,7 +1333,7 @@ export const snowballRService: ISnowballR = {
         if (!MEMBERS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                details: "Project with the given id was not found",
+                message: "Project with the given id was not found",
             });
             return;
         }
@@ -1343,7 +1344,7 @@ export const snowballRService: ISnowballR = {
         if (!member) {
             callback({
                 code: status.NOT_FOUND,
-                details: "User with the given id was not found in the provided project",
+                message: "User with the given id was not found in the provided project",
             });
             return;
         }
@@ -1370,7 +1371,7 @@ export const snowballRService: ISnowballR = {
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                details:
+                message:
                     "Project Paper with the given local id was not found in the provided project",
             });
             return;
@@ -1396,16 +1397,11 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { id } = call.request;
-        const projectId = id.split("-")[0];
-        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
-            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-            .map(addProjectPaperReviews);
-        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        const { projectPaper, projectPapers } = getProjectPaperData(call.request);
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                message: "paper-not-found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1418,7 +1414,7 @@ export const snowballRService: ISnowballR = {
         }
         callback({
             code: status.NOT_FOUND,
-            message: "no-next-paper",
+            message: "No next paper available.",
         });
         return;
     },
@@ -1426,16 +1422,11 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { id } = call.request;
-        const projectId = id.split("-")[0];
-        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
-            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-            .map(addProjectPaperReviews);
-        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        const { projectId, projectPaper, projectPapers } = getProjectPaperData(call.request);
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                message: "paper-not-found",
+                message: "No next paper available.",
             });
             return;
         }
@@ -1460,7 +1451,7 @@ export const snowballRService: ISnowballR = {
             if (stage == PROJECTS.get(projectId)!.maxStage && nextPapers.length == 0) {
                 callback({
                     code: status.NOT_FOUND,
-                    message: "no-next-paper",
+                    message: "No next paper available.",
                 });
                 return;
             }
@@ -1469,7 +1460,7 @@ export const snowballRService: ISnowballR = {
         }
         callback({
             code: status.NOT_FOUND,
-            message: "paper-not-found",
+            message: "Error, while fetching the next paper.",
         });
         return;
     },
@@ -1477,16 +1468,11 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { id } = call.request;
-        const projectId = id.split("-")[0];
-        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
-            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-            .map(addProjectPaperReviews);
-        const projectPaper = projectPapers.find((pp) => pp.id === id);
+        const { projectPaper, projectPapers } = getProjectPaperData(call.request);
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                message: "paper-not-found",
+                message: "Paper with the given id was not found",
             });
             return;
         }
@@ -1499,7 +1485,7 @@ export const snowballRService: ISnowballR = {
         }
         callback({
             code: status.NOT_FOUND,
-            message: "no-previous-paper",
+            message: "No previous paper available.",
         });
         return;
     },
