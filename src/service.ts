@@ -1504,13 +1504,4 @@ export const snowballRService: ISnowballR = {
         });
         return;
     },
-    // THIS METHOD CAN BE REMOVED
-    getPreviousPaperToReview: function (
-        call: ServerUnaryCall<Id, Project_Paper>,
-        callback: sendUnaryData<Project_Paper>,
-    ): void {
-        // These two calls are necessary for the linter, to not get a pipeline fail because of unused code
-        const { id } = call.request;
-        callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(id)!));
-    },
 };
