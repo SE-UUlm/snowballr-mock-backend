@@ -61,6 +61,7 @@ import {
     PROJECTS,
     READING_LISTS,
     REVIEWS,
+    TokenPair,
     USER_SETTINGS,
     USERS,
 } from "./model";
@@ -71,6 +72,7 @@ import {
     getAuthenticated,
     getNextId,
     isEmpty,
+    makeResponseAuthMetadata,
     toUser,
 } from "./util";
 import { randomToken } from "./random";
@@ -105,6 +107,10 @@ export const snowballRService: ISnowballR = {
 
         const accessToken = randomToken();
         const refreshToken = randomToken();
+        const tokenPair: TokenPair = {
+            accessToken,
+            refreshToken,
+        };
 
         USERS.set(email, {
             id: email,
@@ -133,10 +139,8 @@ export const snowballRService: ISnowballR = {
         });
         READING_LISTS.set(email, []);
 
-        callback(null, {
-            accessToken,
-            refreshToken,
-        });
+        call.sendMetadata(makeResponseAuthMetadata(tokenPair));
+        callback(null, {});
     },
     login: function (
         call: ServerUnaryCall<LoginRequest, Nothing>,
@@ -148,12 +152,23 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const { accessToken, refreshToken } = USERS.get(email)!;
+        const user = USERS.get(email)!;
 
-        callback(null, {
+        const accessToken = randomToken();
+        const refreshToken = randomToken();
+        const tokenPair: TokenPair = {
+            accessToken,
+            refreshToken,
+        };
+
+        USERS.set(user.email, {
+            ...user,
             accessToken,
             refreshToken,
         });
+
+        call.sendMetadata(makeResponseAuthMetadata(tokenPair));
+        callback(null, {});
     },
     logout: function (
         call: ServerUnaryCall<Nothing, Nothing>,
@@ -165,18 +180,36 @@ export const snowballRService: ISnowballR = {
             accessToken: randomToken(),
             refreshToken: randomToken(),
         });
-        callback(null);
+
+        call.sendMetadata(
+            makeResponseAuthMetadata({
+                accessToken: "",
+                refreshToken: "",
+            }),
+        );
+        callback(null, {});
     },
     renewSession: function (
         call: ServerUnaryCall<Nothing, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
-        const user = getAuthenticated(call.metadata);
+        const user = getAuthenticated(call.metadata)!;
 
-        callback(null, {
-            accessToken: user?.accessToken ?? "",
-            refreshToken: user?.refreshToken ?? "",
+        const accessToken = randomToken();
+
+        USERS.set(user.email, {
+            ...user,
+            accessToken,
         });
+
+        const { refreshToken } = USERS.get(user.email)!;
+        const tokenPair: TokenPair = {
+            accessToken,
+            refreshToken,
+        };
+
+        call.sendMetadata(makeResponseAuthMetadata(tokenPair));
+        callback(null, {});
     },
     requestPasswordReset: function (
         call: ServerUnaryCall<RequestPasswordResetRequest, Nothing>,
@@ -1351,15 +1384,13 @@ export const snowballRService: ISnowballR = {
         callback: sendUnaryData<AuthenticationStatusResponse>,
     ): void {
         const user = getAuthenticated(call.metadata);
+        const status =
+            user !== null
+                ? AuthenticationStatus.AUTHENTICATED
+                : AuthenticationStatus.UNAUTHENTICATED;
 
-        if (user === null) {
-            callback(null, {
-                authenticationStatus: AuthenticationStatus.UNAUTHENTICATED,
-            });
-        } else {
-            callback(null, {
-                authenticationStatus: AuthenticationStatus.AUTHENTICATED,
-            });
-        }
+        callback(null, {
+            authenticationStatus: status,
+        });
     },
 };
