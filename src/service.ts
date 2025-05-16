@@ -1453,6 +1453,8 @@ export const snowballRService: ISnowballR = {
             );
             // If a paper to review exists on the same stage
             if (nextPapers.length > 0) {
+                // Sort by localId to ensure we get the smallest successor
+                nextPapers.sort((a, b) => parseInt(a.localId) - parseInt(b.localId));
                 callback(null, addProjectPaperReviews(nextPapers[0]));
                 return;
             }
