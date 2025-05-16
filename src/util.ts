@@ -1,10 +1,20 @@
 import { Metadata } from "@grpc/grpc-js";
-import { PAPER_REVIEWS, REVIEWS, ServerProjectPaper, ServerUser, TokenPair, USERS } from "./model";
+import {
+    PAPER_REVIEWS,
+    PROJECT_PAPERS,
+    PROJECT_PROJECT_PAPERS,
+    REVIEWS,
+    ServerProjectPaper,
+    ServerUser,
+    TokenPair,
+    USERS,
+} from "./model";
 import { User } from "./grpc-gen/user";
 import { ServerMethodDefinition } from "@grpc/grpc-js/build/src/make-client";
 import { PaperDecision, Project_Paper, ReviewDecisionMatrix_Pattern } from "./grpc-gen/project";
 import { ReviewDecision } from "./grpc-gen/review";
 import * as cookie from "cookie";
+import { Id } from "./grpc-gen/base";
 
 /**
  * Checks whether a string is empty
@@ -212,4 +222,25 @@ export function makeResponseAuthMetadata(tokenPair: TokenPair): Metadata {
     meta.add("set-cookie", `accessToken=${tokenPair.accessToken}; HttpOnly`);
     meta.add("set-cookie", `refreshToken=${tokenPair.refreshToken}; HttpOnly`);
     return meta;
+}
+
+interface PaperInProjectResult {
+    projectId: string;
+    projectPaper?: Project_Paper;
+    projectPapers: Project_Paper[];
+}
+
+/**
+ * Searches for the project paper with the given id, the according project and its project papers.
+ *
+ * @param paperId the id of the paper that should be found.
+ * @returns PaperInProjectResult
+ */
+export function getProjectPaperData(paperId: Id): PaperInProjectResult {
+    const projectId = paperId.id.split("-")[0];
+    const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+        .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+        .map(addProjectPaperReviews);
+    const projectPaper = projectPapers.find((pp) => pp.id === paperId.id);
+    return { projectId, projectPaper, projectPapers };
 }
