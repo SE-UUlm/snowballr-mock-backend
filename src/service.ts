@@ -1405,8 +1405,7 @@ export const snowballRService: ISnowballR = {
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                details:
-                    "Project Paper with the given local id was not found in the provided project",
+                message: "paper-not-found",
             });
             return;
         }
@@ -1418,8 +1417,8 @@ export const snowballRService: ISnowballR = {
             return;
         }
         callback({
-            code: status.UNAVAILABLE,
-            details: "No next project paper available.",
+            code: status.NOT_FOUND,
+            message: "no-next-paper",
         });
         return;
     },
@@ -1436,8 +1435,7 @@ export const snowballRService: ISnowballR = {
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                details:
-                    "Project Paper with the given local id was not found in the provided project",
+                message: "paper-not-found",
             });
             return;
         }
@@ -1461,8 +1459,8 @@ export const snowballRService: ISnowballR = {
             // If no paper with a higher local id on the max stage exists, that needs a review
             if (stage == PROJECTS.get(projectId)!.maxStage && nextPapers.length == 0) {
                 callback({
-                    code: status.UNAVAILABLE,
-                    details: "No next project paper available.",
+                    code: status.NOT_FOUND,
+                    message: "no-next-paper",
                 });
                 return;
             }
@@ -1471,7 +1469,7 @@ export const snowballRService: ISnowballR = {
         }
         callback({
             code: status.NOT_FOUND,
-            details: "Error while searching for next project paper.",
+            message: "paper-not-found",
         });
         return;
     },
@@ -1488,8 +1486,7 @@ export const snowballRService: ISnowballR = {
         if (!projectPaper) {
             callback({
                 code: status.NOT_FOUND,
-                details:
-                    "Project Paper with the given local id was not found in the provided project",
+                message: "paper-not-found",
             });
             return;
         }
@@ -1501,8 +1498,8 @@ export const snowballRService: ISnowballR = {
             return;
         }
         callback({
-            code: status.UNAVAILABLE,
-            details: "No previous project paper available.",
+            code: status.NOT_FOUND,
+            message: "no-previous-paper",
         });
         return;
     },
