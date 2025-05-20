@@ -82,13 +82,23 @@ function processExampleData(data: ExampleData) {
     data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
     data.reviews?.forEach((review) => REVIEWS.set(review.id, review));
     data.users?.forEach((user) => {
-        USERS.set(
-            user.email,
-            toServerUser(user, `user${user.id}`, {
-                accessToken: "",
-                refreshToken: "",
-            }),
-        );
+        if (user.firstName === "Alice") {
+            USERS.set(
+                user.email,
+                toServerUser(user, `user${user.id}`, {
+                    accessToken: "alice",
+                    refreshToken: "alice",
+                }),
+            );
+        } else {
+            USERS.set(
+                user.email,
+                toServerUser(user, `user${user.id}`, {
+                    accessToken: "",
+                    refreshToken: "",
+                }),
+            );
+        }
         READING_LISTS.set(user.email, data.readingLists?.get(user) ?? []);
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
         INVITATIONS.set(
