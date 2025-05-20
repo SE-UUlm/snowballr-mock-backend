@@ -78,6 +78,7 @@ import {
 import { randomToken } from "./random";
 import { applyFieldMask } from "protobuf-fieldmask";
 import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
+import { PartialMessage } from "@protobuf-ts/runtime";
 
 export const snowballRService: ISnowballR = {
     getAvailableFetcherApis: function (
@@ -319,10 +320,8 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        USERS.set(user.id, {
-            ...currentUser,
-            ...update,
-        });
+        User.mergePartial(currentUser, update as PartialMessage<User>);
+        USERS.set(user.id, currentUser);
 
         callback(null, USERS.get(user.id));
     },
@@ -433,10 +432,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        USER_SETTINGS.set(user.id, {
-            ...currentSettings,
-            ...(update as UserSettings),
-        });
+        UserSettings.mergePartial(currentSettings, update as PartialMessage<UserSettings>);
+        USER_SETTINGS.set(user.id, currentSettings);
+
         callback(null, USER_SETTINGS.get(user.id));
     },
     getReadingList: function (
@@ -777,10 +775,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        PROJECTS.set(project.id, {
-            ...currentProject,
-            ...(update as Project),
-        });
+        Project.mergePartial(currentProject, update as PartialMessage<Project>);
+        PROJECTS.set(project.id, currentProject);
+
         callback(null, PROJECTS.get(project.id));
     },
     exportProject: function (
@@ -915,10 +912,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        CRITERIA.set(criterion.id, {
-            ...currentCriterion,
-            ...(update as Criterion),
-        });
+        Criterion.mergePartial(currentCriterion, update as PartialMessage<Criterion>);
+        CRITERIA.set(criterion.id, currentCriterion);
+
         callback(null, CRITERIA.get(criterion.id));
     },
     deleteCriterion: function (
@@ -1034,10 +1030,12 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        PROJECT_PAPERS.set(projectPaper.id, {
-            ...currentProjectPaper,
-            ...(update as Project_Paper),
-        });
+        Project_Paper.mergePartial(
+            { ...currentProjectPaper, reviews: [] },
+            update as PartialMessage<Project_Paper>,
+        );
+        PROJECT_PAPERS.set(projectPaper.id, currentProjectPaper);
+
         callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(projectPaper.id)!));
     },
     removePaperFromProject: function (
@@ -1142,10 +1140,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        REVIEWS.set(review.id, {
-            ...currentReview,
-            ...(update as Review),
-        });
+        Review.mergePartial(currentReview, update as PartialMessage<Review>);
+        REVIEWS.set(review.id, currentReview);
+
         callback(null, REVIEWS.get(review.id));
     },
     deleteReview: function (
@@ -1223,10 +1220,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        PAPERS.set(paper.id, {
-            ...currentPaper,
-            ...(update as Paper),
-        });
+        Paper.mergePartial(currentPaper, update as PartialMessage<Paper>);
+        PAPERS.set(paper.id, currentPaper);
+
         callback(null, PAPERS.get(paper.id));
     },
     /// TODO: replace the following two calls with better implementations
