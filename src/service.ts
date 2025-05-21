@@ -1393,14 +1393,15 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { projectPaper, projectPapers } = getProjectPaperData(call.request);
-        if (!projectPaper) {
+        const result = getProjectPaperData(call.request);
+        if (!result) {
             callback({
                 code: status.NOT_FOUND,
                 message: "Paper with the given id was not found",
             });
             return;
         }
+        const { projectPaper, projectPapers } = result;
         const nextPaper = projectPapers.find(
             (paper) => parseInt(paper.localId) == parseInt(projectPaper.localId) + 1,
         );
@@ -1418,14 +1419,15 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { projectId, projectPaper, projectPapers } = getProjectPaperData(call.request);
-        if (!projectPaper) {
+        const result = getProjectPaperData(call.request);
+        if (!result) {
             callback({
                 code: status.NOT_FOUND,
                 message: "No next paper available.",
             });
             return;
         }
+        const { projectId, projectPaper, projectPapers } = result;
         // Search for the next paper to review
         let stage = projectPaper.stage;
         let currentPaperId = projectPaper.localId;
@@ -1464,14 +1466,15 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Id, Project_Paper>,
         callback: sendUnaryData<Project_Paper>,
     ): void {
-        const { projectPaper, projectPapers } = getProjectPaperData(call.request);
-        if (!projectPaper) {
+        const result = getProjectPaperData(call.request);
+        if (!result) {
             callback({
                 code: status.NOT_FOUND,
                 message: "Paper with the given id was not found",
             });
             return;
         }
+        const { projectPaper, projectPapers } = result;
         const nextPaper = projectPapers.find(
             (paper) => parseInt(paper.localId) == parseInt(projectPaper.localId) - 1,
         );

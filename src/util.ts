@@ -3,6 +3,7 @@ import {
     PAPER_REVIEWS,
     PROJECT_PAPERS,
     PROJECT_PROJECT_PAPERS,
+    PROJECTS,
     REVIEWS,
     ServerProjectPaper,
     ServerUser,
@@ -226,21 +227,26 @@ export function makeResponseAuthMetadata(tokenPair: TokenPair): Metadata {
 
 interface PaperInProjectResult {
     projectId: string;
-    projectPaper?: Project_Paper;
+    projectPaper: Project_Paper;
     projectPapers: Project_Paper[];
 }
 
 /**
- * Searches for the project paper with the given id, the according project and its project papers.
+ * Searches for the project paper with the given global id, its according projectId and its project papers.
  *
- * @param paperId the id of the paper that should be found.
+ * @param paperId the global id of the project paper
  * @returns PaperInProjectResult
  */
-export function getProjectPaperData(paperId: Id): PaperInProjectResult {
-    const projectId = paperId.id.split("-")[0];
-    const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
-        .map((ppp) => PROJECT_PAPERS.get(ppp)!)
-        .map(addProjectPaperReviews);
-    const projectPaper = projectPapers.find((pp) => pp.id === paperId.id);
-    return { projectId, projectPaper, projectPapers };
+export function getProjectPaperData(paperId: Id): PaperInProjectResult | undefined {
+    for (const project of PROJECTS.values()) {
+        const projectId = project.id;
+        const projectPapers = PROJECT_PROJECT_PAPERS.get(projectId)!
+            .map((ppp) => PROJECT_PAPERS.get(ppp)!)
+            .map(addProjectPaperReviews);
+        const projectPaper = projectPapers.find((pp) => pp.id === paperId.id);
+        if (projectPaper) {
+            return { projectId, projectPaper, projectPapers };
+        }
+    }
+    return undefined;
 }
