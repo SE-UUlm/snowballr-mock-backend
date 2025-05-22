@@ -994,6 +994,11 @@ export const snowballRService: ISnowballR = {
                 1.0,
             ),
         });
+        const project = PROJECTS.get(projectId)!;
+        if (project.maxStage < stage) {
+            project.maxStage = stage;
+            PROJECTS.set(projectId, project);
+        }
         callback(null, project_paper);
     },
     updateProjectPaper: function (
