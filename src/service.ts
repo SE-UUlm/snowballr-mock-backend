@@ -1329,7 +1329,7 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId, newRole, userId } = call.request;
 
-        if (!MEMBERS.has(projectId)) {
+        if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
                 message: "Project with the given id was not found",
@@ -1337,25 +1337,51 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const members = MEMBERS.get(projectId)!;
-        const member = members.find((m) => m.user!.id === userId);
-
-        if (!member) {
+        if (!MEMBERS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
-                message: "User with the given id was not found in the provided project",
+                message: "No members found for this project",
             });
             return;
         }
 
-        const newMembers = members.filter((m) => m.user!.id !== userId);
-        newMembers.push({
-            ...member,
-            role: newRole,
-        });
+        function changeRole(member: { role: MemberRole }, newRole: MemberRole) {
+            if (member.role === newRole) {
+                // If the role doesn't change, do nothing
+                callback(null, {});
+            } else if (member.role == MemberRole.ADMIN) {
+                // If the member is an admin, we cannot change the role
+                callback({
+                    code: status.PERMISSION_DENIED,
+                    message: "You cannot change the role of an admin",
+                });
+            } else {
+                member.role = newRole;
+                callback(null, {});
+            }
+        }
 
-        MEMBERS.set(projectId, newMembers);
-        callback(null, {});
+        // First, check whether user is a member of the given project
+        const members = MEMBERS.get(projectId)!;
+        const member = members.find((member) => member.user!.id === userId);
+
+        if (member) {
+            changeRole(member, newRole);
+            return;
+        }
+
+        // If not, check whether user is invited to this project
+        const invitations = INVITATIONS.get(userId) ?? [];
+        const invitation = invitations.find((invitation) => invitation.projectId === projectId);
+        if (invitation) {
+            changeRole(invitation, newRole);
+            return;
+        }
+
+        callback({
+            code: status.NOT_FOUND,
+            message: "User is neither a project member nor invited to this project",
+        });
     },
     getProjectPaperByRelativeId: function (
         call: ServerUnaryCall<Project_Paper_Get, Project_Paper>,
