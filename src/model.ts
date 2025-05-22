@@ -1,6 +1,7 @@
 import { Criterion } from "./grpc-gen/criterion";
 import { Paper } from "./grpc-gen/paper";
 import {
+    MemberRole,
     PaperDecision,
     Project,
     Project_Information,
@@ -22,13 +23,14 @@ export interface TokenPair {
 
 export type ServerUser = User & { password: string } & TokenPair;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
+export type Invitation = { projectId: string; role: MemberRole };
 
 /* Maps storing all data of the mock backend and simulating a "database" */
 export let AVAILABLE_FETCHERS: string[] = [];
 // User id => User (with login credentials and password)
 export const USERS: Map<string, ServerUser> = new Map();
 // User id => Ids of projects to which the user has been invited
-export const INVITATIONS: Map<string, string[]> = new Map();
+export const INVITATIONS: Map<string, Invitation[]> = new Map();
 // Project id => Project
 export const PROJECTS: Map<string, Project> = new Map();
 // Project id => Ids of project paper entities belonging to the project
@@ -93,7 +95,10 @@ function processExampleData(data: ExampleData) {
         USER_SETTINGS.set(user.email, <UserSettings>data.userSettings?.get(user) ?? []);
         INVITATIONS.set(
             user.email,
-            (data.invitations?.get(user) ?? []).map((project) => project.id),
+            (data.invitations?.get(user) ?? []).map((project) => ({
+                projectId: project.id,
+                role: MemberRole.DEFAULT,
+            })),
         );
     });
     data.projects?.forEach((project) => {

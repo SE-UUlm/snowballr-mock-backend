@@ -508,7 +508,7 @@ export const snowballRService: ISnowballR = {
 
         callback(null, {
             projects: invitationsOfUser
-                .map((projectId) => PROJECTS.get(projectId))
+                .map((invitation) => PROJECTS.get(invitation.projectId))
                 .filter((project) => project !== undefined),
         });
     },
@@ -518,15 +518,18 @@ export const snowballRService: ISnowballR = {
     ): void {
         const { projectId, userEmail } = call.request;
 
-        INVITATIONS.set(userEmail, [...(INVITATIONS.get(userEmail) ?? []), projectId]);
+        INVITATIONS.set(userEmail, [
+            ...(INVITATIONS.get(userEmail) ?? []),
+            { projectId, role: MemberRole.DEFAULT },
+        ]);
         callback(null, {});
     },
     getPendingInvitationsForProject: function (
         call: ServerUnaryCall<Id, User_List>,
         callback: sendUnaryData<User_List>,
     ): void {
-        const { id } = call.request;
-        if (!PROJECTS.has(id)) {
+        const { id: projectId } = call.request;
+        if (!PROJECTS.has(projectId)) {
             callback({
                 code: status.NOT_FOUND,
                 message: "Project with given id was not found",
@@ -535,8 +538,8 @@ export const snowballRService: ISnowballR = {
         }
 
         const userIdsInvitedInThisProject: string[] = [];
-        for (const [user, projects] of INVITATIONS) {
-            if (projects.includes(id)) {
+        for (const [user, invitations] of INVITATIONS) {
+            if (invitations.some((invitation) => invitation.projectId === projectId)) {
                 userIdsInvitedInThisProject.push(user);
             }
         }
@@ -612,10 +615,10 @@ export const snowballRService: ISnowballR = {
 
         // If not, check whether user is invited to this project
         const invitations = INVITATIONS.get(userId) ?? [];
-        if (invitations.includes(projectId)) {
+        if (invitations.some((invitation) => invitation.projectId === projectId)) {
             INVITATIONS.set(
                 userId,
-                invitations.filter((p) => p != projectId),
+                invitations.filter((invitation) => invitation.projectId != projectId),
             );
             callback(null, {});
             return;
