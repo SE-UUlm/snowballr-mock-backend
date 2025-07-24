@@ -1,7 +1,7 @@
 import { sendUnaryData, ServerUnaryCall, status } from "@grpc/grpc-js";
 import { AvailableFetcherApis } from "./grpc-gen/main";
 import { ISnowballR } from "./grpc-gen/main.grpc-server";
-import { Blob, BoolValue, Id, Nothing } from "./grpc-gen/base";
+import { Blob, BoolValue, Email, Id, Nothing } from "./grpc-gen/base";
 import {
     AuthenticationStatus,
     AuthenticationStatusResponse,
@@ -274,10 +274,10 @@ export const snowballRService: ISnowballR = {
         callback(null, toUser(user));
     },
     getUserByEmail: function (
-        call: ServerUnaryCall<Id, User>,
+        call: ServerUnaryCall<Email, User>,
         callback: sendUnaryData<User>,
     ): void {
-        const email = call.request.id;
+        const email = call.request.email;
         if (!USERS.has(email)) {
             callback({
                 code: status.NOT_FOUND,
