@@ -24,7 +24,24 @@ export type ServerUser = User & { password: string } & TokenPair;
 export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 
 /* Maps storing all data of the mock backend and simulating a "database" */
-export let AVAILABLE_FETCHERS: string[] = [];
+export let AVAILABLE_FETCHERS: string[] = ["test", "test2"];
+// Fetcher name => List of [Option Name, Default Value] pairs
+export let AVAILABLE_FETCHER_OPTIONS: Map<string, [string, string][]> = new Map([
+    [
+        "test",
+        [
+            ["foo", "FOO_TEST"],
+            ["bar", "BAR_TEST"],
+        ],
+    ],
+    [
+        "test2",
+        [
+            ["x", "X_TEST"],
+            ["y", "Y_TEST"],
+        ],
+    ],
+]);
 // User id => User (with login credentials and password)
 export const USERS: Map<string, ServerUser> = new Map();
 // User id => Ids of projects to which the user has been invited
@@ -58,6 +75,7 @@ export const PROJECT_INFORMATION: Map<string, Project_Information> = new Map();
 
 export interface ExampleData {
     availableFetchers?: string[];
+    availableFetcherOptions?: Map<string, [string, string][]>;
     criteria?: Criterion[];
     papers?: Paper[];
     users?: User[];
@@ -78,6 +96,7 @@ export interface ExampleData {
  */
 function processExampleData(data: ExampleData) {
     AVAILABLE_FETCHERS = data.availableFetchers ?? [""];
+    AVAILABLE_FETCHER_OPTIONS = data.availableFetcherOptions ?? new Map();
     data.criteria?.forEach((criterion) => CRITERIA.set(criterion.id, criterion));
     data.papers?.forEach((paper) => PAPERS.set(paper.id, paper));
     data.reviews?.forEach((review) => REVIEWS.set(review.id, review));

@@ -19,6 +19,7 @@ import { getRandomItems, random } from "../random";
 import { UserSettings } from "../grpc-gen/user_settings";
 import assert from "node:assert";
 import { makeReviewDecisionMatrixPattern } from "../util";
+import { FetcherOptions } from "../grpc-gen/fetcher";
 
 const NUMBER_OF_REVIEWS = 200;
 
@@ -198,6 +199,14 @@ const AVAILABLE_FETCHERS = [
     "Europe PMC API",
 ];
 
+const AVAILABLE_FETCHER_OPTIONS: [string, string][] = [
+    ["API_KEY", ""],
+    ["FILESYSTEM_PATH", "/var/paper-database"],
+    ["DATABASE_URL", "foobar@database.local"],
+    ["SLOWDOWN_REQUESTS", "NO"],
+    ["LOGLEVEL", "INFO"],
+];
+
 const PATTERN_2: ReviewDecisionMatrix_Pattern[] = [
     makeReviewDecisionMatrixPattern(2, 0, 0, PaperDecision.ACCEPTED),
     makeReviewDecisionMatrixPattern(0, 2, 0, PaperDecision.ACCEPTED),
@@ -264,7 +273,14 @@ for (let i = 0; i < 7; i++) {
     projectSettings.push({
         similarityThreshold: random() * 0.2 + 0.5,
         decisionMatrix: getRandomItems(reviewDecisionMatrices)[0],
-        fetcherApis: getRandomItems(AVAILABLE_FETCHERS, 2, 7),
+        fetchers: Object.fromEntries(
+            getRandomItems(AVAILABLE_FETCHERS, 2, 7).map((it): [string, FetcherOptions] => [
+                it,
+                {
+                    options: {},
+                },
+            ]),
+        ),
         snowballingType:
             random() < 0.7
                 ? SnowballingType.BOTH
@@ -804,6 +820,12 @@ for (const [index, paper] of papers.entries()) {
 
 export const exampleData: ExampleData = {
     availableFetchers: AVAILABLE_FETCHERS,
+    availableFetcherOptions: new Map(
+        AVAILABLE_FETCHERS.map((it) => [
+            it,
+            getRandomItems(AVAILABLE_FETCHER_OPTIONS, 0, AVAILABLE_FETCHER_OPTIONS.length),
+        ]),
+    ),
     users: USERS,
     readingLists: readingLists,
     userSettings: userSettings,
