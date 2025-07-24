@@ -21,6 +21,7 @@ import {
     Project_Information_DecisionStatistics,
     Project_Information_DecisionStatistics_Get,
     Project_Information_Get,
+    Project_InviteCandidatesRequest,
     Project_List,
     Project_Member_Invite,
     Project_Member_List,
@@ -510,6 +511,41 @@ export const snowballRService: ISnowballR = {
             projects: invitationsOfUser
                 .map((projectId) => PROJECTS.get(projectId))
                 .filter((project) => project !== undefined),
+        });
+    },
+    getInviteCandidates: function (
+        call: ServerUnaryCall<Project_InviteCandidatesRequest, User_List>,
+        callback: sendUnaryData<User_List>,
+    ): void {
+        const { query, projectId } = call.request;
+        const currentUser = toUser(getAuthenticated(call.metadata)!);
+
+        if (query.length < 3) {
+            callback(null, {
+                users: [],
+            });
+            return;
+        }
+
+        let inviteCandidates = Array.from(USERS.values())
+            .map(toUser)
+            .filter(
+                (user) =>
+                    (user.email.includes(query) ||
+                        user.firstName.includes(query) ||
+                        user.lastName.includes(query)) &&
+                    user.id !== currentUser.id,
+            );
+
+        if (MEMBERS.has(projectId)) {
+            const projectMemberIds = MEMBERS.get(projectId)!.map((member) => member.user!.id);
+            inviteCandidates = inviteCandidates.filter(
+                (user) => !projectMemberIds.includes(user.id),
+            );
+        }
+
+        callback(null, {
+            users: inviteCandidates,
         });
     },
     inviteUserToProject: function (
