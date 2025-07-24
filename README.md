@@ -90,10 +90,10 @@ grpcui -plaintext 127.0.0.1:3000
 grpcurl -plaintext 127.0.0.1:3000 snowballr.SnowballR.IsAuthenticated
 ```
 
-Authorization is handled using a token residing in the `Authorization` header.
-In `grpcui`, this should be added using the header ui. For `grpcurl`, this can
-be achieved like this:
+Authorization is handled using the access and refresh tokens residing in the `cookie` header.
+In `grpcui`, this should be added using the header ui by setting the value to `accessToken=<token>;refreshToken=<token>`.
+For `grpcurl`, this can be achieved like this:
 
 ```sh
-grpcurl -plaintext 127.0.0.1:3000 snowballr.SnowballR.CreateProject -d '{"name": "Foo"}' -H Authorization:<access-token>
+grpcurl -plaintext 127.0.0.1:3000 snowballr.SnowballR.CreateProject -d '{"name": "Foo"}' -H cookie:<access-token and refresh-token>
 ```
