@@ -1,5 +1,9 @@
 import { sendUnaryData, ServerUnaryCall, status } from "@grpc/grpc-js";
-import { AvailableFetcherApis } from "./grpc-gen/main";
+import {
+    AvailableFetchers,
+    FetcherOptions,
+    GetAvailableFetcherOptionsRequest,
+} from "./grpc-gen/fetcher";
 import { ISnowballR } from "./grpc-gen/main.grpc-server";
 import { Blob, BoolValue, Email, Id, Nothing } from "./grpc-gen/base";
 import {
@@ -47,6 +51,7 @@ import {
 } from "./grpc-gen/criterion";
 import { Review, Review_Create, Review_List, Review_Update } from "./grpc-gen/review";
 import {
+    AVAILABLE_FETCHER_OPTIONS,
     AVAILABLE_FETCHERS,
     CRITERIA,
     INVITATIONS,
@@ -82,11 +87,11 @@ import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
 import { PartialMessage } from "@protobuf-ts/runtime";
 
 export const snowballRService: ISnowballR = {
-    getAvailableFetcherApis: function (
-        _: ServerUnaryCall<Nothing, AvailableFetcherApis>,
-        callback: sendUnaryData<AvailableFetcherApis>,
+    getAvailableFetchers: function (
+        _: ServerUnaryCall<Nothing, AvailableFetchers>,
+        callback: sendUnaryData<AvailableFetchers>,
     ): void {
-        callback(null, { fetcherApis: AVAILABLE_FETCHERS });
+        callback(null, { fetcherNames: AVAILABLE_FETCHERS });
     },
     register: function (
         call: ServerUnaryCall<RegisterRequest, Nothing>,
@@ -134,7 +139,7 @@ export const snowballRService: ISnowballR = {
             defaultProjectSettings: {
                 similarityThreshold: 0.5,
                 decisionMatrix: undefined,
-                fetcherApis: AVAILABLE_FETCHERS,
+                fetchers: {},
                 snowballingType: SnowballingType.BOTH,
                 reviewMaybeAllowed: true,
             },
@@ -813,6 +818,17 @@ export const snowballRService: ISnowballR = {
 
         Project.mergePartial(currentProject, update as PartialMessage<Project>);
         PROJECTS.set(project.id, currentProject);
+
+        // Project.mergePartial won't remove deleted fetchers, which is why they are manually removed here
+        if (mask?.paths.find((it) => it === "settings.fetchers")) {
+            const specified = Object.keys(update.settings?.fetchers ?? {});
+            const current = Object.keys(PROJECTS.get(project.id)?.settings?.fetchers ?? {});
+            const removedFetchers = current.filter((it) => !specified.find((x) => x == it));
+            const fetchers = PROJECTS.get(project.id)?.settings?.fetchers ?? {};
+            for (const removed of removedFetchers) {
+                delete fetchers[removed];
+            }
+        }
 
         callback(null, PROJECTS.get(project.id));
     },
@@ -1528,5 +1544,22 @@ export const snowballRService: ISnowballR = {
             message: "No previous paper available.",
         });
         return;
+    },
+    getAvailableFetcherOptions: function (
+        call: ServerUnaryCall<GetAvailableFetcherOptionsRequest, FetcherOptions>,
+        callback: sendUnaryData<FetcherOptions>,
+    ): void {
+        const fetcher = call.request.fetcherName;
+        if (!AVAILABLE_FETCHER_OPTIONS.has(fetcher)) {
+            callback({
+                code: status.NOT_FOUND,
+                message: "Fetcher with the given name was not found",
+            });
+            return;
+        }
+
+        callback(null, {
+            options: Object.fromEntries(AVAILABLE_FETCHER_OPTIONS.get(fetcher)!),
+        });
     },
 };
