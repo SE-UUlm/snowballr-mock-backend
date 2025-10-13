@@ -588,12 +588,11 @@ export const snowballRService: ISnowballR = {
             if (existingUser) {
                 return existingUser;
             } else {
-                const newUser: User = User.create({
+                return User.create({
                     id: userId,
                     email: userId,
                     firstName: userId,
                 });
-                return newUser;
             }
         });
 
@@ -641,7 +640,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        // First, check whether user is a member of the given project
+        // First, check whether the user is a member of the given project
         const projectMembers = MEMBERS.get(projectId)!;
         if (projectMembers.some((member) => member.user?.id == userId)) {
             MEMBERS.set(
@@ -652,7 +651,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        // If not, check whether user is invited to this project
+        // If not, check whether the user is invited to this project
         const invitations = INVITATIONS.get(userId) ?? [];
         if (invitations.includes(projectId)) {
             INVITATIONS.set(
