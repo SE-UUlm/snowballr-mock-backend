@@ -266,6 +266,7 @@ function snakeToCamelCase(s: string): string {
  * Optionally, remove a prefix from the field names.
  *
  * @param obj - The object for which the field mask should be applied.
+ * @param mask - The field mask containing the paths to update.
  * @param prefix - An optional string prepended to each field path and should be deleted.
  */
 export function generateUpdateObject<T>(
@@ -279,6 +280,8 @@ export function generateUpdateObject<T>(
         mask?.paths
             .filter((p) => p.startsWith(prefixToDelete))
             .map((p) => p.slice(prefixToDelete.length))
+            // filter(Boolean) is needed to remove empty strings after the split, e.g. "foo.bar."
+            // becomes ["foo", "bar"] instead of ["foo", "bar", ""]
             .map((path) => path.split(".").filter(Boolean).map(snakeToCamelCase).join(".")) ?? [];
 
     const updatedObject = mask == null ? obj : applyFieldMask(obj, parsedFieldMask);
