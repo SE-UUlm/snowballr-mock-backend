@@ -74,6 +74,7 @@ import {
     addProjectPaperReviews,
     anythingUndefined,
     findFirst,
+    generateUpdateObject,
     getAuthenticated,
     getNextId,
     getProjectPaperData,
@@ -82,7 +83,6 @@ import {
     toUser,
 } from "./util";
 import { randomToken } from "./random";
-import { applyFieldMask } from "protobuf-fieldmask";
 import { Timestamp } from "./grpc-gen/google/protobuf/timestamp";
 import { PartialMessage } from "@protobuf-ts/runtime";
 
@@ -314,11 +314,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentUser = USERS.get(user.id)!;
+        const updatedUser = generateUpdateObject(user, mask, "user");
 
-        const update = mask == null ? user : applyFieldMask(user, mask.paths);
-        delete update["id"];
-
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedUser)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -326,7 +324,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        User.mergePartial(currentUser, update as PartialMessage<User>);
+        User.mergePartial(currentUser, updatedUser as PartialMessage<User>);
         USERS.set(user.id, currentUser);
 
         callback(null, USERS.get(user.id));
@@ -428,9 +426,9 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const update = mask == null ? userSettings : applyFieldMask(userSettings, mask.paths);
+        const updatedUserSettings = generateUpdateObject(userSettings, mask, "user_settings");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedUserSettings)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -438,7 +436,10 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        UserSettings.mergePartial(currentSettings, update as PartialMessage<UserSettings>);
+        UserSettings.mergePartial(
+            currentSettings,
+            updatedUserSettings as PartialMessage<UserSettings>,
+        );
         USER_SETTINGS.set(user.id, currentSettings);
 
         callback(null, USER_SETTINGS.get(user.id));
@@ -805,10 +806,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentProject = PROJECTS.get(project.id)!;
-        const update = mask == null ? project : applyFieldMask(project, mask.paths);
-        delete update["id"];
+        const updatedProject = generateUpdateObject(project, mask, "project");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedProject)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -816,12 +816,12 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        Project.mergePartial(currentProject, update as PartialMessage<Project>);
+        Project.mergePartial(currentProject, updatedProject as PartialMessage<Project>);
         PROJECTS.set(project.id, currentProject);
 
         // Project.mergePartial won't remove deleted fetchers, which is why they are manually removed here
         if (mask?.paths.find((it) => it === "settings.fetchers")) {
-            const specified = Object.keys(update.settings?.fetchers ?? {});
+            const specified = Object.keys(updatedProject.settings?.fetchers ?? {});
             const current = Object.keys(PROJECTS.get(project.id)?.settings?.fetchers ?? {});
             const removedFetchers = current.filter((it) => !specified.find((x) => x == it));
             const fetchers = PROJECTS.get(project.id)?.settings?.fetchers ?? {};
@@ -953,10 +953,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentCriterion = CRITERIA.get(criterion.id)!;
-        const update = mask == null ? criterion : applyFieldMask(criterion, mask.paths);
-        delete update["id"];
+        const updatedCriterion = generateUpdateObject(criterion, mask, "criterion");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedCriterion)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -964,7 +963,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        Criterion.mergePartial(currentCriterion, update as PartialMessage<Criterion>);
+        Criterion.mergePartial(currentCriterion, updatedCriterion as PartialMessage<Criterion>);
         CRITERIA.set(criterion.id, currentCriterion);
 
         callback(null, CRITERIA.get(criterion.id));
@@ -1076,10 +1075,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentProjectPaper = PROJECT_PAPERS.get(projectPaper.id)!;
-        const update = mask == null ? projectPaper : applyFieldMask(projectPaper, mask.paths);
-        delete update["id"];
+        const updatedProjectPaper = generateUpdateObject(projectPaper, mask, "project_paper");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedProjectPaper)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -1089,7 +1087,7 @@ export const snowballRService: ISnowballR = {
 
         Project_Paper.mergePartial(
             { ...currentProjectPaper, reviews: [] },
-            update as PartialMessage<Project_Paper>,
+            updatedProjectPaper as PartialMessage<Project_Paper>,
         );
         PROJECT_PAPERS.set(projectPaper.id, currentProjectPaper);
 
@@ -1186,10 +1184,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentReview = REVIEWS.get(review.id)!;
-        const update = mask == null ? review : applyFieldMask(review, mask.paths);
-        delete update["id"];
+        const updatedReview = generateUpdateObject(review, mask, "review");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedReview)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -1197,7 +1194,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        Review.mergePartial(currentReview, update as PartialMessage<Review>);
+        Review.mergePartial(currentReview, updatedReview as PartialMessage<Review>);
         REVIEWS.set(review.id, currentReview);
 
         callback(null, REVIEWS.get(review.id));
@@ -1266,10 +1263,9 @@ export const snowballRService: ISnowballR = {
         }
 
         const currentPaper = PAPERS.get(paper.id)!;
-        const update = mask == null ? paper : applyFieldMask(paper, mask.paths);
-        delete update["id"];
+        const updatedPaper = generateUpdateObject(paper, mask, "paper");
 
-        if (anythingUndefined(update)) {
+        if (anythingUndefined(updatedPaper)) {
             callback({
                 code: status.INVALID_ARGUMENT,
                 message: "A provided field specified by the field mask was undefined",
@@ -1277,7 +1273,7 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        Paper.mergePartial(currentPaper, update as PartialMessage<Paper>);
+        Paper.mergePartial(currentPaper, updatedPaper as PartialMessage<Paper>);
         PAPERS.set(paper.id, currentPaper);
 
         callback(null, PAPERS.get(paper.id));

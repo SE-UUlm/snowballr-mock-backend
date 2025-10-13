@@ -16,6 +16,8 @@ import { PaperDecision, Project_Paper, ReviewDecisionMatrix_Pattern } from "./gr
 import { ReviewDecision } from "./grpc-gen/review";
 import * as cookie from "cookie";
 import { Id } from "./grpc-gen/base";
+import { FieldMask } from "./grpc-gen/google/protobuf/field_mask";
+import { applyFieldMask, WithFieldMask } from "protobuf-fieldmask";
 
 /**
  * Checks whether a string is empty
@@ -249,4 +251,40 @@ export function getProjectPaperData(paperId: Id): PaperInProjectResult | undefin
         }
     }
     return undefined;
+}
+
+/**
+ * Convert a string from snake_case-style to camelCase-style.
+ */
+function snakeToCamelCase(s: string): string {
+    return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+/**
+ * Applies a FieldMask object to a given object and build a partial object.
+ *
+ * Optionally, remove a prefix from the field names.
+ *
+ * @param obj - The object for which the field mask should be applied.
+ * @param prefix - An optional string prepended to each field path and should be deleted.
+ */
+export function generateUpdateObject<T>(
+    obj: T,
+    mask?: FieldMask,
+    prefix?: string,
+): WithFieldMask<T> {
+    const prefixToDelete = prefix ? `${prefix}.` : "";
+
+    const parsedFieldMask =
+        mask?.paths
+            .filter((p) => p.startsWith(prefixToDelete))
+            .map((p) => p.slice(prefixToDelete.length))
+            .map((path) => path.split(".").filter(Boolean).map(snakeToCamelCase).join(".")) ?? [];
+
+    const updatedObject = mask == null ? obj : applyFieldMask(obj, parsedFieldMask);
+    if ("id" in updatedObject) {
+        delete updatedObject["id"];
+    }
+
+    return updatedObject;
 }
