@@ -819,7 +819,7 @@ export const snowballRService: ISnowballR = {
         PROJECTS.set(project.id, currentProject);
 
         // Project.mergePartial won't remove deleted fetchers, which is why they are manually removed here
-        if (mask?.paths.find((it) => it === "settings.fetchers")) {
+        if (mask?.paths.find((it) => it === "project.settings.fetchers")) {
             const specified = Object.keys(updatedProject.settings?.fetchers ?? {});
             const current = Object.keys(PROJECTS.get(project.id)?.settings?.fetchers ?? {});
             const removedFetchers = current.filter((it) => !specified.find((x) => x == it));
