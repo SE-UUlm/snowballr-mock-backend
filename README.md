@@ -1,3 +1,9 @@
+<div align="center">
+  <picture>
+    <img alt="SnowballR Logo" src="images/snowballr-logo-with-text.png" width="700"/>
+  </picture>
+</div>
+
 # SnowballR Mock Backend
 
 The mock backend is a small self-contained implementation of the gRPC api
