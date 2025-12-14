@@ -1,7 +1,25 @@
 <div align="center">
-  <picture>
-    <img alt="SnowballR Logo" src="images/snowballr-logo-with-text.png" width="700"/>
-  </picture>
+    <picture>
+        <img alt="SnowballR Logo" src="images/snowballr-logo-with-text.png" width="700"/>
+    </picture>
+</div>
+
+<div align="center">
+    <a href="https://github.com/SE-UUlm/snowballr-mock-backend/tags">
+        <img alt="Version" src="https://img.shields.io/github/v/tag/SE-UUlm/snowballr-mock-backend?label=Version&color=light-green">
+    </a>
+    <a href="https://github.com/SE-UUlm/snowballr-mock-backend/actions/workflows/quality-check.yml">
+        <img alt="Code Quality Workflow Status" src="https://img.shields.io/github/actions/workflow/status/SE-UUlm/snowballr-mock-backend/quality-check.yml?logo=github&label=Code%20Quality">
+    </a>
+    <a href="https://github.com/SE-UUlm/snowballr-mock-backend/pkgs/container/snowballr-mock-backend">
+        <img alt="Docker" src="https://img.shields.io/badge/Docker-ghcr.io-blue">
+    </a>
+    <a href="https://deepwiki.com/SE-UUlm/snowballr-mock-backend">
+        <img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg">
+    </a>
+    <a href="https://github.com/SE-UUlm/snowballr-mock-backend/blob/main/LICENSE">
+        <img alt="License" src="https://img.shields.io/github/license/SE-UUlm/snowballr-mock-backend?label=License">
+    </a>
 </div>
 
 # SnowballR Mock Backend
