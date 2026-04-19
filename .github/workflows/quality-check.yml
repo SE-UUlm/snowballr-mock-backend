@@ -11,6 +11,18 @@ env:
     node_version: ${{ vars.NODE_VERSION }}
 
 jobs:
+    lint-md:
+        name: Linting Markdown
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Lint Markdown
+              uses: SE-UUlm/snowballr-ci/src/lint-md@v1
+              with:
+                  source-branch: main
+
     linting:
         name: Linting
         runs-on: ubuntu-latest
