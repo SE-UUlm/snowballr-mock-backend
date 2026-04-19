@@ -7,6 +7,8 @@ Closes <!-- issue reference -->
 
 ## Checklist
 
+Either tick or cross out the items that do not apply (using \~\~example text\~\~) and give a reason why the item does not apply.
+
 ### Author
 
 - [ ] I have updated the documentation accordingly
