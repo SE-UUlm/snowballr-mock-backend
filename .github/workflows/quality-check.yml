@@ -21,6 +21,7 @@ jobs:
             - name: Lint Markdown
               uses: SE-UUlm/snowballr-ci/src/lint-md@v1
               with:
+                  markdownlint-config-path: markdownlint.json
                   source-branch: main
 
     linting:
