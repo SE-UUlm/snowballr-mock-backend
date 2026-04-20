@@ -40,7 +40,7 @@
         "@grpc-web/proxy": "^0.1.0",
         "@grpc/grpc-js": "^1.12.5",
         "@protobuf-ts/runtime": "^2.9.5",
-        "@protobuf-ts/runtime-rpc": "^2.9.5",
+        "@protobuf-ts/runtime-rpc": "^2.11.1",
         "cookie": "^1.0.2",
         "grpc-server-reflection": "^0.1.5",
         "pino": "^9.6.0",
