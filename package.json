@@ -23,18 +23,18 @@
     },
     "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
     "devDependencies": {
-        "@eslint/js": "^9.18.0",
+        "@eslint/js": "^10.0.1",
         "@protobuf-ts/plugin": "^2.9.4",
         "@types/seedrandom": "^3.0.8",
         "concurrently": "^9.1.0",
-        "eslint": "^9.18.0",
+        "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.5.0",
         "nodemon": "^3.1.7",
         "prettier": "^3.8.3",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2",
-        "typescript-eslint": "^8.21.0"
+        "typescript-eslint": "^8.58.2"
     },
     "dependencies": {
         "@grpc-web/proxy": "^0.1.0",
