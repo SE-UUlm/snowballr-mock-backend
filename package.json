@@ -24,7 +24,7 @@
     "homepage": "https://github.com/SE-UUlm/snowballr-mock-backend#readme",
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@protobuf-ts/plugin": "^2.9.4",
+        "@protobuf-ts/plugin": "^2.11.1",
         "@types/seedrandom": "^3.0.8",
         "concurrently": "^9.1.0",
         "eslint": "^10.0.2",
