@@ -10,3 +10,7 @@ updates:
       schedule:
           interval: "monthly"
       versioning-strategy: "increase"
+      groups:
+          protobuf-ts:
+              patterns:
+                  - "@protobuf-ts/*"
