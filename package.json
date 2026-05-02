@@ -41,7 +41,7 @@
         "@grpc/grpc-js": "^1.14.3",
         "@protobuf-ts/runtime": "^2.9.5",
         "@protobuf-ts/runtime-rpc": "^2.11.1",
-        "cookie": "^1.0.2",
+        "cookie": "^1.1.1",
         "grpc-server-reflection": "^0.1.5",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
