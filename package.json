@@ -27,7 +27,7 @@
         "@protobuf-ts/plugin": "^2.11.1",
         "@types/seedrandom": "^3.0.8",
         "concurrently": "^9.1.0",
-        "eslint": "^10.0.2",
+        "eslint": "^10.3.0",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.5.0",
         "nodemon": "^3.1.14",
