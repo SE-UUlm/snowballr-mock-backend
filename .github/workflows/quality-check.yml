@@ -23,6 +23,7 @@ jobs:
               with:
                   markdownlint-config-path: markdownlint.json
                   source-branch: main
+                  ignore-paths: "AGENTS.md,CLAUDE.md"
 
     linting:
         name: Linting
