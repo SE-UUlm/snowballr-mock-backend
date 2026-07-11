@@ -52,7 +52,7 @@ export function getTokenPair(metadata: Metadata): TokenPair | undefined {
     let refreshToken = undefined;
 
     for (const header of metadata.get("cookie").reverse()) {
-        const cookies = cookie.parse(header.toString());
+        const cookies = cookie.parseCookie(header.toString());
         accessToken ??= cookies["accessToken"];
         refreshToken ??= cookies["refreshToken"];
     }
