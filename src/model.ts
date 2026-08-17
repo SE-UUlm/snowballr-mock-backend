@@ -31,14 +31,28 @@ export let AVAILABLE_FETCHERS: FetcherInformation[] = [
         name: "Semantic Scholar",
         description: "Semantic Scholar fetcher",
         links: [],
-        optionsSchema: {},
+        optionsSchema: {
+            key: {
+                name: "API Key",
+                description: "The API key for the Semantic Scholar API",
+                isSecret: false,
+                required: false,
+            },
+        },
     },
     {
         id: "ieee",
         name: "IEEEXPlore",
         description: "IEEE fetcher",
         links: [],
-        optionsSchema: {},
+        optionsSchema: {
+            key: {
+                name: "API Key",
+                description: "The API key for the IEEEXPlore API",
+                isSecret: false,
+                required: false,
+            },
+        },
     },
 ];
 // User id => User (with login credentials and password)
