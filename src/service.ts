@@ -1,9 +1,5 @@
 import { sendUnaryData, ServerUnaryCall, status } from "@grpc/grpc-js";
-import {
-    AvailableFetchers,
-    FetcherOptions,
-    GetAvailableFetcherOptionsRequest,
-} from "./grpc-gen/fetcher";
+import { AvailableFetchers } from "./grpc-gen/fetcher";
 import { ISnowballR } from "./grpc-gen/main.grpc-server";
 import { Blob, BoolValue, Email, Id, Nothing } from "./grpc-gen/base";
 import {
@@ -14,6 +10,7 @@ import {
     PasswordResetRequest,
     RegisterRequest,
     RequestPasswordResetRequest,
+    VerifyEmailRequest,
 } from "./grpc-gen/authentication";
 import { User, User_List, User_Update, UserRole, UserStatus } from "./grpc-gen/user";
 import {
@@ -27,6 +24,7 @@ import {
     Project_Information_Get,
     Project_InviteCandidatesRequest,
     Project_List,
+    Project_Member_Accept,
     Project_Member_Invite,
     Project_Member_List,
     Project_Member_Remove,
@@ -35,6 +33,7 @@ import {
     Project_Paper_Add,
     Project_Paper_Get,
     Project_Paper_List,
+    Project_Paper_SearchQuery,
     Project_Paper_Update,
     Project_Update,
     ProjectStatus,
@@ -42,7 +41,7 @@ import {
 } from "./grpc-gen/project";
 import { UserSettings, UserSettings_Update } from "./grpc-gen/user_settings";
 import { Paper, Paper_List, Paper_PdfUpdate, Paper_Update } from "./grpc-gen/paper";
-import { ExportRequest } from "./grpc-gen/export";
+import { AvailableExportFormatsResponse, ExportRequest, ExportResponse } from "./grpc-gen/export";
 import {
     Criterion,
     Criterion_Create,
@@ -51,7 +50,6 @@ import {
 } from "./grpc-gen/criterion";
 import { Review, Review_Create, Review_List, Review_Update } from "./grpc-gen/review";
 import {
-    AVAILABLE_FETCHER_OPTIONS,
     AVAILABLE_FETCHERS,
     CRITERIA,
     INVITATIONS,
@@ -66,6 +64,7 @@ import {
     PROJECTS,
     READING_LISTS,
     REVIEWS,
+    ServerUser,
     TokenPair,
     USER_SETTINGS,
     USERS,
@@ -91,7 +90,7 @@ export const snowballRService: ISnowballR = {
         _: ServerUnaryCall<Nothing, AvailableFetchers>,
         callback: sendUnaryData<AvailableFetchers>,
     ): void {
-        callback(null, { fetcherNames: AVAILABLE_FETCHERS });
+        callback(null, { fetchers: AVAILABLE_FETCHERS });
     },
     register: function (
         call: ServerUnaryCall<RegisterRequest, Nothing>,
@@ -511,7 +510,8 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const invitationsOfUser = INVITATIONS.get(id) ?? [];
+        const user = USERS.get(id)!;
+        const invitationsOfUser = INVITATIONS.get(user.email) ?? [];
 
         callback(null, {
             projects: invitationsOfUser
@@ -576,28 +576,36 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
-        const userIdsInvitedInThisProject: string[] = [];
-        for (const [user, projects] of INVITATIONS) {
+        const userEmailsInvitedInThisProject: string[] = [];
+        for (const [userEmail, projects] of INVITATIONS) {
             if (projects.includes(id)) {
-                userIdsInvitedInThisProject.push(user);
+                userEmailsInvitedInThisProject.push(userEmail);
             }
         }
 
-        const invitedUsers = userIdsInvitedInThisProject.map((userId) => {
-            const existingUser = USERS.get(userId);
-            if (existingUser) {
-                return existingUser;
+        const invitedUsers: ServerUser[] = [];
+        USERS.forEach((user, email) => {
+            if (userEmailsInvitedInThisProject.includes(email)) {
+                invitedUsers.push(user);
+            }
+        });
+
+        const users = userEmailsInvitedInThisProject.map((userEmail) => {
+            const existingUsers = invitedUsers.filter((user) => user.email === userEmail);
+
+            if (existingUsers.length === 1) {
+                return existingUsers[0];
             } else {
                 return User.create({
-                    id: userId,
-                    email: userId,
-                    firstName: userId,
+                    id: userEmail,
+                    email: userEmail,
+                    firstName: userEmail,
                 });
             }
         });
 
         callback(null, {
-            users: invitedUsers,
+            users: users,
         });
     },
     getProjectMembers: function (
@@ -622,7 +630,7 @@ export const snowballRService: ISnowballR = {
         call: ServerUnaryCall<Project_Member_Remove, Nothing>,
         callback: sendUnaryData<Nothing>,
     ): void {
-        const { projectId, userId } = call.request;
+        const { projectId, userEmail } = call.request;
 
         if (!PROJECTS.has(projectId)) {
             callback({
@@ -642,20 +650,20 @@ export const snowballRService: ISnowballR = {
 
         // First, check whether the user is a member of the given project
         const projectMembers = MEMBERS.get(projectId)!;
-        if (projectMembers.some((member) => member.user?.id == userId)) {
+        if (projectMembers.some((member) => member.user?.email == userEmail)) {
             MEMBERS.set(
                 projectId,
-                MEMBERS.get(projectId)!.filter((p) => p.user?.id != userId),
+                MEMBERS.get(projectId)!.filter((p) => p.user?.email != userEmail),
             );
             callback(null, {});
             return;
         }
 
         // If not, check whether the user is invited to this project
-        const invitations = INVITATIONS.get(userId) ?? [];
+        const invitations = INVITATIONS.get(userEmail) ?? [];
         if (invitations.includes(projectId)) {
             INVITATIONS.set(
-                userId,
+                userEmail,
                 invitations.filter((p) => p != projectId),
             );
             callback(null, {});
@@ -832,8 +840,8 @@ export const snowballRService: ISnowballR = {
         callback(null, PROJECTS.get(project.id));
     },
     exportProject: function (
-        _: ServerUnaryCall<ExportRequest, Blob>,
-        callback: sendUnaryData<Blob>,
+        _: ServerUnaryCall<ExportRequest, ExportResponse>,
+        callback: sendUnaryData<ExportResponse>,
     ): void {
         // TODO
         callback({
@@ -1540,21 +1548,34 @@ export const snowballRService: ISnowballR = {
         });
         return;
     },
-    getAvailableFetcherOptions: function (
-        call: ServerUnaryCall<GetAvailableFetcherOptionsRequest, FetcherOptions>,
-        callback: sendUnaryData<FetcherOptions>,
+    verifyEmail: function (
+        _: ServerUnaryCall<VerifyEmailRequest, Nothing>,
+        callback: sendUnaryData<Nothing>,
     ): void {
-        const fetcher = call.request.fetcherName;
-        if (!AVAILABLE_FETCHER_OPTIONS.has(fetcher)) {
-            callback({
-                code: status.NOT_FOUND,
-                message: "Fetcher with the given name was not found",
-            });
-            return;
-        }
-
-        callback(null, {
-            options: Object.fromEntries(AVAILABLE_FETCHER_OPTIONS.get(fetcher)!),
-        });
+        callback(null, {});
+    },
+    acceptProjectInvitation: function (
+        _: ServerUnaryCall<Project_Member_Accept, Nothing>,
+        callback: sendUnaryData<Nothing>,
+    ): void {
+        callback(null, {});
+    },
+    getAvailableExportFormats: function (
+        _: ServerUnaryCall<Nothing, AvailableExportFormatsResponse>,
+        callback: sendUnaryData<AvailableExportFormatsResponse>,
+    ): void {
+        callback(null, { formats: ["JSON"] });
+    },
+    searchLocalProjectPaperCandidates: function (
+        _: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
+        callback: sendUnaryData<Paper_List>,
+    ): void {
+        callback(null, { papers: [] });
+    },
+    searchFetcherProjectPaperCandidates: function (
+        _: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
+        callback: sendUnaryData<Paper_List>,
+    ): void {
+        callback(null, { papers: [] });
     },
 };

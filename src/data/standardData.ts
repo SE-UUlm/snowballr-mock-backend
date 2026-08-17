@@ -14,12 +14,12 @@ import {
 } from "../grpc-gen/project";
 import { Review, ReviewDecision } from "../grpc-gen/review";
 import { Criterion, CriterionCategory } from "../grpc-gen/criterion";
-import { Author, Paper } from "../grpc-gen/paper";
+import { Author, Paper, Paper_ExternalId } from "../grpc-gen/paper";
 import { getRandomItems, random } from "../random";
 import { UserSettings } from "../grpc-gen/user_settings";
 import assert from "node:assert";
 import { makeReviewDecisionMatrixPattern } from "../util";
-import { FetcherOptions } from "../grpc-gen/fetcher";
+import { FetcherInformation, FetcherOptions, FetcherOptionSchema } from "../grpc-gen/fetcher";
 
 const NUMBER_OF_REVIEWS = 200;
 
@@ -206,6 +206,27 @@ const AVAILABLE_FETCHER_OPTIONS: [string, string][] = [
     ["SLOWDOWN_REQUESTS", "NO"],
     ["LOGLEVEL", "INFO"],
 ];
+
+const AVAILABLE_FETCHERS_INFO: FetcherInformation[] = AVAILABLE_FETCHERS.map((name) => ({
+    id: name,
+    name: name,
+    description: `${name} fetcher`,
+    links: [],
+    optionsSchema: Object.fromEntries(
+        AVAILABLE_FETCHER_OPTIONS.map(
+            ([optionName, defaultValue]): [string, FetcherOptionSchema] => [
+                optionName,
+                {
+                    name: optionName,
+                    description: "",
+                    required: false,
+                    isSecret: optionName === "API_KEY",
+                    defaultValue,
+                },
+            ],
+        ),
+    ),
+}));
 
 const PATTERN_2: ReviewDecisionMatrix_Pattern[] = [
     makeReviewDecisionMatrixPattern(2, 0, 0, PaperDecision.ACCEPTED),
@@ -469,26 +490,26 @@ const CRITERIA: Criterion[] = [
 ];
 
 const AUTHORS: Author[] = [
-    { firstName: "John", lastName: "Doe", orcid: "0000-0002-1825-0097" },
-    { firstName: "Alice", lastName: "Smith", orcid: "0000-0003-1415-9267" },
-    { firstName: "Bob", lastName: "Johnson", orcid: "0000-0001-2345-6789" },
-    { firstName: "Catherine", lastName: "Williams", orcid: "0000-0002-9876-5432" },
-    { firstName: "David", lastName: "Brown", orcid: "0000-0001-5567-1234" },
-    { firstName: "Eve", lastName: "Jones", orcid: "0000-0003-5647-8901" },
-    { firstName: "Frank", lastName: "Miller", orcid: "0000-0002-2345-6789" },
-    { firstName: "Grace", lastName: "Davis", orcid: "0000-0001-3456-7890" },
-    { firstName: "Henry", lastName: "Garcia", orcid: "0000-0002-5432-1098" },
-    { firstName: "Ivy", lastName: "Martinez", orcid: "0000-0003-8765-4321" },
-    { firstName: "Jack", lastName: "Hernandez", orcid: "0000-0001-8765-4321" },
-    { firstName: "Kathy", lastName: "Lopez", orcid: "0000-0002-7654-3210" },
-    { firstName: "Luis", lastName: "Gonzalez", orcid: "0000-0003-8765-2109" },
-    { firstName: "Mia", lastName: "Wilson", orcid: "0000-0001-6543-2109" },
-    { firstName: "Noah", lastName: "Anderson", orcid: "0000-0002-6543-0987" },
-    { firstName: "Olivia", lastName: "Thomas", orcid: "0000-0001-5432-1098" },
-    { firstName: "Paul", lastName: "Taylor", orcid: "0000-0003-5432-1098" },
-    { firstName: "Quincy", lastName: "Moore", orcid: "0000-0001-4321-0987" },
-    { firstName: "Rachel", lastName: "Jackson", orcid: "0000-0002-4321-9876" },
-    { firstName: "Sam", lastName: "White", orcid: "0000-0003-3210-9876" },
+    { firstName: "John", lastName: "Doe" },
+    { firstName: "Alice", lastName: "Smith" },
+    { firstName: "Bob", lastName: "Johnson" },
+    { firstName: "Catherine", lastName: "Williams" },
+    { firstName: "David", lastName: "Brown" },
+    { firstName: "Eve", lastName: "Jones" },
+    { firstName: "Frank", lastName: "Miller" },
+    { firstName: "Grace", lastName: "Davis" },
+    { firstName: "Henry", lastName: "Garcia" },
+    { firstName: "Ivy", lastName: "Martinez" },
+    { firstName: "Jack", lastName: "Hernandez" },
+    { firstName: "Kathy", lastName: "Lopez" },
+    { firstName: "Luis", lastName: "Gonzalez" },
+    { firstName: "Mia", lastName: "Wilson" },
+    { firstName: "Noah", lastName: "Anderson" },
+    { firstName: "Olivia", lastName: "Thomas" },
+    { firstName: "Paul", lastName: "Taylor" },
+    { firstName: "Quincy", lastName: "Moore" },
+    { firstName: "Rachel", lastName: "Jackson" },
+    { firstName: "Sam", lastName: "White" },
 ];
 
 const PAPER_TITLES = [
@@ -537,51 +558,55 @@ const PAPER_TITLES = [
     "Wearable Technology: Health Monitoring and Beyond",
     "The Promise and Perils of Autonomous Systems",
 ];
-const PAPER_DOIS = [
-    "10.1234/abcd.5678",
-    "",
-    "10.2345/xyz.9876",
-    "10.5432/lmn.1234",
-    "",
-    "10.6789/pqr.4321",
-    "",
-    "10.2468/uvw.1357",
-    "",
-    "10.3456/stu.7689",
-    "10.1111/abc.1234",
-    "",
-    "10.3457/xyz.9876",
-    "",
-    "10.2345/abc.1234",
-    "",
-    "10.4568/xyz.4567",
-    "",
-    "",
-    "10.6547/xyz.2345",
-    "",
-    "10.9876/abc.3456",
-    "",
-    "10.1122/xyz.5678",
-    "",
-    "10.3459/pqr.3456",
-    "",
-    "10.0987/xyz.6543",
-    "",
-    "10.6723/xyz.1290",
-    "",
-    "10.9875/abc.6543",
-    "",
-    "10.5468/xyz.2347",
-    "",
-    "10.7852/abc.1234",
-    "",
-    "10.8976/xyz.5678",
-    "",
-    "10.5627/abc.3124",
-    "",
-    "10.4312/abc.2111",
-    "",
-    "10.7589/xyz.7777",
+function doi(value: string): Paper_ExternalId[] {
+    return [{ type: "doi", displayType: "DOI", value }];
+}
+
+const PAPER_DOIS: Paper_ExternalId[][] = [
+    doi("10.1234/abcd.5678"),
+    [],
+    doi("10.2345/xyz.9876"),
+    doi("10.5432/lmn.1234"),
+    [],
+    doi("10.6789/pqr.4321"),
+    [],
+    doi("10.2468/uvw.1357"),
+    [],
+    doi("10.3456/stu.7689"),
+    doi("10.1111/abc.1234"),
+    [],
+    doi("10.3457/xyz.9876"),
+    [],
+    doi("10.2345/abc.1234"),
+    [],
+    doi("10.4568/xyz.4567"),
+    [],
+    [],
+    doi("10.6547/xyz.2345"),
+    [],
+    doi("10.9876/abc.3456"),
+    [],
+    doi("10.1122/xyz.5678"),
+    [],
+    doi("10.3459/pqr.3456"),
+    [],
+    doi("10.0987/xyz.6543"),
+    [],
+    doi("10.6723/xyz.1290"),
+    [],
+    doi("10.9875/abc.6543"),
+    [],
+    doi("10.5468/xyz.2347"),
+    [],
+    doi("10.7852/abc.1234"),
+    [],
+    doi("10.8976/xyz.5678"),
+    [],
+    doi("10.5627/abc.3124"),
+    [],
+    doi("10.4312/abc.2111"),
+    [],
+    doi("10.7589/xyz.7777"),
 ];
 
 const PAPER_ABSTRACTS = [
@@ -722,7 +747,8 @@ assert(PAPER_IDS.length >= 10, "There must be must at least paper (titles).");
 for (const [index, paperTitle] of PAPER_TITLES.entries()) {
     papers.push({
         id: `${index}`,
-        externalId: PAPER_DOIS[index],
+        externalIds: PAPER_DOIS[index],
+        fetcherMetadata: {},
         title: paperTitle,
         abstrakt: PAPER_ABSTRACTS[index],
         year: getRandomItems(YEARS)[0],
@@ -819,13 +845,7 @@ for (const [index, paper] of papers.entries()) {
 }
 
 export const exampleData: ExampleData = {
-    availableFetchers: AVAILABLE_FETCHERS,
-    availableFetcherOptions: new Map(
-        AVAILABLE_FETCHERS.map((it) => [
-            it,
-            getRandomItems(AVAILABLE_FETCHER_OPTIONS, 0, AVAILABLE_FETCHER_OPTIONS.length),
-        ]),
-    ),
+    availableFetchers: AVAILABLE_FETCHERS_INFO,
     users: USERS,
     readingLists: readingLists,
     userSettings: userSettings,
