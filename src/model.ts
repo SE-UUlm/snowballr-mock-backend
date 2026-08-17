@@ -27,16 +27,16 @@ export type ServerProjectPaper = Omit<Project_Paper, "reviews">;
 /* Maps storing all data of the mock backend and simulating a "database" */
 export let AVAILABLE_FETCHERS: FetcherInformation[] = [
     {
-        id: "test",
-        name: "Test",
-        description: "Test fetcher",
+        id: "s2",
+        name: "Semantic Scholar",
+        description: "Semantic Scholar fetcher",
         links: [],
         optionsSchema: {},
     },
     {
-        id: "test2",
-        name: "Test",
-        description: "Test fetcher 2",
+        id: "ieee",
+        name: "IEEEXPlore",
+        description: "IEEE fetcher",
         links: [],
         optionsSchema: {},
     },
