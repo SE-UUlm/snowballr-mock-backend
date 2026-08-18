@@ -435,6 +435,13 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
+        // mergePartial() only adds/overwrites map entries, it never removes entries that are
+        // missing from the update (see reflectionMergePartial's map-field handling). A mask that
+        // targets the whole fetchers map is meant to replace it, so it must be cleared first.
+        if (mask?.paths.includes("user_settings.default_project_settings.fetchers")) {
+            currentSettings.defaultProjectSettings!.fetchers = {};
+        }
+
         UserSettings.mergePartial(
             currentSettings,
             updatedUserSettings as PartialMessage<UserSettings>,
