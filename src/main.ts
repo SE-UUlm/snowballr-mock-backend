@@ -6,8 +6,9 @@ import { LOGGING_INTERCEPTOR } from "./interceptors/logging-interceptor";
 import { addReflection } from "grpc-server-reflection";
 import * as path from "path";
 import proxy from "@grpc-web/proxy";
-import { loadExampleData, USERS } from "./model";
+import { loadExampleData, READING_LISTS, USER_SETTINGS, USERS } from "./model";
 import { UserRole, UserStatus } from "./grpc-gen/user";
+import { SnowballingType } from "./grpc-gen/project";
 import { DELAYING_INTERCEPTOR } from "./interceptors/delaying-interceptor";
 import { logger } from "./logger";
 import {
@@ -65,6 +66,21 @@ if (ENABLE_DUMMY_ADMIN) {
         accessToken: "admin",
         refreshToken: "admin",
     });
+    USER_SETTINGS.set("admin@example.com", {
+        showHotkeys: false,
+        reviewMode: false,
+        defaultCriteria: {
+            criteria: [],
+        },
+        defaultProjectSettings: {
+            similarityThreshold: 0.5,
+            decisionMatrix: undefined,
+            fetchers: {},
+            snowballingType: SnowballingType.BOTH,
+            reviewMaybeAllowed: true,
+        },
+    });
+    READING_LISTS.set("admin@example.com", []);
     logger.info(USERS.get("admin@example.com"), "The dummy admin user");
 }
 
