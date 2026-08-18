@@ -762,8 +762,8 @@ export const snowballRService: ISnowballR = {
             status: ProjectStatus.ACTIVE,
             currentStage: 0n,
             maxStage: 0n,
-            ...USER_SETTINGS.get(user.id)?.defaultProjectSettings,
-        });
+            settings: USER_SETTINGS.get(user.id)?.defaultProjectSettings,
+        } satisfies Project);
         MEMBERS.set(id, [
             {
                 role: MemberRole.ADMIN,
