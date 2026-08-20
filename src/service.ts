@@ -768,10 +768,10 @@ export const snowballRService: ISnowballR = {
             maxStage: 0n,
             settings: {
                 similarityThreshold: defaultSettings?.similarityThreshold ?? 0.85,
-                fetchers: defaultSettings?.fetchers ?? {},
+                fetchers: { ...(defaultSettings?.fetchers ?? {}) },
                 decisionMatrix: {
                     numberOfReviewers: defaultSettings?.decisionMatrix?.numberOfReviewers ?? 2,
-                    patterns: defaultSettings?.decisionMatrix?.patterns ?? [],
+                    patterns: [...(defaultSettings?.decisionMatrix?.patterns ?? [])],
                 },
                 snowballingType: defaultSettings?.snowballingType ?? SnowballingType.BOTH,
                 reviewMaybeAllowed: defaultSettings?.reviewMaybeAllowed ?? false,
