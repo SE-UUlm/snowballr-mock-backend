@@ -73,12 +73,15 @@ import {
     addProjectPaperReviews,
     anythingUndefined,
     findFirst,
+    generateFetcherPapers,
     generateUpdateObject,
     getAuthenticated,
     getNextId,
+    getPaperIdsOfProject,
     getProjectPaperData,
     isEmpty,
     makeResponseAuthMetadata,
+    paperMatchesQuery,
     toUser,
 } from "./util";
 import { randomToken } from "./random";
@@ -1574,15 +1577,71 @@ export const snowballRService: ISnowballR = {
         callback(null, { formats: ["JSON"] });
     },
     searchLocalProjectPaperCandidates: function (
-        _: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
+        call: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
         callback: sendUnaryData<Paper_List>,
     ): void {
-        callback(null, { papers: [] });
+        const { projectId, query } = call.request;
+
+        if (isEmpty(query)) {
+            callback({
+                code: status.INVALID_ARGUMENT,
+                message: "The search query must not be blank",
+            });
+            return;
+        }
+        if (!PROJECTS.has(projectId)) {
+            callback({
+                code: status.NOT_FOUND,
+                message: "Project with the given id was not found",
+            });
+            return;
+        }
+
+        // only papers that are not part of the project yet are candidates
+        const paperIdsOfProject = getPaperIdsOfProject(projectId);
+        callback(null, {
+            papers: Array.from(PAPERS.values()).filter(
+                (paper) => !paperIdsOfProject.has(paper.id) && paperMatchesQuery(paper, query),
+            ),
+        });
     },
     searchFetcherProjectPaperCandidates: function (
-        _: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
+        call: ServerUnaryCall<Project_Paper_SearchQuery, Paper_List>,
         callback: sendUnaryData<Paper_List>,
     ): void {
-        callback(null, { papers: [] });
+        const { projectId, query } = call.request;
+
+        if (isEmpty(query)) {
+            callback({
+                code: status.INVALID_ARGUMENT,
+                message: "The search query must not be blank",
+            });
+            return;
+        }
+        const project = PROJECTS.get(projectId);
+        if (project === undefined) {
+            callback({
+                code: status.NOT_FOUND,
+                message: "Project with the given id was not found",
+            });
+            return;
+        }
+
+        // the fetchers configured for the project are used, if there are none, all available
+        // fetchers are asked
+        const fetcherIds = Object.keys(project.settings?.fetchers ?? {});
+        const fetchers = AVAILABLE_FETCHERS.filter(
+            (fetcher) => fetcherIds.length == 0 || fetcherIds.includes(fetcher.id),
+        );
+
+        const paperIdsOfProject = getPaperIdsOfProject(projectId);
+        // papers found by the fetchers that are already known locally keep their id, ...
+        const knownPapers = Array.from(PAPERS.values()).filter(
+            (paper) => !paperIdsOfProject.has(paper.id) && paperMatchesQuery(paper, query),
+        );
+        // ... while papers that only the fetchers know about have an empty one
+        const newPapers = fetchers.flatMap((fetcher) => generateFetcherPapers(query, fetcher));
+
+        callback(null, { papers: [...knownPapers, ...newPapers] });
     },
 };

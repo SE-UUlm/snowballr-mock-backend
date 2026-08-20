@@ -18,6 +18,9 @@ import * as cookie from "cookie";
 import { Id } from "./grpc-gen/base";
 import { FieldMask } from "./grpc-gen/google/protobuf/field_mask";
 import { applyFieldMask, WithFieldMask } from "protobuf-fieldmask";
+import { Paper } from "./grpc-gen/paper";
+import { FetcherInformation } from "./grpc-gen/fetcher";
+import { FETCHER_PAPER_AUTHORS, FETCHER_PAPER_TITLE_TEMPLATES } from "./constants";
 
 /**
  * Checks whether a string is empty
@@ -290,4 +293,79 @@ export function generateUpdateObject<T>(
     }
 
     return updatedObject;
+}
+
+/**
+ * Checks whether a paper matches a search query. The query is matched case-insensitively against
+ * the title, abstract, publication name, publisher, publication type, the names of the authors and
+ * the external ids of the paper.
+ *
+ * @param paper the paper to match against the query
+ * @param query the search query
+ * @return true, if the paper matches the query, otherwise false
+ */
+export function paperMatchesQuery(paper: Paper, query: string): boolean {
+    const searchTerm = query.trim().toLowerCase();
+    return [
+        paper.title,
+        paper.abstrakt,
+        paper.publicationName,
+        paper.publisher,
+        paper.publicationType,
+        ...paper.authors.map((author) => `${author.firstName} ${author.lastName}`),
+        ...paper.externalIds.map((externalId) => externalId.value),
+    ].some((attribute) => attribute.toLowerCase().includes(searchTerm));
+}
+
+/**
+ * Collects the ids of all papers that are already added to the given project.
+ *
+ * @param projectId the id of the project
+ * @return the set of ids of the papers of the project
+ */
+export function getPaperIdsOfProject(projectId: string): Set<string> {
+    return new Set(
+        (PROJECT_PROJECT_PAPERS.get(projectId) ?? [])
+            .map((projectPaperId) => PROJECT_PAPERS.get(projectPaperId)?.paper?.id)
+            .filter((paperId) => paperId !== undefined),
+    );
+}
+
+/**
+ * Generates papers that are "found" by the given fetcher, but do not exist in the local database.
+ * As required by the API contract, these papers have an empty `id`, so the client is able to
+ * create them before adding them to a project.
+ *
+ * The generated papers only depend on the query and the fetcher, so searching twice for the same
+ * query yields the same results.
+ *
+ * @param query the search query the papers are generated for
+ * @param fetcher the fetcher the papers are pretended to be found by
+ * @return the list of generated papers
+ */
+export function generateFetcherPapers(query: string, fetcher: FetcherInformation): Paper[] {
+    return FETCHER_PAPER_TITLE_TEMPLATES.map((template, index) => ({
+        // papers that are not part of the local database have no id
+        id: "",
+        title: template.replace("$QUERY", query.trim()),
+        abstrakt: `This paper was found by the ${fetcher.name} fetcher searching for "${query.trim()}". It does not exist in the local database yet.`,
+        year: 2020 + (index % 5),
+        publisher: fetcher.name,
+        publicationName: `Proceedings of ${fetcher.name}`,
+        publicationType: "Conference Paper",
+        hasPdf: index % 2 == 0,
+        authors: [
+            FETCHER_PAPER_AUTHORS[index % FETCHER_PAPER_AUTHORS.length],
+            FETCHER_PAPER_AUTHORS[(index + 1) % FETCHER_PAPER_AUTHORS.length],
+        ],
+        backwardReferencedIds: [],
+        fetcherMetadata: { fetcherId: fetcher.id },
+        externalIds: [
+            {
+                type: "doi",
+                displayType: "DOI",
+                value: `10.9999/${fetcher.id}.${index}`,
+            },
+        ],
+    }));
 }
