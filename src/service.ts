@@ -759,13 +759,23 @@ export const snowballRService: ISnowballR = {
         const user = getAuthenticated(call.metadata)!;
         const { name } = call.request;
         const id = getNextId(PROJECTS);
+        const defaultSettings = USER_SETTINGS.get(user.id)?.defaultProjectSettings;
         PROJECTS.set(id, {
             id: id,
             name: name,
             status: ProjectStatus.ACTIVE,
             currentStage: 0n,
             maxStage: 0n,
-            settings: USER_SETTINGS.get(user.id)?.defaultProjectSettings,
+            settings: {
+                similarityThreshold: defaultSettings?.similarityThreshold ?? 0.85,
+                fetchers: defaultSettings?.fetchers ?? {},
+                decisionMatrix: {
+                    numberOfReviewers: defaultSettings?.decisionMatrix?.numberOfReviewers ?? 2,
+                    patterns: defaultSettings?.decisionMatrix?.patterns ?? [],
+                },
+                snowballingType: defaultSettings?.snowballingType ?? SnowballingType.BOTH,
+                reviewMaybeAllowed: defaultSettings?.reviewMaybeAllowed ?? false,
+            },
         } satisfies Project);
         MEMBERS.set(id, [
             {
