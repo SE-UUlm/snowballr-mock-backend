@@ -34,7 +34,7 @@
         "prettier": "^3.9.6",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.62.1"
+        "typescript-eslint": "^8.68.0"
     },
     "dependencies": {
         "@grpc-web/proxy": "^0.1.0",
