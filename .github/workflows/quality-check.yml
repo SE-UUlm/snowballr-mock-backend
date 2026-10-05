@@ -23,6 +23,7 @@ jobs:
               with:
                   markdownlint-config-path: markdownlint.json
                   source-branch: main
+                  ignore-links: "https://deepwiki.com/SE-UUlm/snowballr-mock-backend"
                   ignore-paths: "AGENTS.md,CLAUDE.md"
 
     linting:
