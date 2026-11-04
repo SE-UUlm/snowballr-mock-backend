@@ -64,6 +64,7 @@ import {
     PROJECTS,
     READING_LISTS,
     REVIEWS,
+    ServerProjectPaper,
     ServerUser,
     TokenPair,
     USER_SETTINGS,
@@ -1112,11 +1113,16 @@ export const snowballRService: ISnowballR = {
             return;
         }
 
+        // Reviews are stored separately, so the stored project paper has no `reviews` field, which
+        // `mergePartial` requires. Merge into a full copy and store the result without the reviews.
+        const mergedProjectPaper: Project_Paper = { ...currentProjectPaper, reviews: [] };
         Project_Paper.mergePartial(
-            { ...currentProjectPaper, reviews: [] },
+            mergedProjectPaper,
             updatedProjectPaper as PartialMessage<Project_Paper>,
         );
-        PROJECT_PAPERS.set(projectPaper.id, currentProjectPaper);
+        const serverProjectPaper: Partial<Project_Paper> = mergedProjectPaper;
+        delete serverProjectPaper.reviews;
+        PROJECT_PAPERS.set(projectPaper.id, serverProjectPaper as ServerProjectPaper);
 
         callback(null, addProjectPaperReviews(PROJECT_PAPERS.get(projectPaper.id)!));
     },
